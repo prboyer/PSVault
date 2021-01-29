@@ -1,4 +1,4 @@
-function Change-O365ServicingChannel {
+function Set-O365ServicingChannel {
     <#
     .SYNOPSIS
     A quick and handy script for modifying the Windows Registry to switch the Office 365 servicing channel. 
@@ -13,6 +13,9 @@ function Change-O365ServicingChannel {
     
     .EXAMPLE
     Change-O365ServicingChannel -Monthly
+    
+    .LINK
+    https://docs.microsoft.com/en-us/deployoffice/overview-update-channels
     
     .LINK
     https://www.solver.com/switching-office-365-monthly-update-channel
