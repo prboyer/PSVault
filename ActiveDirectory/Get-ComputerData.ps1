@@ -37,7 +37,7 @@ function Get-ComputerData{
     [CmdletBinding()]
     param (
         [Parameter(Mandatory=$true)]
-        [ValidateNotNullOrEmpty]
+        [ValidateLength(1,100)]
         [String]
         $ComputerName,
         [Parameter]
