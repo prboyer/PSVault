@@ -1,4 +1,4 @@
 # PowerShell Vault
 A Refined Collection of PowerShell Scripts
 
-![Adding an Image to the Vault](ps_vault.png)
+<img src="ps_vault.svg" alt="Logo for PSVault" width="400" height="400">
