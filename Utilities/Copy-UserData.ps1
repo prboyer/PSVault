@@ -1,11 +1,42 @@
 ﻿function Copy-LocalUserProfile {
+<#
+.SYNOPSIS
+A custom cmdlet for quickly copying the contents of a user's profile to another location using ROBOCOPY. 
 
+.DESCRIPTION
+Long description
 
+.PARAMETER SourcePath
+Parameter description
 
-#A custom cmdlet for quickly copying the contents of a user's profile to another location. 
+.PARAMETER TargetPath
+Parameter description
 
-#Paul Boyer, 11-17-2020
+.PARAMETER LogFile
+Parameter description
 
+.PARAMETER WaitDelay
+Parameter description
+
+.PARAMETER NoRetry
+Parameter description
+
+.PARAMETER RobocopyArguments
+Parameter description
+
+.PARAMETER ExcludeDirs
+Parameter description
+
+.PARAMETER ExcludeFiles
+Parameter description
+
+.EXAMPLE
+An example
+
+.NOTES
+Paul Boyer, 11-17-2020
+
+#>
     param (
         [Parameter(Mandatory = $true)]
         [String]
