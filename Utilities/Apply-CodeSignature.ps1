@@ -38,4 +38,4 @@ function Apply-CodeSignature {
     Set-AuthenticodeSignature $FilePath $cert
 }
 
-Apply-CodeSignature -FilePath $args[0]
+#Apply-CodeSignature -FilePath $args[0]
