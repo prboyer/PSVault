@@ -12,8 +12,8 @@ Locale: en-US
 
 ## PSVault-ActiveDirectory Cmdlets
 ### [Get-ComputerData](Get-ComputerData.md)
-{{ Fill in the Description }}
+Cmdlet to quickly return information about a AD-joined computer
 
 ### [Import-ADGroupMembers](Import-ADGroupMembers.md)
-{{ Fill in the Description }}
+Script that adds users to an AD Security group from a list of names (ln, fn mi) in text file
 

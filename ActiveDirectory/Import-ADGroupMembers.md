@@ -1,7 +1,7 @@
 ---
 Author: Paul Boyer
 external help file: PSVault-ActiveDirectory-help.xml
-Module Guid: 00488d33-0fe9-4caa-bcf3-a0aa27704528
+Module Guid: 18f15d31-8ea0-4a67-bb67-09c9554871ae
 Module Name: PSVault-ActiveDirectory
 online version:
 schema: 2.0.0
@@ -16,7 +16,7 @@ Script that adds users to an AD Security group from a list of names (ln, fn mi) 
 
 ```
 Import-ADGroupMembers [[-TextFilePath] <String>] [[-Group] <ADGroup>] [[-GroupName] <String>]
- [[-LogPath] <String>]
+ [[-LogPath] <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -97,6 +97,9 @@ Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
