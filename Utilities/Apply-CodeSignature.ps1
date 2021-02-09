@@ -11,10 +11,10 @@ function Apply-CodeSignature {
     FilePath to the file that will be digitally signed with the code signing certificate. Note that the parameter is positionally bound and does not need to be called explicitly.
     
     .EXAMPLE
-    Apply-CodeSignature -FilePath <path to file>
+    Apply-CodeSignature -FilePath "path to file"
 
     .EXAMPLE
-    Apply-CodeSignature <path to file>
+    Apply-CodeSignature "path to file"
     
     .LINK
     https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_signing?view=powershell-7.1
