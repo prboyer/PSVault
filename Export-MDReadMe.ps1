@@ -1,34 +1,79 @@
 function Export-MDReadMe {
-    # param (
-    #     OptionalParameters
-    # )
+    [CmdletBinding()]
+    param (
+        [Parameter()]
+        [String]
+        $ModuleDir,
+        [String]
+        $OutputDir,
+        [switch]
+        $Concat
+    )
     
     #######################
-    Import-Module platyPS
+    # Assign parameter to working variable in the script
+    [String]$Path = $ModuleDir
 
-    $Path = "C:\Users\pboyer2\OneDrive - UW-Madison\Documents\Scripts\PSVault\Utilities"
+    # Move the scripts to their own folder
+    New-Item -Path $Path -Name "Scripts" -ItemType Directory -Force
+    Get-ChildItem -Path $Path -Filter "*.ps1" | Move-Item -Destination "$Path\Scripts"
 
+    $Path = "$Path\Scripts"
+
+    # Get all the PS1 files in the directory
     $files = Get-ChildItem -Path $Path -Filter "*.ps1"
 
-    $files | %{
-        Get-Content -Path $_.FullName | Out-File -FilePath $Path\Test-Module.psm1 -Append -Force
+    # Append the contents of all the PS1 files into a PSM1 module file
+    if ($Concat) {
+        $files | %{
+            Get-Content -Path $_.FullName | Out-File -FilePath "$ModuleDir\PSVault-$(Split-Path -Path $Path -Leaf).psm1" -Append -Force
+        }
+    }else {
+        # Dot source all the PS1 files in a PSM1 module file
+        $files | %{
+            [string]$(". `"$Path\"+$_.Name+"`"") | Out-File -FilePath "$ModuleDir\PSVault-$(Split-Path -Path $Path -Leaf).psm1" -Append -Force 
+        }
     }
 
-    Import-Module -Name $Path\$(Get-ChildItem -Path $Path -Filter "*.psm1") -Force
+    # Get the full path to the newly created module
+    [String]$moduleFullName = $(Get-ChildItem -Path $ModuleDir -Filter "*.psm1").FullName
 
-    $OutputFolder = "$PSScriptRoot\Utilities"
-    $parameters = @{
-        Module = "Test-Module"
+    # Get the module name
+    [String]$moduleName = $(Get-ChildItem -Path $ModuleDir -Filter "*.psm1").Name
+   
+    Import-Module -Name $moduleFullName -DisableNameChecking -Force
+
+    # Import the markdown generation module, platyPS
+    Import-Module platyPS
+
+    if ($OutputDir -ne "") {
+        [String]$OutputFolder = $OutputDir
+    }else {
+        [String]$OutputFolder = $ModuleDir
+    }
+    
+    
+    $CreateMDParameters = @{
+        Module = $moduleName.Remove($moduleName.Length-5,5)
         OutputFolder = $OutputFolder
         AlphabeticParamsOrder = $true
-        WithModulePage = $true
+        WithModulePage = $false
         ExcludeDontShow = $true
-        #Encoding = 'UTF8BOM'
     }
-    New-MarkdownHelp @parameters
+    New-MarkdownHelp @CreateMDParameters
 
-    #New-MarkdownAboutHelp -OutputFolder $OutputFolder -AboutName "topic_name"
 
+    $UpdateMDParameters = @{
+        Path = $OutputFolder
+        RefreshModulePage = $true
+        UpdateInputOutput = $false
+        ExcludeDontShow = $true
+    }
+    Update-MarkdownHelpModule @UpdateMDParameters
+
+    Move-Item -Path $($OutputFolder+"\"+$moduleName.Remove($moduleName.Length-5,5)+".md") -Destination $((Split-Path -Path $OutputFolder -Parent)+"\README.md")
+
+    Update-MarkdownHelp -Path $Path 
 }
 
-Export-MDReadMe
+Export-MDReadMe -ModuleDir "$PSScriptRoot\Utilities" -OutputDir "$PSScriptRoot\Utilities\docs"  #-SubDir "Public" 
