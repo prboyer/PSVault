@@ -1,7 +1,7 @@
 ---
 Author: Paul Boyer
 external help file: PSVault-ActiveDirectory-help.xml
-Module Guid: 68937b04-c692-4fa8-b991-56bbf7b9ce0b
+Module Guid: cd4c9524-69c1-4eaf-9c82-c6eb072c9b15
 Module Name: PSVault-ActiveDirectory
 online version:
 schema: 2.0.0
@@ -101,9 +101,9 @@ Accept wildcard characters: False
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
-## INPUTS
 
-## OUTPUTS
+
+
 
 ## NOTES
 Written by Paul B - 9-18-19
