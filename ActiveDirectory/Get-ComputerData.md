@@ -1,7 +1,7 @@
 ---
 Author: Paul Boyer
 external help file: PSVault-ActiveDirectory-help.xml
-Module Guid: 18f15d31-8ea0-4a67-bb67-09c9554871ae
+Module Guid: 68937b04-c692-4fa8-b991-56bbf7b9ce0b
 Module Name: PSVault-ActiveDirectory
 online version:
 schema: 2.0.0

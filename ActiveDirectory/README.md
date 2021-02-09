@@ -1,6 +1,6 @@
 ---
 Module Name: PSVault-ActiveDirectory
-Module Guid: 00000000-0000-0000-0000-000000000000
+Module Guid: 68937b04-c692-4fa8-b991-56bbf7b9ce0b
 Download Help Link: https://github.com/prboyer/PSVault
 Help Version: 1.0.1
 Locale: en-US
