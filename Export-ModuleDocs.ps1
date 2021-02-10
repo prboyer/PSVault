@@ -1,4 +1,4 @@
-function Export-ReadMe {
+function Export-ModuleDocs {
     param (
         [String]
         $Path,
@@ -83,4 +83,3 @@ function Export-ReadMe {
     
 
 }
-Export-ReadMe -Path "$PSScriptRoot\ActiveDirectory"
