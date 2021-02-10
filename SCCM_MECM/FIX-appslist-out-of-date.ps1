@@ -1,3 +1,6 @@
+<#
+https://social.technet.microsoft.com/Forums/Lync/en-US/e0bd29ad-adf5-4c33-a2f2-740df8cc6c32/applications-not-visible-in-software-center?forum=configmanagerapps#07e1ce87-490a-4f2a-bd2d-17b4dceb58a3
+#>
 $ErrorActionPreference = "Stop"
 $TRIGGER_ALL = $false
 $SLEEP_INTERVAL = 3000 # in ms
