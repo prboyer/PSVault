@@ -26,7 +26,10 @@ function Enable-InternetExplorer {
     [String]$Path;
 
     # variable for the actual name of the package supplied to DISM
-    [String]$Package = "sources\sxs\microsoft-windows-internetexplorer-optional-package.cab" 
+    [String]$Package = "sources\sxs\microsoft-windows-internetexplorer-optional-package.cab"
+
+    # flag to indicate if disk image needs to be dismounted at end of script
+    [bool]$Flag = $false;
     
     # check if the provided path to the setup files is to an image file
     if([IO.Path]::GetExtension($SetupFile) -eq ".iso"){
@@ -36,6 +39,8 @@ function Enable-InternetExplorer {
             Write-Error "There was an error mounting the disk image you specified. {0}" -f $SetupFiles
         }
 
+        $Flag = $true;
+
         $Path = $(Get-DiskImage -ImagePath $SetupFiles | Get-Volume).DriveLetter+":";
     }else{
         $Path = $SetupFiles
@@ -43,5 +48,10 @@ function Enable-InternetExplorer {
 
     # run the DISM command to add back Internet Explorer
     Start-Process -FilePath DISM.exe -ArgumentList "/Online /Add-Package /PackagePath:$Path\$Package" -NoNewWindow -Wait
+
+    # finally unmount the disk image if flag was set
+    if($Flag){
+        Dismount-DiskImage -ImagePath $SetupFiles
+    }
     
 }
