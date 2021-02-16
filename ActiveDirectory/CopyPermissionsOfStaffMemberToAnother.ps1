@@ -1,26 +1,26 @@
-#Copies the AD security group memberships of one employee to other employees
-#http://mikefrobbins.com/2014/01/30/add-an-active-directory-user-to-the-same-groups-as-another-user-with-powershell/
-
-#User to copy's NetID
-# $userToCopy = 'dittbrender'
-
-# $usersToUpdate = @('hkellogg')
-
-
-# ######################
-# Write-Host "Copying permissions from $userToCopy" -ForegroundColor Yellow -BackgroundColor Black
-# foreach($newUser in $usersToUpdate){
-#     Write-Host "Copying permissions to $newUser" -ForegroundColor Cyan
-#     Get-ADUser -Identity $userToCopy -Properties memberof | Select-Object -ExpandProperty memberof | Add-ADGroupMember -Members $newUser -PassThru | Select-Object -Property SamAccountName
-
-#     Write-Host "Complete" -ForegroundColor Green
-# }
-# Write-Host "Complete" -ForegroundColor Green -BackgroundColor black
-
-
-
-
 function Copy-UserGroupMembership {
+    <#
+    .SYNOPSIS
+    Copies security group memberships from one user to one or more users
+    
+    .DESCRIPTION
+    Script validates that AD user objects exist before trying to retrieve/apply group memberships. 
+    
+    .PARAMETER Source
+    The SamAccountName of the user who the memberships should be copied from
+    
+    .PARAMETER Target
+    String [] of SamAccountNames that the memberships should be applied to
+    
+    .EXAMPLE
+    Copy-UserGroupMembership -Source Bgates -Target SBallmer
+
+    .LINK
+    http://mikefrobbins.com/2014/01/30/add-an-active-directory-user-to-the-same-groups-as-another-user-with-powershell/
+    
+    .NOTES
+    
+    #>
     param (
         [Parameter(Mandatory=$true)]
         [string]
@@ -36,33 +36,58 @@ function Copy-UserGroupMembership {
     # try to get the source user object
     try{
         [Microsoft.ActiveDirectory.Management.ADAccount]$SourceUser = Get-ADUser -Identity $Source
-
-    }catch [Microsoft.ActiveDirectory.Management.ADIdentityNotFoundException]{
+    }
+    # do error handling if Source cannot be found
+    catch [Microsoft.ActiveDirectory.Management.ADIdentityNotFoundException]{
         Write-Error $("Unable to locate Source user ({0}) in {1}" -f $Source,$(Get-ADDomain).DistinguishedName) -Category ObjectNotFound 
     }
 
-    # iterate through list of target users and apply group membership from source
-    for ($i = 0; $i -lt $Target.Count; $i++) {
-        # Write-Progress -Activity "Copy-UserGroupMembership" -Status "Copying User Group Membership from $Source" -CurrentOperation $("Copying User Group Membership to"+$($Target[$i])) -PercentComplete (($i / $Target.Count)*100)
+    # display the user group memberships of the Source user
+    Write-Host $("{0} Group Membership" -f $Source) -ForegroundColor Cyan
+    (Get-ADPrincipalGroupMembership -Identity $SourceUser | Select-Object samAccountName, objectGUID, DistinguishedName) | Format-Table
 
+    foreach ($User in $Target) {
+        
         # try to get the target user object
         try{
-            [Microsoft.ActiveDirectory.Management.ADAccount]$TargetUser = Get-ADUser -Identity $Target[$i]
+            [Microsoft.ActiveDirectory.Management.ADAccount]$TargetUser = Get-ADUser -Identity $User
     
-        }catch [Microsoft.ActiveDirectory.Management.ADIdentityNotFoundException]{
-            Write-Error $("Unable to locate Target user ({0}) in {1}" -f $Target[$i],$(Get-ADDomain).DistinguishedName) -Category ObjectNotFound 
+        }
+        # do error handling if Target cannot be found
+        catch [Microsoft.ActiveDirectory.Management.ADIdentityNotFoundException]{
+            Write-Error $("Unable to locate Target user ({0}) in {1}" -f $User,$(Get-ADDomain).DistinguishedName) -Category ObjectNotFound 
         }
 
-        # write-out source user's groups
-        Write-Host $("`n{0} Group Membership" -f $SourceUser.SamAccountName) -ForegroundColor Yellow
-        (Get-ADUser -Identity $SourceUser -Properties memberof | Select-Object -ExpandProperty memberof).memberof
+        # write out status
+        Write-Host $("Applying Group Membership to {0}" -f $User) -ForegroundColor Yellow
 
         # copy the permissions from the source to the target
-        Get-ADUser -Identity $SourceUser -Properties "memberof" | Select-Object -ExpandProperty "memberof" | Add-ADGroupMember -Members $TargetUser -PassThru
+        Get-ADUser -Identity $SourceUser -Properties "memberof" | Select-Object -ExpandProperty "memberof" | Add-ADGroupMember -Members $TargetUser
+
+        Write-Host "Complete" -ForegroundColor Green
 
     }
+
+
+    # # iterate through list of target users and apply group membership from source
+    # for ($i = 0; $i -lt $Target.Count; $i++) {
+    #     # Write-Progress -Activity "Copy-UserGroupMembership" -Status "Copying User Group Membership from $Source" -CurrentOperation $("Copying User Group Membership to"+$($Target[$i])) -PercentComplete (($i / $Target.Count)*100)
+
+    #     # try to get the target user object
+    #     try{
+    #         [Microsoft.ActiveDirectory.Management.ADAccount]$TargetUser = Get-ADUser -Identity $Target[$i]
+    
+    #     }catch [Microsoft.ActiveDirectory.Management.ADIdentityNotFoundException]{
+    #         Write-Error $("Unable to locate Target user ({0}) in {1}" -f $Target[$i],$(Get-ADDomain).DistinguishedName) -Category ObjectNotFound 
+    #     }
+
+    #     # write-out source user's groups
+    #     Write-Host $("`n{0} Group Membership" -f $SourceUser.SamAccountName) -ForegroundColor Yellow
+    #     Get-ADUser -Identity $SourceUser -Properties memberof | Select-Object -ExpandProperty memberof
+
+    #     # copy the permissions from the source to the target
+    #     Get-ADUser -Identity $SourceUser -Properties "memberof" | Select-Object -ExpandProperty "memberof" | Add-ADGroupMember -Members $TargetUser -PassThru | Select DistinguishedName
+
+    # }
     
 }
-
-
-Copy-UserGroupMembership "bbadger" -Target "testerino"
