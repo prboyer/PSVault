@@ -68,26 +68,4 @@ function Copy-UserGroupMembership {
 
     }
 
-
-    # # iterate through list of target users and apply group membership from source
-    # for ($i = 0; $i -lt $Target.Count; $i++) {
-    #     # Write-Progress -Activity "Copy-UserGroupMembership" -Status "Copying User Group Membership from $Source" -CurrentOperation $("Copying User Group Membership to"+$($Target[$i])) -PercentComplete (($i / $Target.Count)*100)
-
-    #     # try to get the target user object
-    #     try{
-    #         [Microsoft.ActiveDirectory.Management.ADAccount]$TargetUser = Get-ADUser -Identity $Target[$i]
-    
-    #     }catch [Microsoft.ActiveDirectory.Management.ADIdentityNotFoundException]{
-    #         Write-Error $("Unable to locate Target user ({0}) in {1}" -f $Target[$i],$(Get-ADDomain).DistinguishedName) -Category ObjectNotFound 
-    #     }
-
-    #     # write-out source user's groups
-    #     Write-Host $("`n{0} Group Membership" -f $SourceUser.SamAccountName) -ForegroundColor Yellow
-    #     Get-ADUser -Identity $SourceUser -Properties memberof | Select-Object -ExpandProperty memberof
-
-    #     # copy the permissions from the source to the target
-    #     Get-ADUser -Identity $SourceUser -Properties "memberof" | Select-Object -ExpandProperty "memberof" | Add-ADGroupMember -Members $TargetUser -PassThru | Select DistinguishedName
-
-    # }
-    
 }
