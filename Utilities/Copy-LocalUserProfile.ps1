@@ -7,31 +7,31 @@ A custom cmdlet for quickly copying the contents of a user's profile to another 
 Long description
 
 .PARAMETER SourcePath
-Parameter description
+Path to the source user profile with files to copy
 
 .PARAMETER TargetPath
-Parameter description
+Path to the destination user profile where files should be copy to
 
 .PARAMETER LogFile
-Parameter description
+Path to the log file where Robocopy should write progress to
 
 .PARAMETER WaitDelay
-Parameter description
+Integer for the amount of time that Robocopy should wait before retrying copy
 
 .PARAMETER NoRetry
-Parameter description
+Switch to disable Robocopy from retrying a failed copy
 
 .PARAMETER RobocopyArguments
-Parameter description
+Additional arguments to supply to Robocopy
 
 .PARAMETER ExcludeDirs
-Parameter description
+Additional directory names to exclude
 
 .PARAMETER ExcludeFiles
-Parameter description
+PAdditional file names to exclude
 
 .EXAMPLE
-An example
+Copy-LocalUserProfile -SourcePath C:\Users\Paul -TargetPath C:\Users\NewPaul 
 
 .NOTES
 Paul Boyer, 11-17-2020
