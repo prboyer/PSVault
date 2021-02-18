@@ -58,7 +58,7 @@ function Repair-Windows10 {
         [Switch]
         $Check,
         [Parameter(ParameterSetName='dism')]
-        [System.IO.Path]
+        [string]
         $Source,
         [Parameter(ParameterSetName='dism')]
         [switch]
