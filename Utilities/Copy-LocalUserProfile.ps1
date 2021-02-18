@@ -64,7 +64,7 @@ Paul Boyer, 11-17-2020
     #[String[]]$DIRECTORIES = ('Contacts','Desktop','Documents','Downloads','Favorites','Music','Pictures','Videos') # This is currently not implemented
 
     # hard-coded extraneous directories that will never be included
-    [String[]]$EXTRANEOUS_DIRS = ('App Data','AppData','.oracle_jre_usage','Links','Saved Games','Searches','Local Settings','Application Data','OneDrive','Box','Box Sync','Dropbox','iCloud Drive')
+    [String[]]$EXTRANEOUS_DIRS = ("`"App Data`"",'AppData','.oracle_jre_usage','Links','Saved Games','Searches',"`"Local Settings`"","`"Application Data`"",'OneDrive','Box',"`"Box Sync`"",'Dropbox',"`"iCloud Drive`"")
 
     # hard-coded extraneous file types that will never be included
     [String[]]$EXTRANEOUS_FILES = ('.dat')
@@ -74,7 +74,7 @@ Paul Boyer, 11-17-2020
     [System.Collections.ArrayList]$extraDirs = [System.Collections.ArrayList]::new();
     [System.Collections.ArrayList]$extraFiles = [System.Collections.ArrayList]::new();
 
-    # Convert the primative Arrays into ArrayLists & add in extra elements from function call
+    # Convert the primitive Arrays into ArrayLists & add in extra elements from function call
     $EXTRANEOUS_DIRS | %{$extraDirs.Add($_) | Out-Null}
     $EXTRANEOUS_FILES | %{$extraFiles.Add($_) | Out-Null}
 
@@ -83,8 +83,8 @@ Paul Boyer, 11-17-2020
     $ExcludeFiles | %{$extraFiles.Add($_) | Out-Null}
 
     # Format for ROBOCOPY
-    $X_DIRS = $extraDirs -join ","
-    $X_FILES = $extraFiles -join ","
+    $X_DIRS = $extraDirs -join " "
+    $X_FILES = $extraFiles -join " "
     ################
 
     ### ROBOCOPY Setup ###
