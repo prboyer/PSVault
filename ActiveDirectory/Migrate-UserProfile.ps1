@@ -18,26 +18,34 @@
   Migrate-UserProfile -Usernames "BGates" -ProfileServer "\\winfs\share1\Users"
   
   .NOTES
-  Paul Boyer , 2/23/18
+  Paul Boyer , 2/23/18 
   #>
+  
+  [CmdletBinding()]
   param (
-    [Parameter(Mandatory=$true)]
-    [String[]]
-    $Usernames,
-    [Parameter(Mandatory=$True)]
-    [ValidateScript({Test-Path -Path $_ -PathType 'Container'})]
-    [System.IO.Path]
-    $ProfileServer
+      [Parameter(Mandatory=$true)]
+      [String[]]
+      $Usernames,
+      [Parameter(Mandatory=$true)]
+      [String]
+      $ProfileServer
   )
- 
-  #directories that need to be copied
-  [String[]]$directories = @('Contacts','Desktop','Documents','Downloads','Favorites','Music','Pictures','Videos')
+  # VARIABLES
+    #directories that need to be copied
+    [String[]]$directories = 'Contacts','Desktop','Documents','Downloads','Favorites','Music','Pictures','Videos'  
 
-  #extraneous directories
-  #$extraneousDirectories = 'AppData','.oracle_jre_usage','Links','Saved Games','Searches'
-
+  # Validate that the path to the profile server can be resolved
+  try {
+    if(-not (Test-Path $ProfileServer)){
+      Throw [System.IO.DirectoryNotFoundException]::new()
+    }
+  }
+  catch [System.IO.DirectoryNotFoundException]{
+    Write-Error -Category ObjectNotFound -Message $("Unable to resolve path to profile server at: {0}" -f $ProfileServer)
+  }
 
   Write-Host "Profile Migration Script" -ForegroundColor Cyan
+  Set-Location $ProfileServer
 
   #copy contents each directory in $directories to the appropriate location in the user's .V6 profile
   #traverse each profile in the profile list array
