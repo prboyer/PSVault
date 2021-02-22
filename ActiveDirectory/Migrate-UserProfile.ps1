@@ -1,26 +1,25 @@
 ﻿function Migrate-UserProfile {
   <#
-  .SYNOPSIS
-  Script used in preparing to migrate from a Windows 7 to Windows 10 environment. This copies the contents of a user's 
-  Windows 7 roaming profile to a new Windows 10 (V6) roaming profile on a specified profile server. 
-  
-  .DESCRIPTION
-  For each username, check that the Windows 7 profile (V2) exists on the profile server. If it does, then copy the contents of the V2 profile to a new
-  Windows 10 (V6) profile. 
-  
-  .PARAMETER Usernames
-  String array of usernames whose profiles need to be migrated to V6
-  
-  .PARAMETER ProfileServer
-  Path to the share on the profile server containing the user profile directories.
-  
-  .EXAMPLE
-  Migrate-UserProfile -Usernames "BGates" -ProfileServer "\\winfs\share1\Users"
-  
-  .NOTES
-  Paul Boyer , 2/23/18 
-  #>
-  
+    .SYNOPSIS
+    Script used in preparing to migrate from a Windows 7 to Windows 10 environment. This copies the contents of a user's 
+    Windows 7 roaming profile to a new Windows 10 (V6) roaming profile on a specified profile server. 
+    
+    .DESCRIPTION
+    For each username, check that the Windows 7 profile (V2) exists on the profile server. 
+    If it does, then copy the contents of the V2 profile to a new Windows 10 (V6) profile. 
+    
+    .PARAMETER Usernames
+    String array of usernames whose profiles need to be migrated to V6
+    
+    .PARAMETER ProfileServer
+    Path to the share on the profile server containing the user profile directories.
+    
+    .EXAMPLE
+    Migrate-UserProfile -Usernames "BGates" -ProfileServer "\\winfs\share1\Users"
+    
+    .NOTES
+    Paul Boyer , 2/23/18
+  #>  
   [CmdletBinding()]
   param (
       [Parameter(Mandatory=$true)]
