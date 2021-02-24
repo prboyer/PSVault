@@ -20,7 +20,7 @@ results for machines with keys (null keys are excluded).
 Only returns a list of machines with null recovery keys.
 
 .PARAMETER FilePath
-The filepath where the CSV file should be saved.
+The filepath where the CSV file should be saved. Validation in script confirms that filepath is passed with .CSV extension.
 
 .EXAMPLE
 Get-BitlockerKey -SearchBase "DC=corp,DC=contoso,DC=com" -FilePath "C:\BitlockerReport.csv"
@@ -30,13 +30,20 @@ Script adopted from https://social.technet.microsoft.com/Forums/en-US/fbb2135e-e
 
 #>
 function Get-BitlockerKey{
-	param(
-		[Parameter (Mandatory = $true)][String]$SearchBase,
-		[switch] $All,
-		[switch] $NoKey,
-		[String]$FilePath
+	[CmdletBinding()]
+	param (
+		[Parameter(Mandatory=$true)]
+		[String]
+		$SearchBase,
+		[switch]
+		$All,
+		[switch]
+		$NoKey,
+		[String]
+		[ValidateScript({[System.IO.Path]::GetExtension($_) -eq ".csv"})]
+		$FilePath
 	)
-
+	
 	# ArrayList declaration to hold the list of custom objects
 	[System.Collections.ArrayList]$ObjectArray = @();
 
@@ -83,6 +90,3 @@ function Get-BitlockerKey{
 		}
 	}
 }
-
-# Call the function (add a path to a CSV file for the -Path param to save the output)
-Get-BitlockerKey 
