@@ -4,7 +4,8 @@
 A custom cmdlet for quickly copying the contents of a user's profile to another location using ROBOCOPY. 
 
 .DESCRIPTION
-Long description
+PowerShell implementation of Robocopy with standardized parameters. Additional Robocopy arguments can be passed in the
+-RobocopyArguments parameter. 
 
 .PARAMETER SourcePath
 Path to the source user profile with files to copy
