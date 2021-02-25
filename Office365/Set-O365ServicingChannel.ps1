@@ -38,10 +38,15 @@ function Set-O365ServicingChannel {
         [switch]
         $UseRegistry
     )
+    # Add in the Windows Forms assemblies
+    Add-Type -AssemblyName PresentationCore,PresentationFramework
+
     [String]$O365_PROGRAMFILES = "$env:ProgramFiles\Common Files\Microsoft Shared\ClickToRun\"
 
     # Only perform these steps if the -Registry parameter is passed. 
     if($UseRegistry){
+        Write-Host "Setting the Servicing Channel using Registry"
+
         # Registry path to update
         [String]$REGISTRY = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Office\ClickToRun\Configuration";
         
@@ -69,6 +74,7 @@ function Set-O365ServicingChannel {
         # test that the path to the program files folder can be resolved
         if (Test-Path $O365_PROGRAMFILES) {
             
+            
             # declare a variable for the servicing channel
             [String]$channel;
             if ($Monthly) {
@@ -78,7 +84,7 @@ function Set-O365ServicingChannel {
             }
 
             # perform the servicing channel update
-            Write-Host "Updating O365 Servicing Channel to $channel"
+            Write-Host "Updating O365 Servicing Channel to $channel using C2RAgent"
             
             Start-Process -FilePath "$O365_PROGRAMFILES\OfficeC2RClient.exe" -ArgumentList "/changesetting Channel=$channel" -NoNewWindow -Wait
             Start-Process -FilePath "$O365_PROGRAMFILES\OfficeC2RClient.exe" -ArgumentList "/update user" -Wait -NoNewWindow
