@@ -1,4 +1,45 @@
-function Import-Users {
+function Import-FromFile {
+    <#
+    .SYNOPSIS
+    Script to standardize importing lists from files.
+    
+    .DESCRIPTION
+    The script will take in either at TXT, CSV, or Excel list and process it for use in Powershell. Using 
+    parameters, headers can be stripped from the files as necessary.
+    
+    .PARAMETER TXT
+    Path to a *.txt file to process
+    
+    .PARAMETER HeaderRows
+    Int representing the number of rows to remove from the top of the file
+    
+    .PARAMETER Header
+    Int representing the row number of the header
+    
+    .PARAMETER Column
+    If the file is multidimenstional, the Column integer tells the script what range to process
+    
+    .PARAMETER CSV
+    Path to .csv file
+    
+    .PARAMETER XLS
+    Path to .xls or .xlsx file
+    
+    .PARAMETER WorkbookName
+    The name of the Workbook in the Excel file. Only necessary if different than the default "Sheet1".
+
+    .INPUTS
+    A .txt, .csv, or .xls(x) file.
+
+    .OUTPUTS
+    A string array 
+    
+    .EXAMPLE
+    Import-FromFile -TXT C:\Temp\list.txt
+    
+    .NOTES
+    Paul Boyer 2-25-21
+    #>
     param (
         [Parameter(Mandatory=$true, ParameterSetName="Text")]
         [Alias("Text")]
@@ -36,19 +77,19 @@ function Import-Users {
     #Requires -Version 5.1
     Import-Module ImportExcel
 
-    [String[]]$Usernames;
+    [String[]]$ProcessedArray;
 
     # Begin processing the text file
     if ($TXT -ne "") {
         # Test path
         if (Test-Path $TXT) {
             # Import content from the text file
-            $Usernames = [System.IO.File]::ReadAllLines($TXT);
+            $ProcessedArray = [System.IO.File]::ReadAllLines($TXT);
             
             # remove headings
             if ($HeaderRows -gt 0) {
                 for ($t = 0; $t -le $HeaderRows; $t++) {
-                    $Usernames[$t] = "";
+                    $ProcessedArray[$t] = "";
                 }
             }
            
@@ -73,7 +114,7 @@ function Import-Users {
                 }
 
                 # get the column by specified number after reading the headings
-                $Usernames = (Import-Csv -Path $CSV -Header $head) | Select-Object $head[$Column]
+                $ProcessedArray = (Import-Csv -Path $CSV -Header $head) | Select-Object $head[$Column]
             }
         }else{
             Write-Error "Unable to resolve path for CSV file input."
@@ -93,17 +134,13 @@ function Import-Users {
             }
 
             # Import the data using Import-Excel module
-            $Usernames = @(Import-Excel -Path $XLS -WorksheetName $worksheet -NoHeader -StartColumn $Column -EndColumn $Column -DataOnly)
-
-            ## TODO: finish parsing data from the imported XLS file
+            $ProcessedArray = @(Import-Excel -Path $XLS -WorksheetName $worksheet -StartRow $HeaderRows -NoHeader -StartColumn $Column -EndColumn $Column -DataOnly)
             
+            # Get the data out of an object and into a string array
+            $ProcessedArray = $ProcessedArray.P1            
         }else{
             Write-Error "Unable to resolve path for XLS file input."
         }
     }
-
-    # return $Usernames
-
-    
+    return $ProcessedArray   
 }
-Import-Users -XLS "Y:\pboyer2\Users in a specific domain.xlsx" -Column 5 -HeaderRows 5
