@@ -21,6 +21,8 @@ function Disable-Users {
   .NOTES
  
   #>
+  #requires -Modules ActiveDirectory 
+  
     [CmdletBinding()]
   param (
       [Parameter()]
