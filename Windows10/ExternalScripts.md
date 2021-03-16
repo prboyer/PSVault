@@ -1,7 +1,10 @@
-# Useful Tools (Non-PowerShell)
+# External Scripts
+A list of external scripts (not authored by Me) that are helpful and good references
 
+## Useful Tools (Non-PowerShell)
 
-[DelProf2](https://helgeklein.com/free-tools/delprof2-user-profile-deletion-tool/)
+### [DelProf2](https://helgeklein.com/free-tools/delprof2-user-profile-deletion-tool/)
+
 > #### What Does it Do?
 >Delprof2 deletes inactive user profiles. If you want to reclaim disk space just run it without parameters and it will delete all profiles except your own and some special profiles needed by the operating system (like “Default”).
 >
