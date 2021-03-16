@@ -44,14 +44,6 @@ function Repair-O365Click2Run {
         [switch]
         $OnlineRepair
     )
-    # Default path to ClickToRun executable
-    [String]$C2R_EXE = "$env:ProgramFiles\Microsoft Office 15\ClientX64\OfficeClickToRun.exe"
-
-    # Override default path if passed
-    if ($Path -ne "") {
-        $C2R_EXE = $Path;
-    }
-    
     # Processor architecture check
     [String]$ARCHITECTURE 
     if ([System.Environment]::Is64BitOperatingSystem) {
@@ -60,6 +52,20 @@ function Repair-O365Click2Run {
         $ARCHITECTURE = "x86";
     }
 
+    # Default path to ClickToRun executable
+    [String]$C2R_EXE;
+
+    if ($ARCHITECTURE -eq "x64") {
+        $C2R_EXE = "$env:ProgramFiles\Microsoft Office 15\ClientX64\OfficeClickToRun.exe"
+    }else{
+        $C2R_EXE = "$env:ProgramFiles\Microsoft Office 15\ClientX86\OfficeClickToRun.exe"
+    }
+
+    # Override default path if passed
+    if ($Path -ne "") {
+        $C2R_EXE = $Path;
+    }
+    
     # Determine Repair type. Default is a quick repair
     [String]$RepairType = "QuickRepair"
 
@@ -75,16 +81,20 @@ function Repair-O365Click2Run {
         $DisplayLevel = $false
     }
 
-    # Variable to hold the argument list before passing to Start-Process
-    [String]$ARGUMENT_LIST = "scenario=Repair system=$ARCHITECTURE culture=en-us RepairType=$RepairType DisplayLevel=$DisplayLevel "
-
     # Close all apps if the -Force parameter is supplied
+    [bool]$ForceAppShutdown = $false;
     if ($Force) {
-        $ARGUMENT_LIST = $ARGUMENT_LIST+"forceappshutdown=true"
+        $ForceAppShutdown = $true;
     }
 
+    # Variable to hold the argument list before passing to Start-Process
+    [String]$ARGUMENT_LIST = "scenario=Repair system=$ARCHITECTURE culture=en-us RepairType=$RepairType DisplayLevel=$DisplayLevel ForceAppShutdown=$ForceAppShutdown"
+
+    # Debug: Application call
+    Write-Debug "$C2R_EXE `"$ARGUMENT_LIST`""
+    
     # Start the repair process
-    Start-Process -FilePath $C2R_EXE -Wait -Verb RunAs -ArgumentList $ARGUMENT_LIST
+    Start-Process -FilePath $C2R_EXE -Wait -Verb RunAs -ArgumentList $ARGUMENT_LIST 
 
     Write-Host "O365 Repair Complete" -ForegroundColor Green
 }
