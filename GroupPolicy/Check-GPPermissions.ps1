@@ -97,4 +97,3 @@ function Check-GPPermissions{
         }
     }
 }
-Check-GPPermissions -Fix
