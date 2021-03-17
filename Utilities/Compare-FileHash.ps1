@@ -1,31 +1,35 @@
 function Compare-FileHash {
     <#
     .SYNOPSIS
-    Short description
+    Quick script to compare file hashes of contents between two directories
     
     .DESCRIPTION
-    Long description
+    Script get the child items in each directory (recursing if necessary) and then hashes each file. Then the two sets of file hashes are compared using
+    Compare-Object. The results can be piped out to a file.
     
     .PARAMETER DifferenceDirectory
-    Parameter description
+    Path to the directory to compare as the right operand (=>)
     
     .PARAMETER ReferenceDirectory
-    Parameter description
+    Path to the directory to compare as the left operand (<=)
     
     .PARAMETER Algorithm
-    Parameter description
+    String parameter for which algorithm to use to compute hashes. Accepted values are SHA1, SHA256, SHA384, SHA512, MD5
     
     .PARAMETER Recurse
-    Parameter description
+    Switch parameter that will cause the reference and difference directories to recurse through all files, not just at the depth that was passed
     
     .PARAMETER Path
-    Parameter description
+    Path to the output file
+
+    .OUTPUTS
+    A .txt file with results of the comparison operations piped out using Tee-Object
     
     .EXAMPLE
-    An example
+    Compare-FileHash -ReferenceDirectory C:\Windows -DifferenceDirectory D:\Windows -Recurse
     
     .NOTES
-    General notes
+    
     #>
     param (
         [Parameter(Mandatory=$true)]
@@ -37,6 +41,7 @@ function Compare-FileHash {
         [String]
         $ReferenceDirectory,
         [Parameter()]
+        [ValidateSet("SHA1","SHA256","SHA384","SHA512","MD5")]
         [String]
         $Algorithm,
         [Parameter]
