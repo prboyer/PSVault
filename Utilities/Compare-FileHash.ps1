@@ -1,17 +1,44 @@
 function Compare-FileHash {
+    <#
+    .SYNOPSIS
+    Short description
+    
+    .DESCRIPTION
+    Long description
+    
+    .PARAMETER DifferenceDirectory
+    Parameter description
+    
+    .PARAMETER ReferenceDirectory
+    Parameter description
+    
+    .PARAMETER Algorithm
+    Parameter description
+    
+    .PARAMETER Recurse
+    Parameter description
+    
+    .PARAMETER Path
+    Parameter description
+    
+    .EXAMPLE
+    An example
+    
+    .NOTES
+    General notes
+    #>
     param (
         [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
         [String]
         $DifferenceDirectory,
         [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
         [String]
         $ReferenceDirectory,
         [Parameter()]
-        [Switch]
-        $NoHelp,
-        [Parameter()]
         [String]
-        $Algorithim,
+        $Algorithm,
         [Parameter]
         [switch]
         $Recurse,
@@ -22,8 +49,8 @@ function Compare-FileHash {
 
     # Determine the comparison algorithm. Default is MD5
     [String]$Algo = "MD5"
-    if($Algorithim -ne ""){
-        $Algo = $Algorithim;
+    if($Algorithm -ne ""){
+        $Algo = $Algorithm;
     }
 
     # Check the hashes of the files in each directory
@@ -40,17 +67,6 @@ function Compare-FileHash {
         $DifferenceHashes + $ReferenceHashes | Format-Table -AutoSize | Tee-Object -FilePath $Path -Append
     }else{
         $DifferenceHashes + $ReferenceHashes | Format-Table -AutoSize
-    }
-
-    # If the -NoHelp parameter is supplied, do not print out helper information table
-    if(-not $NoHelp){
-        Write-Host "Compare File Hashes`n*******************************" -ForegroundColor Cyan
-
-        # Output a helper information table
-        [String[]]$DisplayTable = @(@("Role","Path","Indicator"),@("Reference",$ReferenceDirectory,"<="),@("Difference",$DifferenceDirectory,"=>"));
-        $DisplayTable | Format-Table
-
-        Write-Host "*******************************`n"
     }
 
     # Perform comparison
