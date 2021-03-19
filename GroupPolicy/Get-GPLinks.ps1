@@ -13,7 +13,7 @@ function Get-GPLinks {
     Parameter causes script to run just the CSV report of OU and GPO correlation
     
     .PARAMETER BothReports
-    Parameter description
+    Parameter causes script to run both the CSV and TXT reports
     
     .PARAMETER AllOUs
     Parameter causes script to list all OUs at beginning of report, not just those with GPOs linked (default)
@@ -35,7 +35,7 @@ function Get-GPLinks {
     #>
     param (
         [Parameter(Mandatory=$true,ParameterSetName="CSVReport")]
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true,ParameterSetName="FullReport")]
         [ValidateNotNullOrEmpty()]
         [String]
         $Path,
@@ -45,10 +45,10 @@ function Get-GPLinks {
         [Parameter()]
         [switch]
         $BothReports,
-        [Parameter()]
+        [Parameter(ParameterSetName="FullReport")]
         [switch]
         $AllOUs,
-        [Parameter()]
+        [Parameter(ParameterSetName="FullReport")]
         [switch]
         $RootOnly
     )
@@ -199,7 +199,6 @@ function Get-GPLinks {
             # Write the contents of $LinkedGPOs to the file represented by the parameter $Path 
             try{
                 Out-File -FilePath $OutputPath -InputObject $OU_Output -NoNewline -Force
-                # Out-File -FilePath $OutputPath -InputObject $($LinkedGPOs | Format-Table -AutoSize) -Append
                 Out-File -FilePath $OutputPath -InputObject $($LinkedGPOs) -Append
 
             }catch [System.Management.Automation.ParameterBindingException] {
@@ -212,27 +211,28 @@ function Get-GPLinks {
     <#
         Traverse through the list of OUs and then report all GPOs linked to each OU
     #>  
-        
-        # Report GPOs linked to each OU
-        $OUList | ForEach-Object {
-            # Variable to store the output from traversing each OU and getting link details
-            [String]$DetailOutput = "";
+        # Only report GPOs linked at the Domain Root
+        if ($RootOnly) {
+            private:Get-DomainRootLinks($OutputPath)
+        }else{
+            # Report GPOs linked to each OU
+            $OUList | ForEach-Object {
+                # Variable to store the output from traversing each OU and getting link details
+                [String]$DetailOutput = "";
 
-            Write-Output "$($_.DistinguishedName)" -OutVariable DetailOutput; 
-            Write-Output $FORMAT_STRING.Substring(0,($_.DistinguishedName.Length))
-            
-            Get-GPLink -Path $_.DistinguishedName | Select-Object DisplayName, LinkEnabled, Enforced, BlockInheritance,GUID | Format-Table -AutoSize | Out-String -Width 4096 | Tee-Object -FilePath $OutputPath -Append #| Out-File -FilePath $OutputPath -Append 
-
-
-
-            # Write the contents of $DetailOutput & $DetailTable to the file represented by the parameter $Path 
-            try{
-                Out-File -FilePath $OutputPath -InputObject $DetailOutput -NoNewline -Append
-            }catch [System.Management.Automation.ParameterBindingException] {
+                Write-Output "$($_.DistinguishedName)" -OutVariable DetailOutput; 
+                Write-Output $FORMAT_STRING.Substring(0,($_.DistinguishedName.Length))
                 
-                # Perform silent error handling if the file cannot be generated. Likely because $Path was not supplied. 
-                Write-Warning -Message $("Unable to bind argument from `$Path to -FilePath. Output not saved to file. `n{0}" -f $_.InvocationInfo.PositionMessage) -WarningAction $WarningPreference -WarningVariable Warn
+                Get-GPLink -Path $_.DistinguishedName | Select-Object DisplayName, LinkEnabled, Enforced, BlockInheritance,GUID | Format-Table -AutoSize | Out-String -Width 4096 | Tee-Object -FilePath $OutputPath -Append #| Out-File -FilePath $OutputPath -Append 
+
+                # Write the contents of $DetailOutput & $DetailTable to the file represented by the parameter $Path 
+                try{
+                    Out-File -FilePath $OutputPath -InputObject $DetailOutput -NoNewline -Append
+                }catch [System.Management.Automation.ParameterBindingException] {
+                    
+                    # Perform silent error handling if the file cannot be generated. Likely because $Path was not supplied. 
+                    Write-Warning -Message $("Unable to bind argument from `$Path to -FilePath. Output not saved to file. `n{0}" -f $_.InvocationInfo.PositionMessage) -WarningAction $WarningPreference -WarningVariable Warn
+                }
             }
         }
 }
-Get-GPLinks -Path "$PSScriptRoot"
