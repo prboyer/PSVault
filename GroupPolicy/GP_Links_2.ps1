@@ -91,16 +91,36 @@ function Get-GPLinks {
         Exit;
     }
     
-    # Formatting string
-    $FORMAT_STRING = "***************************************************************************************************************************************"
+    <#
+    https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_scopes?view=powershell-7.1#powershell-scopes
+    #>
 
-    # Report GPOS linked to domain root
-    function private:Get-DomainRootLinks () {
-        $domainRoot = (Get-ADDomain).DistinguishedName
+    # Formatting string
+    $global:FORMAT_STRING = "***************************************************************************************************************************************"
+
+    # Report GPOS linked to the Domain Root. Write the results to the file represented by the -Path argument
+    function private:Get-DomainRootLinks ([String]$Path) {
+        #Requires -Module ActiveDirectory
+        #Requires -Module GPFunctions    
+        
+        # Dynamically get the name of the AD Domain using cmdlet from the Active Directory module
+        [String]$domainRoot = (Get-ADDomain).DistinguishedName
+        
         Write-Information "GPOs Linked to Domain Root" -InformationAction Continue
         Write-Output "$domainRoot" 
         Write-Output $FORMAT_STRING.Substring(0,("$domainRoot").Length)
-        Get-GpLink -Path $domainRoot | Select-Object DisplayName, LinkEnabled, Enforced, BlockInheritance,GUID | Format-Table -AutoSize
+        
+        # Use Get-GPLink cmdlet from GPFunctions module to get the linked GPOs for each OU at the Domain Root. Then Tee out to $RootLinks and the Console
+        Get-GpLink -Path $domainRoot | Select-Object DisplayName, LinkEnabled, Enforced, BlockInheritance,GUID | Tee-Object -Variable RootLinks | Format-Table -AutoSize
+        
+        # Write the contents of $RootLinks to the file represented by the parameter $Path 
+        try{
+            Out-File -FilePath $Path -InputObject $RootLinks -Append
+        }catch [System.Management.Automation.ParameterBindingException] {
+            
+            # Perform silent error handling if the file cannot be generated. Likely because $Path was not supplied. 
+            Write-Warning -Message "Unable to bind argument from `$Path to -FilePath. Output not saved to file." -WarningAction SilentlyContinue
+        }
     }
 
 
@@ -185,3 +205,23 @@ function Get-GPLinks {
         }
         
         $FormatArray | Export-Csv -Path "$PSScriptRoot\$(Get-Date -Format FileDate)_GPOLinkReport.csv" -NoTypeInformation -Append
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<#
+https://stackoverflow.com/questions/17226718/how-to-get-the-line-number-of-error-in-powershell
+#>
+
