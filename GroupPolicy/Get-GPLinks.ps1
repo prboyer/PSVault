@@ -1,10 +1,48 @@
 function Get-GPLinks {
+    <#
+    .SYNOPSIS
+    Short description
+    
+    .DESCRIPTION
+    Long description
+    
+    .PARAMETER Path
+    Output path for files to be saved. This should be a directory path, not a file path.
+    
+    .PARAMETER CSVReport
+    Parameter causes script to run just the CSV report of OU and GPO correlation
+    
+    .PARAMETER BothReports
+    Parameter description
+    
+    .PARAMETER AllOUs
+    Parameter causes script to list all OUs at beginning of report, not just those with GPOs linked (default)
+    
+    .PARAMETER RootOnly
+    Parameter causes script to only report GPOs linked at the Domain Root
+
+    .Outputs
+    A .txt file report and/or a .csv report
+    
+    .EXAMPLE
+    An example
+    
+    .NOTES
+        Author: Paul Boyer
+        Date: 3-19-21
+    #>
     param (
+        [Parameter(Mandatory=$true,ParameterSetName="CSVReport")]
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
         [String]
         $Path,
         [Parameter(ParameterSetName="CSVReport")]
         [Switch]
         $CSVReport,
+        [Parameter()]
+        [switch]
+        $BothReports,
         [Parameter()]
         [switch]
         $AllOUs,
@@ -15,9 +53,11 @@ function Get-GPLinks {
     #Requires -Module GroupPolicy
     #Requires -Module ActiveDirectory
 
-    # Import module for determining GPO Links. Perform error handling if the module cannot be located
-    try{
-        Import-Module "$PSScriptRoot\External\GPFunctions.psm1" -ErrorAction Stop
+     # Import module for determining GPO Links. Evaluate if the module is already loaded. Perform error handling if the module cannot be located
+     try{
+        if($(get-module | ?{"GPFunctions" -in $_.name} | Measure-Object).Count -lt 1){
+            Import-Module "$PSScriptRoot\External\GPFunctions.psm1" -ErrorAction Stop
+        }
 
     }catch [System.IO.FileNotFoundException]{
 
@@ -39,6 +79,11 @@ function Get-GPLinks {
 
     # ##########
 
+    # Validate that $Path can be resolved before executing the rest of the script
+    if (-not (Test-Path -Path $Path -PathType Container)) {
+        throw [System.IO.DirectoryNotFoundException]::new("Cannot resolve path. Directory not found.`n`t$Path")
+    }
+
     # Report GPOS linked to the Domain Root. Write the results to the file represented by the -Path argument
     function private:Get-DomainRootLinks ([String]$Path) {
         #Requires -Module ActiveDirectory
@@ -56,7 +101,7 @@ function Get-GPLinks {
         
         # Write the contents of $RootLinks to the file represented by the parameter $Path 
         try{
-            Out-File -FilePath $Path -InputObject $($RootLinks | Format-Table -AutoSize) -Append
+            Out-File -FilePath $Path -InputObject $($RootLinks | Format-Table -AutoSize) -Append -Force
         }catch [System.Management.Automation.ParameterBindingException] {
             
             # Perform silent error handling if the file cannot be generated. Likely because $Path was not supplied. 
@@ -68,10 +113,6 @@ function Get-GPLinks {
     function private:New-CSVLinkReport([String]$Path) {
         #Requires -Module ActiveDirectory
         #Requires -Module GPFunctions
-
-        # Get all OUs with 1 or more linked GPOs
-        # [Object[]]$private:OUList = Get-ADOrganizationalUnit -Filter * | Where-Object {$_.LinkedGroupPolicyObjects.Count -gt 0}
-        # $OUList | Select-Object DistinguishedName | Sort-Object -Property DistinguishedName | Format-Table -AutoSize
 
         # Array to store the results of Get-GPLink for each OU
         [Object[]]$private:Result= @();
@@ -88,7 +129,7 @@ function Get-GPLinks {
       
         # Array to store the objects returned from Get-GPLink. They need to be re-formatted into PSCustomObjects so that they can be properly written as to a CSV
         [Object[]]$FormatArray = @();
-        $Result | %{
+        $Result | ForEach-Object{
              $FormatArray += @(
                 [PSCustomObject]@{
                 'DisplayName' = $_.DisplayName
@@ -112,8 +153,11 @@ function Get-GPLinks {
     if($CSVReport){
         private:New-CSVLinkReport($Path)  | Out-Null
 
-        # Exit with the last 
+        # Exit with the last exit code
         exit $LASTEXITCODE;
+    }elseif ($BothReports) {
+        # Call the CSV report and then continue with the rest of the reporting
+        private:New-CSVLinkReport($Path)  | Out-Null
     }
     
 
@@ -148,12 +192,11 @@ function Get-GPLinks {
             # Report all OUs in domain with linked GPOs
             Write-Output "Organizational Units with Linked GPOS" -OutVariable OU_Output
             Write-Output $FORMAT_STRING.Substring(0,(("Organizational Units with Linked GPOS").Length)) 
-            # [Object[]]$OUList = Get-ADOrganizationalUnit -Filter * | Where-Object {$_.LinkedGroupPolicyObjects.Count -gt 0}
             $OUList | Select-Object DistinguishedName | Sort-Object -Property DistinguishedName | Tee-Object -Variable LinkedGPOs | Format-Table -AutoSize
             
             # Write the contents of $LinkedGPOs to the file represented by the parameter $Path 
             try{
-                Out-File -FilePath $OutputPath -InputObject $OU_Output -NoNewline
+                Out-File -FilePath $OutputPath -InputObject $OU_Output -NoNewline -Force
                 Out-File -FilePath $OutputPath -InputObject $($LinkedGPOs | Format-Table -AutoSize) -Append
             }catch [System.Management.Automation.ParameterBindingException] {
                 
@@ -164,13 +207,29 @@ function Get-GPLinks {
 
     <#
         Traverse through the list of OUs and then report all GPOs linked to each OU
-    #>
-
+    #>  
+        
         # Report GPOs linked to each OU
-        $OUList |Select -First 1 | ForEach-Object {
-            Write-Output "$($_.DistinguishedName)"; 
-            Write-Output $FORMAT_STRING.Substring(0,($_.DistinguishedName.Length));
-            Get-GPLink -Path $_.DistinguishedName | Select-Object DisplayName, LinkEnabled, Enforced, BlockInheritance,GUID | Format-Table -AutoSize 
+        $OUList | ForEach-Object {
+            # Variable to store the output from traversing each OU and getting link details
+            [String]$DetailOutput;
+
+            # Variable to store the tabular output from traversing each OU and getting link details
+            [Object[]]$DetailTable;
+
+            Write-Output "$($_.DistinguishedName)" -OutVariable DetailOutput; 
+            Write-Output $FORMAT_STRING.Substring(0,($_.DistinguishedName.Length))
+            Get-GPLink -Path $_.DistinguishedName | Select-Object DisplayName, LinkEnabled, Enforced, BlockInheritance,GUID | Tee-Object -Variable DetailTable | Format-Table -AutoSize 
+
+            # Write the contents of $DetailOutput & $DetailTable to the file represented by the parameter $Path 
+            try{
+                Out-File -FilePath $OutputPath -InputObject $DetailOutput -NoNewline -Append
+                Out-File -FilePath $OutputPath -InputObject $($DetailTable | Format-Table -AutoSize | Out-String) -Append 
+            }catch [System.Management.Automation.ParameterBindingException] {
+                
+                # Perform silent error handling if the file cannot be generated. Likely because $Path was not supplied. 
+                Write-Warning -Message $("Unable to bind argument from `$Path to -FilePath. Output not saved to file. `n{0}" -f $_.InvocationInfo.PositionMessage) -WarningAction $WarningPreference -WarningVariable Warn
+            }
         }
 }
-Get-GPLinks -Path "$PSScriptRoot"
+Get-GPLinks -Path "$PSScriptRoot\Reports" -BothReports
