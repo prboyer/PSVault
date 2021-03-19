@@ -30,6 +30,8 @@ function Get-GPLinks {
     .NOTES
         Author: Paul Boyer
         Date: 3-19-21
+
+        Fix for tables being cut of when writing out to file: https://poshoholic.com/2010/11/11/powershell-quick-tip-creating-wide-tables-with-powershell/
     #>
     param (
         [Parameter(Mandatory=$true,ParameterSetName="CSVReport")]
@@ -53,8 +55,8 @@ function Get-GPLinks {
     #Requires -Module GroupPolicy
     #Requires -Module ActiveDirectory
 
-     # Import module for determining GPO Links. Evaluate if the module is already loaded. Perform error handling if the module cannot be located
-     try{
+    # Import module for determining GPO Links. Evaluate if the module is already loaded. Perform error handling if the module cannot be located
+    try{
         if($(get-module | ?{"GPFunctions" -in $_.name} | Measure-Object).Count -lt 1){
             Import-Module "$PSScriptRoot\External\GPFunctions.psm1" -ErrorAction Stop
         }
@@ -197,7 +199,9 @@ function Get-GPLinks {
             # Write the contents of $LinkedGPOs to the file represented by the parameter $Path 
             try{
                 Out-File -FilePath $OutputPath -InputObject $OU_Output -NoNewline -Force
-                Out-File -FilePath $OutputPath -InputObject $($LinkedGPOs | Format-Table -AutoSize) -Append
+                # Out-File -FilePath $OutputPath -InputObject $($LinkedGPOs | Format-Table -AutoSize) -Append
+                Out-File -FilePath $OutputPath -InputObject $($LinkedGPOs) -Append
+
             }catch [System.Management.Automation.ParameterBindingException] {
                 
                 # Perform silent error handling if the file cannot be generated. Likely because $Path was not supplied. 
@@ -212,19 +216,18 @@ function Get-GPLinks {
         # Report GPOs linked to each OU
         $OUList | ForEach-Object {
             # Variable to store the output from traversing each OU and getting link details
-            [String]$DetailOutput;
-
-            # Variable to store the tabular output from traversing each OU and getting link details
-            [Object[]]$DetailTable;
+            [String]$DetailOutput = "";
 
             Write-Output "$($_.DistinguishedName)" -OutVariable DetailOutput; 
             Write-Output $FORMAT_STRING.Substring(0,($_.DistinguishedName.Length))
-            Get-GPLink -Path $_.DistinguishedName | Select-Object DisplayName, LinkEnabled, Enforced, BlockInheritance,GUID | Tee-Object -Variable DetailTable | Format-Table -AutoSize 
+            
+            Get-GPLink -Path $_.DistinguishedName | Select-Object DisplayName, LinkEnabled, Enforced, BlockInheritance,GUID | Format-Table -AutoSize | Out-String -Width 4096 | Tee-Object -FilePath $OutputPath -Append #| Out-File -FilePath $OutputPath -Append 
+
+
 
             # Write the contents of $DetailOutput & $DetailTable to the file represented by the parameter $Path 
             try{
                 Out-File -FilePath $OutputPath -InputObject $DetailOutput -NoNewline -Append
-                Out-File -FilePath $OutputPath -InputObject $($DetailTable | Format-Table -AutoSize | Out-String) -Append 
             }catch [System.Management.Automation.ParameterBindingException] {
                 
                 # Perform silent error handling if the file cannot be generated. Likely because $Path was not supplied. 
@@ -232,4 +235,4 @@ function Get-GPLinks {
             }
         }
 }
-Get-GPLinks -Path "$PSScriptRoot\Reports" -BothReports
+Get-GPLinks -Path "$PSScriptRoot"
