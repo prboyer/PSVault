@@ -26,7 +26,7 @@ function Set-O365ServicingChannel {
     https://windowstechpro.com/switch-office-365-semi-channel-to-monthly-targeted-channel/
 
     .NOTES
-    Author: Paul Boyer - 1-29-2021
+        Author: Paul Boyer - 1-29-2021
     
     #>
     [CmdletBinding()]
@@ -50,7 +50,7 @@ function Set-O365ServicingChannel {
         # Registry path to update
         [String]$REGISTRY = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Office\ClickToRun\Configuration";
         
-        # CONSTATNS: O365 CDN URLs
+        # CONSTANT: O365 CDN URLs
         [String]$ANNUAL = "http://officecdn.microsoft.com/pr/7ffbc6bf-bc32-4f92-8982-f9dd17fd3114";
         [String]$MONTHLY = "http://officecdn.microsoft.com/pr/492350f6-3a01-4f97-b9c0-c7c6ddf67d60";
 
