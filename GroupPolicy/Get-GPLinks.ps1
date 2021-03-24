@@ -1,10 +1,11 @@
 function Get-GPLinks {
     <#
     .SYNOPSIS
-    Short description
+    Script to provide either a TXT or CSV report of linking relationships between OUs and GPOs.
     
     .DESCRIPTION
-    Long description
+    Script that reports what OUs in the domain have what GPOs linked to them. 
+    Intended for use with Group Policy backup as exported policies do not retain the link information.
     
     .PARAMETER Path
     Output path for files to be saved. This should be a directory path, not a file path.
@@ -25,7 +26,7 @@ function Get-GPLinks {
     A .txt file report and/or a .csv report
     
     .EXAMPLE
-    An example
+    Get-GPLinks -Path "C:\Temp"
     
     .NOTES
         Author: Paul Boyer
