@@ -30,18 +30,22 @@ param (
 )
 
 if ($Uninstall) {
-    [String]$Reg_Path2 = "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\OneDriveSetup.exe";
-    [String]$Reg_Property2 = "UninstallString"
+    # [String]$Reg_Path2 = "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\OneDriveSetup.exe";
+    # [String]$Reg_Property2 = "UninstallString"
 
-    # Proceed with the uninstall if the the Uninstall String is in the registry 
-    if($null -ne (Get-Item -Path "Registry::$Reg_Path2").GetValue($Reg_Property2)){
-        # Get the uninstall string from the registry key
-        $R = (Get-ItemPropertyValue -Path "Registry::HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\OneDriveSetup.exe" -Name UninstallString)
+    # # Proceed with the uninstall if the the Uninstall String is in the registry 
+    # if($null -ne (Get-Item -Path "Registry::$Reg_Path2").GetValue($Reg_Property2)){
+    #     # Get the uninstall string from the registry key
+    #     $R = (Get-ItemPropertyValue -Path "Registry::HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\OneDriveSetup.exe" -Name UninstallString)
         
-        # Perform the uninstall
-        Start-Process -FilePath $R.Substring(0,$R.IndexOf('/')).Trim(' ') -ArgumentList $R.Substring($R.IndexOf('/')).Trim(' ') -PassThru -Wait
+    #     # Perform the uninstall
+    #     Start-Process -FilePath $R.Substring(0,$R.IndexOf('/')).Trim(' ') -ArgumentList $R.Substring($R.IndexOf('/')).Trim(' ') -PassThru -Wait
 
-    }
+    # }
+
+    <# This was a half-baked feature and decided to not implement for now #>
+    Write-Error -Exception $([System.NotImplementedException]::new("Uninstall function not implemented"))
+
 }
 else{
     # Make registry change noted on Microsoft Forum.  https://answers.microsoft.com/en-us/msoffice/forum/msoffice_onedrivefb-mso_win10-mso_o365b/onedrive-will-not-start/687028ae-2d32-4783-ba28-2cf050e32670
