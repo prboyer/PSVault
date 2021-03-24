@@ -33,6 +33,12 @@ function Get-GPLinks {
         Date: 3-19-21
 
         Fix for tables being cut of when writing out to file: https://poshoholic.com/2010/11/11/powershell-quick-tip-creating-wide-tables-with-powershell/
+
+        Getting the line number of the error in PS: https://stackoverflow.com/questions/17226718/how-to-get-the-line-number-of-error-in-powershell
+
+        Exporting Arrays to a CSV: https://community.spiceworks.com/topic/336094-exporting-arrays-to-a-csv-file
+
+        Scoping in PowerShell: https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_scopes?view=powershell-7.1#powershell-scopes
     #>
     param (
         [Parameter(Mandatory=$true,ParameterSetName="CSVReport")]
