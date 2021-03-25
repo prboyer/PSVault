@@ -43,13 +43,14 @@ function Get-GPLinks {
     param (
         [Parameter(Mandatory=$true,ParameterSetName="CSVReport")]
         [Parameter(Mandatory=$true,ParameterSetName="FullReport")]
+        [Parameter(Position=0)]
         [ValidateNotNullOrEmpty()]
         [String]
         $Path,
         [Parameter(ParameterSetName="CSVReport")]
         [Switch]
         $CSVReport,
-        [Parameter()]
+        [Parameter(Position=1)]
         [switch]
         $BothReports,
         [Parameter(ParameterSetName="FullReport")]
@@ -64,7 +65,7 @@ function Get-GPLinks {
 
     # Import module for determining GPO Links. Evaluate if the module is already loaded. Perform error handling if the module cannot be located
     try{
-        if($(get-module | ?{"GPFunctions" -in $_.name} | Measure-Object).Count -lt 1){
+        if($(get-module | Where-Object {"GPFunctions" -in $_.name} | Measure-Object).Count -lt 1){
             Import-Module "$PSScriptRoot\External\GPFunctions.psm1" -ErrorAction Stop
         }
 
@@ -126,7 +127,7 @@ function Get-GPLinks {
         # Array to store the results of Get-GPLink for each OU
         [Object[]]$private:Result= @();
 
-        $OUList | %{
+        $OUList | ForEach-Object {
              $Result += @(
                 # Get the DisplayName, Enabled status, Enforced status, Inheritance status, and GUID for each GPO. Combine those values with the DN of the corresponding OU for each.
                 Get-GPLink -Path $_.DistinguishedName | Select-Object DisplayName, LinkEnabled, Enforced, BlockInheritance,GUID, @{name='OU_DistinguishedName';expression={$_.OUDN}} 
@@ -230,7 +231,7 @@ function Get-GPLinks {
                 Write-Output "$($_.DistinguishedName)" -OutVariable DetailOutput; 
                 Write-Output $FORMAT_STRING.Substring(0,($_.DistinguishedName.Length))
                 
-                Get-GPLink -Path $_.DistinguishedName | Select-Object DisplayName, LinkEnabled, Enforced, BlockInheritance,GUID | Format-Table -AutoSize | Out-String -Width 4096 | Tee-Object -FilePath $OutputPath -Append #| Out-File -FilePath $OutputPath -Append 
+                Get-GPLink -Path $_.DistinguishedName | Select-Object DisplayName, LinkEnabled, Enforced, BlockInheritance,GUID | Format-Table -AutoSize | Out-String -Width 4096 | Tee-Object -FilePath $OutputPath -Append 
 
                 # Write the contents of $DetailOutput & $DetailTable to the file represented by the parameter $Path 
                 try{
