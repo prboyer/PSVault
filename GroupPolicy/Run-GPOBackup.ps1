@@ -9,6 +9,8 @@ function Run-GPOBackup {
         $Domain
     )
     #Requires -Module ActiveDirectory
+    
+    Import-Module $PSScriptRoot\External\GPFunctions.psm1
 
     ####
     # CONSTANT Variables
@@ -20,11 +22,15 @@ function Run-GPOBackup {
 
         # Variable for today's date
         [String]$global:DATE = Get-Date -Format FileDateTimeUniversal
+
+        # Information variable
+        [String]$INFO
     
     #####
     # Other Variables 
 
     #####
+    
     # Assign value to the $BackupDomain variable if none supplied at runtime
     [String]$global:BackupDomain;
     if($Domain -ne ""){
@@ -33,30 +39,25 @@ function Run-GPOBackup {
         $BackupDomain = $(Get-ADDomain).Forest
     }
 
-    # Declare GPO Backup Job (takes parameters in positional order only)
-    Start-Job -FilePath $BACKUP_GPOS -ArgumentList $BackupDomain,$BackupFolder
+    # Start GPO Backup Job (takes parameters in positional order only)
+    Write-Information "Begin local background job: BackupJob - Executes BackUp_GPOS.ps1" -InformationVariable +INFO
+    # $BackupJob = Start-Job -Name "BackupJob" -FilePath $global:BACKUP_GPOS -ArgumentList $BackupDomain,$BackupFolder 
+  
+
+    # Start GPO Links Job
+    Write-Information "Begin local background job: LinksJob - Executes Get-GPLinks.ps1";   
+    $LinksJob = Start-Job -Name "LinksJob" -ArgumentList $BackupFolder -ScriptBlock {
+        Get-GPLinks -Path $BackupFolder -BothReports
+    } 
+
+        #TODO Finish the job for Links
 
 
 
 
 
 
-
-
-
-
-
-
-    while((Get-Job -State Running | Measure-Object).Count -gt 0){
-        Get-Job
-        Start-Sleep 2
-    }
-
-
-
-    # Run the GPO Backup Script
-    # Start-Process "powershell.exe" -Wait -NoNewWindow -ArgumentList "-NoProfile -File `"$BACKUP_GPOS`" -Domain $BackupDomain -BackupFolder `"$BackupFolder`""
-
+        # TODO run these steps after the backup job has completed
     # Rename the GPO Backup content folder
     # [System.IO.DirectoryInfo]$currentBackup = (Get-ChildItem $BackupFolder | Sort-Object -Descending -Property LastWriteTime)[0]
     # $currentBackup | Rename-Item -NewName $($DATE+"_GPOBackup") -Force -PassThru
