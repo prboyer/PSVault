@@ -29,13 +29,14 @@ Additional arguments to supply to Robocopy
 Additional directory names to exclude
 
 .PARAMETER ExcludeFiles
-PAdditional file names to exclude
+Additional file names to exclude
 
 .EXAMPLE
 Copy-LocalUserProfile -SourcePath C:\Users\Paul -TargetPath C:\Users\NewPaul 
 
 .NOTES
-Paul Boyer, 11-17-2020
+    Author: Paul Boyer
+    Date: 11-17-2020
 
 #>
     param (
