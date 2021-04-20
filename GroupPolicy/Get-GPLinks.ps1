@@ -1,10 +1,11 @@
 function Get-GPLinks {
     <#
     .SYNOPSIS
-    Short description
+    Script to provide either a TXT or CSV report of linking relationships between OUs and GPOs.
     
     .DESCRIPTION
-    Long description
+    Script that reports what OUs in the domain have what GPOs linked to them. 
+    Intended for use with Group Policy backup as exported policies do not retain the link information.
     
     .PARAMETER Path
     Output path for files to be saved. This should be a directory path, not a file path.
@@ -25,24 +26,31 @@ function Get-GPLinks {
     A .txt file report and/or a .csv report
     
     .EXAMPLE
-    An example
+    Get-GPLinks -Path "C:\Temp"
     
     .NOTES
         Author: Paul Boyer
         Date: 3-19-21
 
         Fix for tables being cut of when writing out to file: https://poshoholic.com/2010/11/11/powershell-quick-tip-creating-wide-tables-with-powershell/
+
+        Getting the line number of the error in PS: https://stackoverflow.com/questions/17226718/how-to-get-the-line-number-of-error-in-powershell
+
+        Exporting Arrays to a CSV: https://community.spiceworks.com/topic/336094-exporting-arrays-to-a-csv-file
+
+        Scoping in PowerShell: https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_scopes?view=powershell-7.1#powershell-scopes
     #>
     param (
         [Parameter(Mandatory=$true,ParameterSetName="CSVReport")]
         [Parameter(Mandatory=$true,ParameterSetName="FullReport")]
+        [Parameter(Position=0)]
         [ValidateNotNullOrEmpty()]
         [String]
         $Path,
         [Parameter(ParameterSetName="CSVReport")]
         [Switch]
         $CSVReport,
-        [Parameter()]
+        [Parameter(Position=1)]
         [switch]
         $BothReports,
         [Parameter(ParameterSetName="FullReport")]
@@ -57,7 +65,7 @@ function Get-GPLinks {
 
     # Import module for determining GPO Links. Evaluate if the module is already loaded. Perform error handling if the module cannot be located
     try{
-        if($(get-module | ?{"GPFunctions" -in $_.name} | Measure-Object).Count -lt 1){
+        if($(get-module | Where-Object {"GPFunctions" -in $_.name} | Measure-Object).Count -lt 1){
             Import-Module "$PSScriptRoot\External\GPFunctions.psm1" -ErrorAction Stop
         }
 
@@ -119,7 +127,7 @@ function Get-GPLinks {
         # Array to store the results of Get-GPLink for each OU
         [Object[]]$private:Result= @();
 
-        $OUList | %{
+        $OUList | ForEach-Object {
              $Result += @(
                 # Get the DisplayName, Enabled status, Enforced status, Inheritance status, and GUID for each GPO. Combine those values with the DN of the corresponding OU for each.
                 Get-GPLink -Path $_.DistinguishedName | Select-Object DisplayName, LinkEnabled, Enforced, BlockInheritance,GUID, @{name='OU_DistinguishedName';expression={$_.OUDN}} 
@@ -223,7 +231,7 @@ function Get-GPLinks {
                 Write-Output "$($_.DistinguishedName)" -OutVariable DetailOutput; 
                 Write-Output $FORMAT_STRING.Substring(0,($_.DistinguishedName.Length))
                 
-                Get-GPLink -Path $_.DistinguishedName | Select-Object DisplayName, LinkEnabled, Enforced, BlockInheritance,GUID | Format-Table -AutoSize | Out-String -Width 4096 | Tee-Object -FilePath $OutputPath -Append #| Out-File -FilePath $OutputPath -Append 
+                Get-GPLink -Path $_.DistinguishedName | Select-Object DisplayName, LinkEnabled, Enforced, BlockInheritance,GUID | Format-Table -AutoSize | Out-String -Width 4096 | Tee-Object -FilePath $OutputPath -Append 
 
                 # Write the contents of $DetailOutput & $DetailTable to the file represented by the parameter $Path 
                 try{
