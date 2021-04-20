@@ -1,7 +1,7 @@
 function Remove-QuickAssist{
     <#
     .SYNOPSIS
-    . Function wrapper for removing Windows QuickAssist
+    Script removes Windows QuickAssist functionality
     
     .DESCRIPTION
     Removes the Windows Quick Assist app using the Remove-WindowsCapability cmdlet
