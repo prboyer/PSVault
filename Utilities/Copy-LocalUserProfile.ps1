@@ -106,7 +106,7 @@ Paul Boyer, 11-17-2020
         }
     
     # Standard argument list for Robocopy
-    [String]$ROBO_ArgumentList = "$SourcePath $TargetPath /S /ETA /R:$ROBO_Retry /W:$ROBO_Wait /XX /XD $X_DIRS /XF $X_FILES "
+    [String]$ROBO_ArgumentList = "$SourcePath $TargetPath /S /ETA /R:$ROBO_Retry /W:$ROBO_Wait /XX /XD $X_DIRS /XF $X_FILES /XJD"
 
     # Add in the additional parameters from command line
     if ($RobocopyArguments -ne "") {
