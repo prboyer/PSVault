@@ -2,7 +2,10 @@
     param (
         [Parameter(mandatory=$true)]
         [String]
-        $ComputerName
+        $ComputerName,
+        [Parameter()]
+        [switch]
+        $NoConfirm
     )
     #Requires -Module ActiveDirectory
     #Requires -Module ConfigurationManager
@@ -45,11 +48,18 @@
         Set-Location "$($SiteCode):\" @initParams
     
     # Remove Device from Active Directory
-        Write-Host "`nRemove Computer from Active Directory`n"
+        Write-Host "`nRemove Computer from Active Directory`n"        
         try {
-            Get-ADComputer -Identity $ComputerName | Remove-ADComputer -Confirm
+            if ($NoConfirm) {
+                # Removed the computer after finding in AD, and don't ask user to confirm action
+                Get-ADComputer -Identity $ComputerName | Remove-ADComputer
+            }else{
+                # Removed the computer after finding in AD, and confirm the action
+                Get-ADComputer -Identity $ComputerName | Remove-ADComputer -Confirm
+            }
             Write-Host ("{0} removed from Active Directory" -f $ComputerName.ToUpper()) -ForegroundColor Green
         }
+        # Error handling will catch the thrown exception if the computer cannot be located in AD
         catch [Microsoft.ActiveDirectory.Management.ADIdentityNotFoundException]{
             Write-Error ("Unable to find computer {0} in Active Directory" -f $ComputerName.ToUpper())
         }
@@ -57,7 +67,7 @@
     # Remove Device from SCCM
 
 
-
+        #Remove-CMDevice $ComputerName -DisableWildcardHandling -Force -Confirm
 
 
 
@@ -65,30 +75,4 @@
 Set-Location $currentWorkingDir
 
 }
-
-
 Offboard-Asset
-
-
-
-#$$$$ CONFIGURATION MANAGER $$$$
-
-# Write-Host "Remove from Configuration Manager"
-
-# if($table.Rows[1].'Workstation Asset Tag' -eq $null){
-#     try{
-#     Remove-CMDevice -Name $table.Rows[1].'Laptop Asset Tag' -Confirm
-#     }
-#     catch{
-#     Write-Host $table.Rows[1].'Laptop Asset Tag' "not removed. Not found or does not exist" -ForegroundColor Red
-#     }
-# }
-# else{
-#     try{
-#     Remove-CMDevice -Name $table.Rows[1].'Workstation Asset Tag' -Confirm
-#     }
-#     catch{
-#     Write-Host $table.Rows[1].'Workstation Asset Tag' "not removed. Not found or does not exist" -ForegroundColor Red
-#     }
-# }
-# Write-Host "Remove from Configuration Manager ... Complete" -ForegroundColor Green
