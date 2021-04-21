@@ -41,16 +41,20 @@ function Run-GPOBackup {
 
     # Start GPO Backup Job (takes parameters in positional order only)
     Write-Information "Begin local background job: BackupJob - Executes BackUp_GPOS.ps1" -InformationVariable +INFO
-    # $BackupJob = Start-Job -Name "BackupJob" -FilePath $global:BACKUP_GPOS -ArgumentList $BackupDomain,$BackupFolder 
+    $BackupJob = Start-Job -Name "BackupJob" -FilePath $global:BACKUP_GPOS -ArgumentList $BackupDomain,$BackupFolder 
   
 
     # Start GPO Links Job
     Write-Information "Begin local background job: LinksJob - Executes Get-GPLinks.ps1";   
     $LinksJob = Start-Job -Name "LinksJob" -ArgumentList $BackupFolder -ScriptBlock {
-        Get-GPLinks -Path $BackupFolder -BothReports
+        # Import requried module
+        . $using:GET_GPLINKS
+
+        # Run the script
+        Get-GPLinks -BothReport -Path "$args"
     } 
 
-        #TODO Finish the job for Links
+
 
 
 
@@ -64,4 +68,4 @@ function Run-GPOBackup {
 
 
 }
-Run-GPOBackup -BackupFolder $PSScriptRoot\backup 
+Run-GPOBackup -BackupFolder $PSScriptRoot\Backup 

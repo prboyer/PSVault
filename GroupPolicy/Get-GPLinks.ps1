@@ -97,7 +97,6 @@ function Get-GPLinks {
     # Report GPOS linked to the Domain Root. Write the results to the file represented by the -Path argument
     function private:Get-DomainRootLinks ([String]$Path) {
         #Requires -Module ActiveDirectory
-        #Requires -Module GPFunctions    
         
         # Dynamically get the name of the AD Domain using cmdlet from the Active Directory module
         [String]$domainRoot = (Get-ADDomain).DistinguishedName
@@ -121,9 +120,6 @@ function Get-GPLinks {
     
     # Generate a CSV report of GPOs linked to each OU. Then write the results to the file represented by the -Path argument
     function private:New-CSVLinkReport([String]$Path) {
-        #Requires -Module ActiveDirectory
-        #Requires -Module GPFunctions
-
         # Array to store the results of Get-GPLink for each OU
         [Object[]]$private:Result= @();
 
