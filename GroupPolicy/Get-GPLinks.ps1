@@ -43,14 +43,14 @@ function Get-GPLinks {
     param (
         [Parameter(Mandatory=$true,ParameterSetName="CSVReport")]
         [Parameter(Mandatory=$true,ParameterSetName="FullReport")]
-        [Parameter(Position=0)]
+        [Parameter(Position=0,ParameterSetName="Both")]
         [ValidateNotNullOrEmpty()]
         [String]
         $Path,
         [Parameter(ParameterSetName="CSVReport")]
         [Switch]
         $CSVReport,
-        [Parameter(Position=1)]
+        [Parameter(Position=1,ParameterSetName="Both")]
         [switch]
         $BothReports,
         [Parameter(ParameterSetName="FullReport")]
