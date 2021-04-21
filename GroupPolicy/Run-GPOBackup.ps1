@@ -31,6 +31,9 @@ function Run-GPOBackup {
 
         # Variable for today's date
         [String]$global:DATE = Get-Date -Format FileDateTimeUniversal
+        
+        # Variable for logging the timestamp
+        [String]$LOGDATE = Get-Date -Format "G"
 
         # Information variable
         [String]$INFO
@@ -53,17 +56,17 @@ function Run-GPOBackup {
     }
 
     # Create a new temp folder to hold the backup files
-    Write-Information ("Create temporary folder at {0}" -f "$BackupFolder\Temp")
+    Write-Information ("{0}`tCreate temporary folder at {1}" -f $LOGDATE,"$BackupFolder\Temp")
     New-Item -Path $BackupFolder -Name "Temp" -ItemType Directory | Out-Null
     $Temp = Get-Item -Path "$BackupFolder\Temp"
 
     # Start GPO Backup Job (takes parameters in positional order only)
-    Write-Information ("Begin local background job: BackupJob - Executes BackUp_GPOS.ps1 `n`tBacking up GPOs to {0}" -f $Temp) -InformationVariable +INFO
+    Write-Information ("{0}`tBegin local background job: BackupJob - Executes BackUp_GPOS.ps1 `n`t`tBacking up GPOs to {1}" -f $LOGDATE,$Temp) -InformationVariable +INFO
     $BackupJob = Start-Job -Name "BackupJob" -FilePath $global:BACKUP_GPOS -ArgumentList $BackupDomain,$Temp 
   
 
     # Start GPO Links Job
-    Write-Information ("Begin local background job: LinksJob - Executes Get-GPLinks.ps1 `n`tBacking up Links to {0}" -f $Temp) -InformationVariable +INFO   
+    Write-Information ("{0}`tBegin local background job: LinksJob - Executes Get-GPLinks.ps1 `n`t`tBacking up Links to {1}" -f $LOGDATE,$Temp) -InformationVariable +INFO   
     $LinksJob = Start-Job -Name "LinksJob" -ArgumentList $Temp -ScriptBlock {
         # Import requried module
         . $using:GET_GPLINKS
@@ -74,16 +77,16 @@ function Run-GPOBackup {
 
     # Wait for the backup jobs to finish, then zip up the files
     Wait-Job -Job $BackupJob,$LinksJob | Out-Null
-    Write-Information ("Begin zipping files in {0} to archive at {1}" -f $Temp,"$BackupFolder\$DATE.zip") -InformationVariable +INFO
+    Write-Information ("{0}`tBegin zipping files in {1} to archive at {2}" -f $LOGDATE,$Temp,"$BackupFolder\$DATE.zip") -InformationVariable +INFO
     Compress-Archive -Path "$Temp\*" -DestinationPath "$BackupFolder\$DATE.zip"
 
     # Delete Temp folder
-    Write-Information "Delete Temp Folder ({0})" -f $Temp -InformationVariable +INFO
+    Write-Information ("{0}`tDelete Temp Folder ({1})" -f $LOGDATE,$Temp) -InformationVariable +INFO
     Remove-Item -Path $Temp -Recurse -Force
 
     # Cleanup old Backups
     # Perform cleanup of older backups if the directory has more than 10 archives
-    Write-Information "Perform cleanup of older backups if the directory has more than 10 archives" -InformationVariable +INFO
+    Write-Information ("{0}`tPerform cleanup of older backups if the directory has more than 10 archives" -f $LOGDATE) -InformationVariable +INFO
     if ((Get-ChildItem $backupFolder | Measure-Object).Count -gt 10) {
    
         # Delete backups older than the specified retention period, however keep a minimum of 5 recent backups.
