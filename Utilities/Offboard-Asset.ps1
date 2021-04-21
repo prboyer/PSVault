@@ -45,22 +45,23 @@
         Set-Location "$($SiteCode):\" @initParams
     
     # Remove Device from Active Directory
-    Write-Host "`nRemove Computer from Active Directory`n"
-    try {
-        Get-ADComputer -Identity $ComputerName | Remove-ADComputer -Confirm
-        Write-Host ("{0} removed from Active Directory" -f $ComputerName.ToUpper()) -ForegroundColor Green
-    }
-    catch [Microsoft.ActiveDirectory.Management.ADIdentityNotFoundException]{
-        Write-Error ("Unable to find computer {0} in Active Directory" -f $ComputerName.ToUpper())
-    }
+        Write-Host "`nRemove Computer from Active Directory`n"
+        try {
+            Get-ADComputer -Identity $ComputerName | Remove-ADComputer -Confirm
+            Write-Host ("{0} removed from Active Directory" -f $ComputerName.ToUpper()) -ForegroundColor Green
+        }
+        catch [Microsoft.ActiveDirectory.Management.ADIdentityNotFoundException]{
+            Write-Error ("Unable to find computer {0} in Active Directory" -f $ComputerName.ToUpper())
+        }
+
+    # Remove Device from SCCM
 
 
 
 
 
 
-
-
+# Set the location back to the original location script was called from
 Set-Location $currentWorkingDir
 
 }
@@ -91,25 +92,3 @@ Offboard-Asset
 #     }
 # }
 # Write-Host "Remove from Configuration Manager ... Complete" -ForegroundColor Green
-
-
-# #$$$$ ACTIVE DIRECTORY $$$$
-# Write-Host "Remove from Active Directory"
-
-# if($table.Rows[1].'Workstation Asset Tag' -eq $null){
-#     try{
-#     Remove-ADComputer $table.Rows[1].'Laptop Asset Tag' -Confirm
-#     }
-#     catch{
-#     Write-Host $table.Rows[1].'Laptop Asset Tag' "not removed. Not found or does not exist" -ForegroundColor Red
-#     }
-# }
-# else{
-#     try{
-#     Remove-ADComputer $table.Rows[1].'Workstation Asset Tag' -Confirm
-#     }
-#     catch{
-#     Write-Host $table.Rows[1].'Workstation Asset Tag' "not removed. Not found or does not exist" -ForegroundColor Red
-#     }
-# }
-# Write-Host "Remove from Active Directory ... Complete" -ForegroundColor Green
