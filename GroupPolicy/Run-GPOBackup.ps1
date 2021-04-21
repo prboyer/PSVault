@@ -1,7 +1,11 @@
 function Run-GPOBackup {
     param (
         [Parameter(Mandatory=$true)]
-        [ValidateNotNullOrEmpty()]
+        [ValidateScript({
+            if(-not (Test-Path $_)){
+                New-Item -Type Directory -Path $(Split-Path $_ -Parent) -Name $(Split-Path $_ -Leaf)
+            }
+        })]
         [String]
         $BackupFolder,
         [Parameter()]
@@ -10,10 +14,10 @@ function Run-GPOBackup {
     )
     #Requires -Module ActiveDirectory
     
+    # Import required module
     Import-Module $PSScriptRoot\External\GPFunctions.psm1
 
-    ####
-    # CONSTANT Variables
+    ## CONSTANT Variables ##
         # Path to the location of Backup_GPOs.ps1
         [String]$global:BACKUP_GPOS = "$PSScriptRoot\External\BackUp_GPOs.ps1"
 
@@ -26,11 +30,8 @@ function Run-GPOBackup {
         # Information variable
         [String]$INFO
     
-    #####
-    # Other Variables 
+    ##
 
-    #####
-    
     # Assign value to the $BackupDomain variable if none supplied at runtime
     [String]$global:BackupDomain;
     if($Domain -ne ""){
@@ -45,7 +46,7 @@ function Run-GPOBackup {
   
 
     # Start GPO Links Job
-    Write-Information "Begin local background job: LinksJob - Executes Get-GPLinks.ps1";   
+    Write-Information "Begin local background job: LinksJob - Executes Get-GPLinks.ps1" -InformationVariable +INFO   
     $LinksJob = Start-Job -Name "LinksJob" -ArgumentList $BackupFolder -ScriptBlock {
         # Import requried module
         . $using:GET_GPLINKS
@@ -54,18 +55,12 @@ function Run-GPOBackup {
         Get-GPLinks -BothReport -Path "$args"
     } 
 
+    # Wait for the backup jobs to finish, then zip up the files
+    Wait-Job -Job $BackupJob,$LinksJob
+    Compress-Archive -Path $BackupFolder -DestinationPath "$(Split-Path $BackupFolder -Parent)\$DATE.zip"
 
-
-
-
-
-
-
-        # TODO run these steps after the backup job has completed
-    # Rename the GPO Backup content folder
     # [System.IO.DirectoryInfo]$currentBackup = (Get-ChildItem $BackupFolder | Sort-Object -Descending -Property LastWriteTime)[0]
-    # $currentBackup | Rename-Item -NewName $($DATE+"_GPOBackup") -Force -PassThru
 
 
 }
-Run-GPOBackup -BackupFolder $PSScriptRoot\Backup 
+Run-GPOBackup -BackupFolder $PSScriptRoot\Job 
