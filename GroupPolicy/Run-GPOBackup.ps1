@@ -4,6 +4,8 @@ function Run-GPOBackup {
         [ValidateScript({
             if(-not (Test-Path $_)){
                 New-Item -Type Directory -Path $(Split-Path $_ -Parent) -Name $(Split-Path $_ -Leaf)
+            }else{
+                return $true
             }
         })]
         [String]
@@ -50,7 +52,7 @@ function Run-GPOBackup {
     }
 
     # Create a new temp folder to hold the backup files
-    New-Item -Path $BackupFolder -Name "Temp" -ItemType Directory
+    New-Item -Path $BackupFolder -Name "Temp" -ItemType Directory | Out-Null
     $Temp = Get-Item -Path "$BackupFolder\Temp"
 
     # Start GPO Backup Job (takes parameters in positional order only)
@@ -69,7 +71,7 @@ function Run-GPOBackup {
     } 
 
     # Wait for the backup jobs to finish, then zip up the files
-    Wait-Job -Job $BackupJob,$LinksJob
+    Wait-Job -Job $BackupJob,$LinksJob | Out-Null
     Compress-Archive -Path "$Temp\*" -DestinationPath "$BackupFolder\$DATE.zip"
 
     # Delete Temp folder
