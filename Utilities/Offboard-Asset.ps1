@@ -1,7 +1,7 @@
 ﻿function Offboard-Asset {
     param (
         [Parameter(mandatory=$true)]
-        [String]
+        [String[]]
         $ComputerName,
         [Parameter()]
         [switch]
@@ -47,32 +47,50 @@
         # Set the current location to be the site code.
         Set-Location "$($SiteCode):\" @initParams
     
-    # Remove Device from Active Directory
+    foreach($Computer in $ComputerName){
+        # Remove Device from Active Directory
         Write-Host "`nRemove Computer from Active Directory`n"        
         try {
             if ($NoConfirm) {
                 # Removed the computer after finding in AD, and don't ask user to confirm action
-                Get-ADComputer -Identity $ComputerName | Remove-ADComputer
+                Get-ADComputer -Identity $Computer | Remove-ADComputer
             }else{
                 # Removed the computer after finding in AD, and confirm the action
-                Get-ADComputer -Identity $ComputerName | Remove-ADComputer -Confirm
+                Get-ADComputer -Identity $Computer | Remove-ADComputer -Confirm
             }
-            Write-Host ("{0} removed from Active Directory" -f $ComputerName.ToUpper()) -ForegroundColor Green
+            Write-Host ("{0} removed from Active Directory" -f $Computer.ToUpper()) -ForegroundColor Green
         }
         # Error handling will catch the thrown exception if the computer cannot be located in AD
         catch [Microsoft.ActiveDirectory.Management.ADIdentityNotFoundException]{
-            Write-Error ("Unable to find computer {0} in Active Directory" -f $ComputerName.ToUpper())
+            Write-Error ("Unable to find computer {0} in Active Directory" -f $Computer.ToUpper())
         }
 
-    # Remove Device from SCCM
+        # Remove Device from SCCM
+        Write-Host "`nRemove Computer from SCCM`n"
 
+        try {
+            [Object]$device = Get-CMDevice -Name $Computer
+            
+            # Try to get the device from SCCM. If null, then throw an exception
+            if ($null -eq $device) {
+                throw [System.ArgumentNullException]::new($("Unable to find computer {0} in SCCM Database" -f $Computer.ToUpper()))
+            }else{
+                # Remove the device without confirming the action, only if -NoConfirm is passed
+                if ($NoConfirm) {
+                    Remove-CMDevice $Computer
+                }else{
+                    Remove-CMDevice $Computer -Confirm
+                }
+                
+                Write-Host ("{0} removed from SCCM" -f $Computer.ToUpper()) -ForegroundColor Green
+            }
+        }
+        catch [System.ArgumentNullException]{
+            Write-Error $Error[0].Exception
+        }
+    }
 
-        #Remove-CMDevice $ComputerName -DisableWildcardHandling -Force -Confirm
-
-
-
-# Set the location back to the original location script was called from
-Set-Location $currentWorkingDir
-
+    # Set the location back to the original location script was called from
+    Set-Location $currentWorkingDir
 }
 Offboard-Asset
