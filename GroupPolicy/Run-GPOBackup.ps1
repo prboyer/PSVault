@@ -42,6 +42,7 @@ function Run-GPOBackup {
         }
     
     ##
+    Write-Information $DATE -InformationVariable +INFO
 
     # Assign value to the $BackupDomain variable if none supplied at runtime
     [String]$global:BackupDomain;
@@ -52,16 +53,17 @@ function Run-GPOBackup {
     }
 
     # Create a new temp folder to hold the backup files
+    Write-Information ("Create temporary folder at {0}" -f "$BackupFolder\Temp")
     New-Item -Path $BackupFolder -Name "Temp" -ItemType Directory | Out-Null
     $Temp = Get-Item -Path "$BackupFolder\Temp"
 
     # Start GPO Backup Job (takes parameters in positional order only)
-    Write-Information "Begin local background job: BackupJob - Executes BackUp_GPOS.ps1" -InformationVariable +INFO
+    Write-Information ("Begin local background job: BackupJob - Executes BackUp_GPOS.ps1 `n`tBacking up GPOs to {0}" -f $Temp) -InformationVariable +INFO
     $BackupJob = Start-Job -Name "BackupJob" -FilePath $global:BACKUP_GPOS -ArgumentList $BackupDomain,$Temp 
   
 
     # Start GPO Links Job
-    Write-Information "Begin local background job: LinksJob - Executes Get-GPLinks.ps1" -InformationVariable +INFO   
+    Write-Information ("Begin local background job: LinksJob - Executes Get-GPLinks.ps1 `n`tBacking up Links to {0}" -f $Temp) -InformationVariable +INFO   
     $LinksJob = Start-Job -Name "LinksJob" -ArgumentList $Temp -ScriptBlock {
         # Import requried module
         . $using:GET_GPLINKS
@@ -72,18 +74,24 @@ function Run-GPOBackup {
 
     # Wait for the backup jobs to finish, then zip up the files
     Wait-Job -Job $BackupJob,$LinksJob | Out-Null
+    Write-Information ("Begin zipping files in {0} to archive at {1}" -f $Temp,"$BackupFolder\$DATE.zip") -InformationVariable +INFO
     Compress-Archive -Path "$Temp\*" -DestinationPath "$BackupFolder\$DATE.zip"
 
     # Delete Temp folder
+    Write-Information "Delete Temp Folder ({0})" -f $Temp -InformationVariable +INFO
     Remove-Item -Path $Temp -Recurse -Force
 
     # Cleanup old Backups
-    # Perform cleanup of older backups if the directory has more than 10 archives 
+    # Perform cleanup of older backups if the directory has more than 10 archives
+    Write-Information "Perform cleanup of older backups if the directory has more than 10 archives" -InformationVariable +INFO
     if ((Get-ChildItem $backupFolder | Measure-Object).Count -gt 10) {
    
         # Delete backups older than the specified retention period, however keep a minimum of 5 recent backups.
         Get-ChildItem $backupFolder | Sort-Object -Property LastWriteTime -Descending | Select-Object -Skip 5 | Where-Object {$_.LastWriteTime -lt $((Get-Date).AddDays($KEEP))} | Remove-Item -Recurse -Force
     }
+
+    # Write information to Log file
+    $INFO | Out-File -FilePath $BackupFolder\Log.txt -Append
 
 }
 Run-GPOBackup -BackupFolder $PSScriptRoot\Backup
