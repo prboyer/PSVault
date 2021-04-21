@@ -10,7 +10,10 @@ function Run-GPOBackup {
         $BackupFolder,
         [Parameter()]
         [String]
-        $Domain
+        $Domain,
+        [Parameter()]
+        [Int]
+        $BackupsToKeep
     )
     #Requires -Module ActiveDirectory
     
@@ -29,6 +32,12 @@ function Run-GPOBackup {
 
         # Information variable
         [String]$INFO
+
+        # Number of backups to keep
+        [Int]$KEEP = 10
+        if ($BackupsToKeep -ne $null) {
+            $KEEP = $BackupsToKeep
+        }
     
     ##
 
@@ -40,14 +49,18 @@ function Run-GPOBackup {
         $BackupDomain = $(Get-ADDomain).Forest
     }
 
+    # Create a new temp folder to hold the backup files
+    New-Item -Path $BackupFolder -Name "Temp" -ItemType Directory
+    $Temp = Get-Item -Path "$BackupFolder\Temp"
+
     # Start GPO Backup Job (takes parameters in positional order only)
     Write-Information "Begin local background job: BackupJob - Executes BackUp_GPOS.ps1" -InformationVariable +INFO
-    $BackupJob = Start-Job -Name "BackupJob" -FilePath $global:BACKUP_GPOS -ArgumentList $BackupDomain,$BackupFolder 
+    $BackupJob = Start-Job -Name "BackupJob" -FilePath $global:BACKUP_GPOS -ArgumentList $BackupDomain,$Temp 
   
 
     # Start GPO Links Job
     Write-Information "Begin local background job: LinksJob - Executes Get-GPLinks.ps1" -InformationVariable +INFO   
-    $LinksJob = Start-Job -Name "LinksJob" -ArgumentList $BackupFolder -ScriptBlock {
+    $LinksJob = Start-Job -Name "LinksJob" -ArgumentList $Temp -ScriptBlock {
         # Import requried module
         . $using:GET_GPLINKS
 
@@ -57,10 +70,18 @@ function Run-GPOBackup {
 
     # Wait for the backup jobs to finish, then zip up the files
     Wait-Job -Job $BackupJob,$LinksJob
-    Compress-Archive -Path $BackupFolder -DestinationPath "$(Split-Path $BackupFolder -Parent)\$DATE.zip"
+    Compress-Archive -Path "$Temp\*" -DestinationPath "$BackupFolder\$DATE.zip"
 
-    # [System.IO.DirectoryInfo]$currentBackup = (Get-ChildItem $BackupFolder | Sort-Object -Descending -Property LastWriteTime)[0]
+    # Delete Temp folder
+    Remove-Item -Path $Temp -Recurse -Force
 
+    # Cleanup old Backups
+    # Perform cleanup of older backups if the directory has more than 10 archives 
+    if ((Get-ChildItem $backupFolder | Measure-Object).Count -gt 10) {
+   
+        # Delete backups older than the specified retention period, however keep a minimum of 5 recent backups.
+        Get-ChildItem $backupFolder | Sort-Object -Property LastWriteTime -Descending | Select-Object -Skip 5 | Where-Object {$_.LastWriteTime -lt $((Get-Date).AddDays($KEEP))} | Remove-Item -Recurse -Force
+    }
 
 }
-Run-GPOBackup -BackupFolder $PSScriptRoot\Job 
+Run-GPOBackup -BackupFolder $PSScriptRoot\Backup
