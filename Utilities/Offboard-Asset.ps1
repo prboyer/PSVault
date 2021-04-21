@@ -1,11 +1,43 @@
 ﻿function Offboard-Asset {
+    <#
+    .SYNOPSIS
+    Script to automate the removal of assets from Active Directory and SCCM
+    
+    .DESCRIPTION
+    Script takes in a list of computer names and removes them from both Active Directory and SCCM. The default behavior is to confirm execution of the removal action, but this can be overridden with the -NoConfirm parameter
+    
+    .PARAMETER ComputerName
+    String array of computer names
+    
+    .PARAMETER NoConfirm
+    Switch parameter that tells the script to proceed with removing devices from AD and SCCM without user confirmation
+    
+    .PARAMETER SiteCode
+    SCCM Site Code
+    
+    .PARAMETER SiteServer
+    SCCM Site Server
+    
+    .EXAMPLE
+    Offboard-Asset -ComputerName computer01.contoso.com
+    
+    .NOTES
+        Author: Paul Boyer
+        Date:   4-21-21
+    #>
     param (
         [Parameter(mandatory=$true)]
         [String[]]
         $ComputerName,
         [Parameter()]
         [switch]
-        $NoConfirm
+        $NoConfirm,
+        [Parameter(ParameterSetName='SCCM',Mandatory=$true)]
+        [String]
+        $SiteCode,
+        [Parameter(ParameterSetName='SCCM',Mandatory=$true)]
+        [String]
+        $SiteServer
     )
     #Requires -Module ActiveDirectory
     #Requires -Module ConfigurationManager
@@ -15,7 +47,13 @@
         [String]$SCCM_SITECODE = "SSC"
 
         # SCCM server hostname. Required for connecting to SCCM
-        [String]$SCCM_HOSTNAME = "mendez.ads.ssc.wisc.edu"
+        [String]$SCCM_SERVER = "mendez.ads.ssc.wisc.edu"
+
+        # Override the variables above if passed on the command line
+        if (($SiteCode -ne "") -and ($SiteServer -ne "")) {
+            $SCCM_SITECODE = $SiteCode;
+            $SCCM_SERVER = $SiteServer;
+        }
 
     ## CONNECT TO SCCM ##
         # Uncomment the line below if running in an environment where script signing is 
@@ -24,7 +62,7 @@
 
         # Site configuration
         $SiteCode = $SCCM_SITECODE # Site code 
-        $ProviderMachineName = $SCCM_HOSTNAME # SMS Provider machine name
+        $ProviderMachineName = $SCCM_SERVER # SMS Provider machine name
 
         # Customizations
         $initParams = @{}
@@ -93,4 +131,3 @@
     # Set the location back to the original location script was called from
     Set-Location $currentWorkingDir
 }
-Offboard-Asset
