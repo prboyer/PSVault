@@ -15,16 +15,16 @@ function Export-ModuleDocs {
     $files = Get-ChildItem -Path $Path -Filter "*.ps1"
 
     # Append the contents of all the PS1 files into a PSM1 module file
-    if ($Concat) {
-        $files | %{
-            Get-Content -Path $_.FullName | Out-File -FilePath "$Path\PSVault-$(Split-Path -Path $Path -Leaf).psm1" -Append -Force
-        }
-    }else {
+    # if ($Concat) {
+    #     $files | %{
+    #         Get-Content -Path $_.FullName | Out-File -FilePath "$Path\PSVault-$(Split-Path -Path $Path -Leaf).psm1" -Append -Force
+    #     }
+    # }else {
         # Dot source all the PS1 files in a PSM1 module file
-        $files | %{
+        $files | ForEach-Object{
             [string]$(". `"$Path\"+$_.Name+"`"") | Out-File -FilePath "$Path\PSVault-$(Split-Path -Path $Path -Leaf).psm1" -Append -Force 
         }
-    }
+    # }
 
     # assign a new guid
     $moduleGUID = New-Guid
@@ -47,6 +47,10 @@ function Export-ModuleDocs {
 
     New-ModuleManifest @manifestParameters
 
+    if(-not (Test-Path -Path "$Path\Docs")){
+        New-Item -Path $Path -Name "Docs" -ItemType Directory
+    }
+
     # Generate platyPS markdown
     $parameters= @{
         Module = $moduleFile.BaseName
@@ -55,7 +59,7 @@ function Export-ModuleDocs {
         Locale = "en-US"
         ExcludeDontShow = $true
         HelpVersion = "1.0.1"
-        OutputFolder = "$Path"
+        OutputFolder = "$Path\Docs\"
         Force = $true
         WithModulePage = $true
         ModulePagePath ="$Path\README.md"
@@ -65,21 +69,21 @@ function Export-ModuleDocs {
     New-MarkdownHelp @parameters | Out-Null
 
     # generate the module readme file
-    Update-MarkdownHelpModule -ModulePagePath "$Path\README.md" -Path $Path -RefreshModulePage | Out-Null
+    Update-MarkdownHelpModule -ModulePagePath "$Path\README.md" -Path "$Path\Docs" -RefreshModulePage | Out-Null
 
     # remove the Input / Output headings from each file
-    if(-not $IncludeIO){
-        Get-ChildItem -Path $Path -Filter "*.md" -Exclude "README.md" -Recurse | %{
-            $content = Get-Content -Path $_.FullName ;
-            $content = $content.Replace("## INPUTS","");
-            $content = $content.Replace("## OUTPUTS","");
-            Set-Content -Path $_.FullName -Value $content -Force;
-        }
-    }
+    # if(-not $IncludeIO){
+    #     Get-ChildItem -Path $Path -Filter "*.md" -Exclude "README.md" -Recurse | %{
+    #         $content = Get-Content -Path $_.FullName ;
+    #         $content = $content.Replace("## INPUTS","");
+    #         $content = $content.Replace("## OUTPUTS","");
+    #         Set-Content -Path $_.FullName -Value $content -Force;
+    #     }
+    # }
 
     # manually update the guid on the readme file
     $(Get-Content -Path "$Path\README.md").Replace("00000000-0000-0000-0000-000000000000",$moduleGUID.Guid) | Set-Content -Path "$Path\README.md";
 
-    
-
 }
+
+Export-ModuleDocs -Path .\Windows10
