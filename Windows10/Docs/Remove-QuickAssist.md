@@ -1,7 +1,7 @@
 ---
 Author: Paul Boyer
 external help file: PSVault-Windows10-help.xml
-Module Guid: 4cab8820-c87d-450f-82c0-ffde9004ff87
+Module Guid: 0bbca885-5304-447b-8c88-49e1ea49c43d
 Module Name: PSVault-Windows10
 online version: https://www.eshlomo.us/check-and-update-powershell-tls-version/
 schema: 2.0.0

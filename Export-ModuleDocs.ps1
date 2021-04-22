@@ -74,7 +74,7 @@ function Export-ModuleDocs {
     # change the pathing of the README.md file to be correct
     Set-Content -Path "$Path\README.md" -Value $(get-content -path "$Path\README.md" | ForEach-Object{
         if($_ -match "###"){
-            $_.ToString().Replace($_,$_.ToString().Insert($_.ToString().IndexOf('(')+1,$(Split-Path $Path -Leaf)+"\"))
+            $_.ToString().Replace($_,$_.ToString().Insert($_.ToString().IndexOf('(')+1,$(Split-Path $Path -Leaf)+"\Docs\"))
         }else{
             $_
         }
