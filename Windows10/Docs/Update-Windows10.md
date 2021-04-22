@@ -1,7 +1,7 @@
 ---
 Author: Paul Boyer
 external help file: PSVault-Windows10-help.xml
-Module Guid: 0bbca885-5304-447b-8c88-49e1ea49c43d
+Module Guid: 6d706293-1871-4665-9352-f76639c14553
 Module Name: PSVault-Windows10
 online version: https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/windows-setup-command-line-options
 schema: 2.0.0
