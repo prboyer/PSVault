@@ -61,7 +61,7 @@ function Export-ModuleDocs {
         HelpVersion = "1.0.1"
         OutputFolder = "$Path\Docs\"
         Force = $true
-        WithModulePage = $true
+        WithModulePage = $false
         ModulePagePath ="$Path\README.md"
     }
 
@@ -71,6 +71,15 @@ function Export-ModuleDocs {
     # generate the module readme file
     Update-MarkdownHelpModule -ModulePagePath "$Path\README.md" -Path "$Path\Docs" -RefreshModulePage | Out-Null
 
+    # change the pathing of the README.md file to be correct
+    Set-Content -Path "$Path\README.md" -Value $(get-content -path "$Path\README.md" | ForEach-Object{
+        if($_ -match "###"){
+            $_.ToString().Replace($_,$_.ToString().Insert($_.ToString().IndexOf('(')+1,$(Split-Path $Path -Leaf)+"\"))
+        }else{
+            $_
+        }
+    })
+    
     # remove the Input / Output headings from each file
     # if(-not $IncludeIO){
     #     Get-ChildItem -Path $Path -Filter "*.md" -Exclude "README.md" -Recurse | %{
