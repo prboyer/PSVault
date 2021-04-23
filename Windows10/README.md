@@ -1,9 +1,9 @@
 ---
 Module Name: PSVault-Windows10
-Module Guid: {{ Update Module Guid }}
-Download Help Link: {{ Update Download Link }}
-Help Version: {{ Update Help Version }}
-Locale: {{ Update Locale }}
+Module Guid: 6d706293-1871-4665-9352-f76639c14553
+Download Help Link: https://github.com/prboyer/PSVault
+Help Version: 1.0.1
+Locale: en-US
 ---
 
 # PSVault-Windows10 Module

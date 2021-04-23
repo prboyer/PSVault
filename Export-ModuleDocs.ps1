@@ -61,7 +61,7 @@ function Export-ModuleDocs {
         HelpVersion = "1.0.1"
         OutputFolder = "$Path\Docs\"
         Force = $true
-        WithModulePage = $false
+        WithModulePage = $true
         ModulePagePath ="$Path\README.md"
     }
 
