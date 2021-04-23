@@ -1,9 +1,9 @@
 ---
 Author: Paul Boyer
 external help file: PSVault-Windows10-help.xml
-Module Guid: ca000c27-bbbd-4774-9eca-516ab4c061c0
+Module Guid: e3d92bd8-c4a3-4bc8-bb7d-c1d573ced30b
 Module Name: PSVault-Windows10
-online version: https://www.tenforums.com/tutorials/76570-customize-oem-support-information-windows-10-a.html
+online version:
 schema: 2.0.0
 ---
 

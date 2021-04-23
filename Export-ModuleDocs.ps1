@@ -43,7 +43,7 @@ function Export-ModuleDocs {
         ProjectUri = "https://www.github.com/prboyer/psvault"
         RootModule = $moduleFile
         Description = "this is a test of the documentation"
-        
+
     }
 
     New-ModuleManifest @manifestParameters
@@ -56,7 +56,7 @@ function Export-ModuleDocs {
     $parameters= @{
         Module = $moduleFile.BaseName
         FwLink = "https://github.com/prboyer/PSVault"
-        Metadata = @{Author = "Paul Boyer"; 'Module Guid'= $moduleGUID.Guid; }
+        Metadata = @{Author = "Paul Boyer"; 'Module Guid'= $moduleGUID.Guid;}
         Locale = "en-US"
         ExcludeDontShow = $true
         HelpVersion = "1.0.1"
@@ -68,6 +68,18 @@ function Export-ModuleDocs {
 
     # generate the individual help files
     New-MarkdownHelp @parameters | Out-Null
+
+    # update the online version for each file. Sets the value to null
+    Get-ChildItem -Path "$Path\Docs\" -Filter "*.md" -File | ForEach-Object{
+        Set-Content -Path $_.FullName -Value $(Get-Content $_.FullName | ForEach-Object{
+            if($_ -match "online"){
+                $_.Substring(0,$_.IndexOf(':')+1)
+            }else{
+                $_
+            }
+        })
+    }
+
 
     # generate the module readme file
     Update-MarkdownHelpModule -ModulePagePath "$Path\README.md" -Path "$Path\Docs" -RefreshModulePage -Force| Out-Null

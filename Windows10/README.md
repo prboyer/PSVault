@@ -1,6 +1,6 @@
 ---
 Module Name: PSVault-Windows10
-Module Guid: ca000c27-bbbd-4774-9eca-516ab4c061c0
+Module Guid: 804e7a22-a3f6-474c-b417-ec545f9860c9
 Download Help Link: https://github.com/prboyer/PSVault
 Help Version: 1.0.1
 Locale: en-US
@@ -46,5 +46,5 @@ Script to update the manufacturer information from the System Control Panel page
 Short script to set the Security Protocol
 
 ### [Update-Windows10](Docs/Update-Windows10.md)
-Script that facilitates an online (running OS) upgrade of Windows 10 given a setup file from an expanded ISO
+
 
