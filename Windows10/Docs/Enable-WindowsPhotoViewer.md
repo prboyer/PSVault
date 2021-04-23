@@ -1,7 +1,7 @@
 ---
 Author: Paul Boyer
 external help file: PSVault-Windows10-help.xml
-Module Guid: b1ea24c5-bf86-42d4-a870-86f5af76a05a
+Module Guid: ca000c27-bbbd-4774-9eca-516ab4c061c0
 Module Name: PSVault-Windows10
 online version: http://www.tenforums.com/tutorials/14312-windows-photo-viewer-restore-windows-10-a.html
 schema: 2.0.0

@@ -42,7 +42,8 @@ function Export-ModuleDocs {
         ProcessorArchitecture = "Amd64"
         ProjectUri = "https://www.github.com/prboyer/psvault"
         RootModule = $moduleFile
-
+        Description = "this is a test of the documentation"
+        
     }
 
     New-ModuleManifest @manifestParameters
@@ -51,7 +52,7 @@ function Export-ModuleDocs {
         New-Item -Path $Path -Name "Docs" -ItemType Directory
     }
 
-    # Generate platyPS markdown
+    # Generate platyPS markdown for each script
     $parameters= @{
         Module = $moduleFile.BaseName
         FwLink = "https://github.com/prboyer/PSVault"
@@ -69,7 +70,7 @@ function Export-ModuleDocs {
     New-MarkdownHelp @parameters | Out-Null
 
     # generate the module readme file
-    Update-MarkdownHelpModule -ModulePagePath "$Path\README.md" -Path "$Path\Docs" -RefreshModulePage | Out-Null
+    Update-MarkdownHelpModule -ModulePagePath "$Path\README.md" -Path "$Path\Docs" -RefreshModulePage -Force| Out-Null
 
     # change the pathing of the README.md file to be correct
     Set-Content -Path "$Path\README.md" -Value $(get-content -path "$Path\README.md" | ForEach-Object{
