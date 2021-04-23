@@ -46,5 +46,5 @@ Script to update the manufacturer information from the System Control Panel page
 Short script to set the Security Protocol
 
 ### [Update-Windows10](Docs/Update-Windows10.md)
-
+Script that facilitates an online (running OS) upgrade of Windows 10 given a setup file from an expanded ISO
 

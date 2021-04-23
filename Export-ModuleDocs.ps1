@@ -72,7 +72,7 @@ function Export-ModuleDocs {
     # update the online version for each file. Sets the value to null
     Get-ChildItem -Path "$Path\Docs\" -Filter "*.md" -File | ForEach-Object{
         Set-Content -Path $_.FullName -Value $(Get-Content $_.FullName | ForEach-Object{
-            if($_ -match "online"){
+            if($_ -match "online version:"){
                 $_.Substring(0,$_.IndexOf(':')+1)
             }else{
                 $_
@@ -80,6 +80,7 @@ function Export-ModuleDocs {
         })
     }
 
+   
 
     # generate the module readme file
     Update-MarkdownHelpModule -ModulePagePath "$Path\README.md" -Path "$Path\Docs" -RefreshModulePage -Force| Out-Null
@@ -102,6 +103,17 @@ function Export-ModuleDocs {
     #         Set-Content -Path $_.FullName -Value $content -Force;
     #     }
     # }
+
+    # update the external help version for each file. Sets the value to null
+    Get-ChildItem -Path "$Path\Docs\" -Filter "*.md" -File | ForEach-Object{
+        Set-Content -Path $_.FullName -Value $(Get-Content $_.FullName | ForEach-Object{
+            if($_ -match "external help file:"){
+                $_.Substring(0,$_.IndexOf(':')+1)
+            }else{
+                $_
+            }
+        })
+    }
 
     # manually update the guid on the readme file
     $(Get-Content -Path "$Path\README.md").Replace("00000000-0000-0000-0000-000000000000",$moduleGUID.Guid) | Set-Content -Path "$Path\README.md";

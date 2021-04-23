@@ -1,7 +1,7 @@
 ---
 Author: Paul Boyer
-external help file: PSVault-Windows10-help.xml
-Module Guid: e3d92bd8-c4a3-4bc8-bb7d-c1d573ced30b
+external help file:
+Module Guid: 2e905317-62e7-4b00-bc0e-a8039e418e68
 Module Name: PSVault-Windows10
 online version:
 schema: 2.0.0
@@ -10,6 +10,7 @@ schema: 2.0.0
 # Update-Windows10
 
 ## SYNOPSIS
+Script that facilitates an online (running OS) upgrade of Windows 10 given a setup file from an expanded ISO
 
 ## SYNTAX
 
@@ -38,6 +39,7 @@ Update-Windows10 -SetupFile <String> [-LogDir <String>] [-NoDynamicUpdate] -Conf
 
 ## DESCRIPTION
 After extracting the contents of an ISO of a new version of Windows 10, this script can utilize the setup.exe file to perform
+and upgrade to an online (running) system.
 
 ## EXAMPLES
 

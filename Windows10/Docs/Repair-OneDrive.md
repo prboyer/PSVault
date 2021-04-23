@@ -1,7 +1,7 @@
 ---
 Author: Paul Boyer
-external help file: PSVault-Windows10-help.xml
-Module Guid: e3d92bd8-c4a3-4bc8-bb7d-c1d573ced30b
+external help file:
+Module Guid: 2e905317-62e7-4b00-bc0e-a8039e418e68
 Module Name: PSVault-Windows10
 online version:
 schema: 2.0.0
@@ -61,5 +61,5 @@ Date: 3-24-21
 
 [https://answers.microsoft.com/en-us/msoffice/forum/msoffice_onedrivefb-mso_win10-mso_o365b/onedrive-will-not-start/687028ae-2d32-4783-ba28-2cf050e32670](https://answers.microsoft.com/en-us/msoffice/forum/msoffice_onedrivefb-mso_win10-mso_o365b/onedrive-will-not-start/687028ae-2d32-4783-ba28-2cf050e32670)
 
-[https:
+[https://www.winhelponline.com/blog/reset-onedrive-windows-10/](https://www.winhelponline.com/blog/reset-onedrive-windows-10/)
 
