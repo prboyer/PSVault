@@ -3,7 +3,11 @@ function Export-ModuleDocs {
         [String]
         $Path,
         [switch]
-        $IncludeIO
+        $IncludeIO,
+        [string]
+        $ModuleDescription,
+        [string]
+        $ModuleDescriptionFile
     )
 
     # Import platyPS
@@ -24,6 +28,22 @@ function Export-ModuleDocs {
     $moduleFile = Get-ChildItem -Path $Path -Filter "*.psm1"
     Import-Module -Name $($Path+"\"+$moduleFile.BaseName) -DisableNameChecking
 
+    # Determine how to set the module description
+    [String]$Description = "";
+    if(($ModuleDescriptionFile -ne "") -and ($ModuleDescription -eq "")){
+        try{
+            $Description = Get-Content $ModuleDescriptionFile
+        }catch{
+            Write-Warning $("Unable to get description text from file {0}" -f $ModuleDescriptionFile)
+        }
+    }else{
+        if($ModuleDescription -ne ""){
+            $Description = $ModuleDescription
+        }else{
+            $Description = Read-Host -Prompt "Enter message to user for Module Description"
+        }
+    }
+
     # Generate the psd1 file
     $manifestParameters= @{
         Path = $($Path+"\"+$moduleFile.BaseName+".psd1")
@@ -33,7 +53,7 @@ function Export-ModuleDocs {
         ProcessorArchitecture = "Amd64"
         ProjectUri = "https://www.github.com/prboyer/psvault"
         RootModule = $moduleFile
-        Description = "this is a test of the documentation"
+        Description = $Description
 
     }
 
@@ -104,9 +124,13 @@ function Export-ModuleDocs {
         })
     }
 
+    # update the description in the markdown readme file to match the description in the PSD1 file
+    $(Get-Content -Path "$Path\README.md").Replace("{{ Fill in the Description }}",$Description) | Set-Content -Path "$Path\README.md"; 
+
+
     # manually update the guid on the readme file
     $(Get-Content -Path "$Path\README.md").Replace("00000000-0000-0000-0000-000000000000",$moduleGUID.Guid) | Set-Content -Path "$Path\README.md";
 
 }
 
-Export-ModuleDocs -Path .\Windows10
+Export-ModuleDocs -Path .\Windows10 -ModuleDescription "This is the description of the module"
