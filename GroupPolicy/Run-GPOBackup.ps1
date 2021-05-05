@@ -1,4 +1,32 @@
 function Run-GPOBackup {
+    <#
+    .SYNOPSIS
+    All-in-one GPO Backup Script. It leverages external modules/functions to create a robust backup of Group Policies in a domain.
+    
+    .DESCRIPTION
+    The script runs BackUp_GPOs.ps1 and Get-GPLinks.ps1 externally to generate additional backup content. The script will backup all GPOs in the domain, as well as HTML
+    reports for each GPO indicating what they do. Further, a CSV report is included. The GPO linkage to OUs is also included in both CSV and TXT reports. The idea is that this backup is
+    all-encompassing and would constitue a disaster recovery restore.
+    
+    .PARAMETER BackupFolder
+    Path to where the backups should bs saved
+    
+    .PARAMETER Domain
+    The domain against which backups are being run. If no value is supplied, the script will implicitly grab the domain from the machine it is running against.
+    
+    .PARAMETER BackupsToKeep
+    Parameter that indicates how many previous backups to keep. Once the backup directory contains X backups, the oldest backups are then removed. By default, 10 backups are kept.
+    
+    .EXAMPLE
+    Run-GPOBackup -BackupFolder C:\Backups -BackupsToKeep 10
+
+    .OUTPUTS
+    A .zip archive containing all necessary backup information to restore a GPO environment
+    
+    .NOTES
+        Author: Paul Boyer
+        Date: 5-5-21
+    #>
     param (
         [Parameter(Mandatory=$true)]
         [ValidateScript({
@@ -13,7 +41,8 @@ function Run-GPOBackup {
         [Parameter()]
         [String]
         $Domain,
-        [Parameter()]
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
         [Int]
         $BackupsToKeep
     )
@@ -64,7 +93,6 @@ function Run-GPOBackup {
     Write-Information ("{0}`tBegin local background job: BackupJob - Executes BackUp_GPOS.ps1 `n`t`tBacking up GPOs to {1}" -f $LOGDATE,$Temp) -InformationVariable +INFO
     $BackupJob = Start-Job -Name "BackupJob" -FilePath $global:BACKUP_GPOS -ArgumentList $BackupDomain,$Temp 
   
-
     # Start GPO Links Job
     Write-Information ("{0}`tBegin local background job: LinksJob - Executes Get-GPLinks.ps1 `n`t`tBacking up Links to {1}" -f $LOGDATE,$Temp) -InformationVariable +INFO   
     $LinksJob = Start-Job -Name "LinksJob" -ArgumentList $Temp -ScriptBlock {
@@ -86,8 +114,8 @@ function Run-GPOBackup {
 
     # Cleanup old Backups
     # Perform cleanup of older backups if the directory has more than 10 archives
-    Write-Information ("{0}`tPerform cleanup of older backups if the directory has more than 10 archives" -f $LOGDATE) -InformationVariable +INFO
-    if ((Get-ChildItem $backupFolder | Measure-Object).Count -gt 10) {
+    Write-Information ("{0}`tPerform cleanup of older backups if the directory has more than $KEEP archives" -f $LOGDATE) -InformationVariable +INFO
+    if ((Get-ChildItem $backupFolder | Measure-Object).Count -gt $KEEP+1) {
    
         # Delete backups older than the specified retention period, however keep a minimum of 5 recent backups.
         Get-ChildItem $backupFolder | Sort-Object -Property LastWriteTime -Descending | Select-Object -Skip 5 | Where-Object {$_.LastWriteTime -lt $((Get-Date).AddDays($KEEP))} | Remove-Item -Recurse -Force
@@ -97,4 +125,3 @@ function Run-GPOBackup {
     $INFO | Out-File -FilePath $BackupFolder\Log.txt -Append
 
 }
-Run-GPOBackup -BackupFolder $PSScriptRoot\Backup
