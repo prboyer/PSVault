@@ -115,10 +115,10 @@ function Run-GPOBackup {
     # Cleanup old Backups
     # Perform cleanup of older backups if the directory has more than 10 archives
     Write-Information ("{0}`tPerform cleanup of older backups if the directory has more than $KEEP archives" -f $LOGDATE) -InformationVariable +INFO
-    if ((Get-ChildItem $backupFolder | Measure-Object).Count -gt $KEEP+1) {
+    if ((Get-ChildItem $backupFolder -Filter "*.zip"| Measure-Object).Count -gt $KEEP+1) {
    
         # Delete backups older than the specified retention period, however keep a minimum of 5 recent backups.
-        Get-ChildItem $backupFolder | Sort-Object -Property LastWriteTime -Descending | Select-Object -Skip 5 | Where-Object {$_.LastWriteTime -lt $((Get-Date).AddDays($KEEP))} | Remove-Item -Recurse -Force
+        Get-ChildItem $backupFolder -Filter "*.zip" | Sort-Object -Property LastWriteTime -Descending | Select-Object -Skip $KEEP | Remove-Item -Recurse -Force
     }
 
     # Write information to Log file
