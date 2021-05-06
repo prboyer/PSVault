@@ -102,10 +102,13 @@ function Export-ModuleDocs {
             RootModule = $moduleFile
             Description = $Description
         }
-
-        # Generate the manifest file itself
-        New-ModuleManifest @Manifest_Parameters
-    
+        
+        # Skip generating a new manifest if -NoClobber is passed
+        if(-not $NoClobber){
+            # Generate the manifest file itself
+            New-ModuleManifest @Manifest_Parameters
+        }
+        
     <# Create folder for individual MD files #>
         # Variable to store the path where individual MD files should be stored
         [String]$MDFilesDir = "";
