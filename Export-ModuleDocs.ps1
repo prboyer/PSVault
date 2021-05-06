@@ -1,15 +1,19 @@
 function Export-ModuleDocs {
     param (
+        [Parameter(Mandatory=$true)]
         [String]
         $Path,
+        [Parameter(Mandatory=$true,ParameterSetName="Description_String")]
         [string]
         $ModuleDescription,
+        [Parameter(Mandatory=$true,ParameterSetName="Description_File")]
         [string]
         $ModuleDescriptionFile,
         [Parameter()]
         [ValidateScript({if(Test-Path -Path $_ -PathType Container -IsValid){return $true}else{$false}})]
         [String]
         $ScriptFilesPath,
+        [Parameter()]
         [String[]]
         $Exclude
     )
@@ -173,4 +177,3 @@ function Export-ModuleDocs {
         
 }
 
-Export-ModuleDocs -Path .\Windows10 -ModuleDescription "This is a test of the module description"
