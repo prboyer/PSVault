@@ -7,62 +7,94 @@ function Export-ModuleDocs {
         [string]
         $ModuleDescription,
         [string]
-        $ModuleDescriptionFile
+        $ModuleDescriptionFile,
+        [Parameter()]
+        [ValidateScript({if(Test-Path -Path $_ -PathType Container){return $true}else{$false}})]
+        [String]
+        $MDFilesPath
     )
+    <# Import Dependencies #>
+        # Import platyPS module required for generating the markdown documentation
+        Import-Module -Name platyPS
 
-    # Import platyPS module required for generating the markdown documentation
-    Import-Module -Name platyPS
+    <# Generate a PSM1 file on the fly for use with PlatyPS #>
+        # Get all the PS1 files in the current directory and recurse into sub-directories
+        $files = Get-ChildItem -Path $Path -Filter "*.ps1" -Recurse
 
-    # Get all the PS1 files in the directory and recurse into sub-directories
-    $files = Get-ChildItem -Path $Path -Filter "*.ps1" -Recurse
+        # Dot source all the PS1 files in a PSM1 module file
+        $files | ForEach-Object{
+            [String]$(". `""+$(Resolve-Path -Path $_.FullName -Relative)+"`"") | Out-File -FilePath "$Path\PSVault-$(Split-Path -Path $Path -Leaf).psm1" -Append -Force
+        }
 
-    # Dot source all the PS1 files in a PSM1 module file
-    $files | ForEach-Object{
-        #[string]$(". `"$Path\"+$_.Name+"`"") | Out-File -FilePath "$Path\PSVault-$(Split-Path -Path $Path -Leaf).psm1" -Append -Force
-        [String]$(". `""+$(Resolve-Path -Path $_.FullName -Relative)+"`"") | Out-File -FilePath "$Path\PSVault-$(Split-Path -Path $Path -Leaf).psm1" -Append -Force
-    }
+        # Import the module file
+        $moduleFile = Get-ChildItem -Path $Path -Filter "*.psm1"
+        Import-Module -Name $($Path+"\"+$moduleFile.BaseName) -DisableNameChecking
     
-    # assign a new guid
-    $moduleGUID = New-Guid
+    <# Generate metadata for the PSM1 file to include in an associated PSD1 manifest file #>
+        # Generate a new GUID for the module. This will be included on the README.md as well as each individual file
+        $moduleGUID = New-Guid   
 
-    # Import the module file
-    $moduleFile = Get-ChildItem -Path $Path -Filter "*.psm1"
-    Import-Module -Name $($Path+"\"+$moduleFile.BaseName) -DisableNameChecking
-
-    # Determine how to set the module description
-    [String]$Description = "";
-    if(($ModuleDescriptionFile -ne "") -and ($ModuleDescription -eq "")){
-        try{
-            $Description = Get-Content $ModuleDescriptionFile
-        }catch{
-            Write-Warning $("Unable to get description text from file {0}" -f $ModuleDescriptionFile)
-        }
-    }else{
-        if($ModuleDescription -ne ""){
-            $Description = $ModuleDescription
+        <# Determine how to set the module description. 
+            Either set the description from a pre-determined source (cmdline parameter, or file input), or prompt for interactive input #>
+        
+        # Variable that holds the description that will be assigned to the module.
+        [String]$Description = "";
+        
+        # If a module description is passed as a file, try to get the content of the file and assign it to $Description
+        if(($ModuleDescriptionFile -ne "") -and ($ModuleDescription -eq "")){
+            try{
+                $Description = Get-Content $ModuleDescriptionFile
+            }catch{
+                # If the content of the file cannot be read, then prompt the user to enter a description interactively
+                Write-Warning $("Unable to get description text from file {0}" -f $ModuleDescriptionFile) -WarningAction Continue
+                $Description = Read-Host -Prompt "Enter message to user for Module Description"
+            }  
+        # If a module description is not passed in a file, but as a string on the command line, then proceed with assigning that value to $Description
         }else{
-            $Description = Read-Host -Prompt "Enter message to user for Module Description"
+            if($ModuleDescription -ne ""){
+                $Description = $ModuleDescription
+            }else{
+                # Otherwise if there is no description passed at function-call, then prompt for it interactively.
+                $Description = Read-Host -Prompt "Enter message to user for Module Description"
+            }
         }
-    }
 
-    # Generate the psd1 file
-    $manifestParameters= @{
-        Path = $($Path+"\"+$moduleFile.BaseName+".psd1")
-        Author = "Paul R Boyer"
-        FileList = $files
-        Guid = $moduleGUID.Guid
-        ProcessorArchitecture = "Amd64"
-        ProjectUri = "https://www.github.com/prboyer/psvault"
-        RootModule = $moduleFile
-        Description = $Description
+    <# Generate the PSD1 manifest file #>
+        # Splat the manifest parameters 
+        $manifestParameters= @{
+            Path = $($Path+"\"+$moduleFile.BaseName+".psd1")
+            Author = "Paul R Boyer"
+            FileList = $files
+            Guid = $moduleGUID.Guid
+            ProcessorArchitecture = "Amd64"
+            ProjectUri = "https://www.github.com/prboyer/psvault"
+            RootModule = $moduleFile
+            Description = $Description
+        }
 
-    }
+        # Generate the manifest file itself
+        New-ModuleManifest @manifestParameters
+    
+    <# Create folder for individual MD files #>
+        # Varible to store the path where individual MD files should be stored
+        [String]$MDFilesDir = "";
 
-    New-ModuleManifest @manifestParameters
+        # If a specific folder is specified by the $MDFilesPath parameter, make sure the directory exists
+        if ($MDFilesPath -ne "") {
+            if (-not (Test-Path -Path $(Resolve-Path $MDFilesPath))) {
+                New-Item -Path $(Split-Path -Path $MDFilesPath -Parent) -Name $(Split-Path -Path $MDFilesPath -Leaf) -ItemType Directory -Force
+                $MDFilesDir
+            }
+        }else{
+            # Otherwise, if no specific folder is specified, use a "Docs" folder in the $Path directory
+            if(-not (Test-Path -Path "$Path\Docs")){
+                New-Item -Path $Path -Name "Docs" -ItemType Directory -Force
+            }
+        }
 
-    if(-not (Test-Path -Path "$Path\Docs")){
-        New-Item -Path $Path -Name "Docs" -ItemType Directory
-    }
+
+
+   
 
     # Generate platyPS markdown for each script
     $parameters= @{
