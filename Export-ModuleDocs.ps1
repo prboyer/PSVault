@@ -207,5 +207,3 @@ function Export-ModuleDocs {
             $(Get-Content -Path "$Path\README.md").Replace("00000000-0000-0000-0000-000000000000",$moduleGUID.Guid) | Set-Content -Path "$Path\README.md";
         
 }
-
-Export-ModuleDocs -Path .\Windows10 -ModuleDescription "This is the description of the module"
