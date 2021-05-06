@@ -17,15 +17,19 @@ function Export-ModuleDocs {
         # Import platyPS module required for generating the markdown documentation
         Import-Module -Name platyPS
 
+    <# Get all the PS1 files in the current directory and recurse into sub-directories #>
+        $PSFiles = Get-ChildItem -Path $Path -Filter "*.ps1" -Recurse -Exclude $Exclude
+
+    <# Check for existing PSM1 & PSD1 module files #>
+        # Check if there are already existing module files, if so remove them
+        if(Test-Path -Path $($Path+"\"+$(split-path -path $(split-path -path $($Path) -parent) -leaf)+"-"+$(Split-Path -Path $Path -Leaf)+".*")){
+            Remove-Item -Path $($Path+"\"+$(split-path -path $(split-path -path $($Path) -parent) -leaf)+"-"+$(Split-Path -Path $Path -Leaf)+".*")
+        } 
+
     <# Generate a PSM1 file on the fly for use with PlatyPS #>
-        # Get all the PS1 files in the current directory and recurse into sub-directories
-        $files = Get-ChildItem -Path $Path -Filter "*.ps1" -Recurse -Exclude $Exclude
-
         # Dot source all the PS1 files in a PSM1 module file
-
-        ##TODO Change the script so that it doesn't automatically put 'PSVault' in front of modules. Make is use the parent folder name, or specify a param
-        $files | ForEach-Object{
-            [String]$(". `""+$(Resolve-Path -Path $_.FullName -Relative)+"`"") | Out-File -FilePath "$Path\PSVault-$(Split-Path -Path $Path -Leaf).psm1" -Append -Force
+        $PSFiles | ForEach-Object {
+            [String]$(". `""+$(Resolve-Path -Path $_.FullName -Relative)+"`"") | Out-File -FilePath $($Path+"\"+$(split-path -path $(split-path -path $($Path) -parent) -leaf)+"-"+$(Split-Path -Path $Path -Leaf)+".psm1") -Force -Append
         }
 
         # Import the module file
@@ -66,7 +70,7 @@ function Export-ModuleDocs {
         $Manifest_Parameters= @{
             Path = $($Path+"\"+$moduleFile.BaseName+".psd1")
             Author = "Paul R Boyer"
-            FileList = $files
+            FileList = $PSFiles
             Guid = $moduleGUID.Guid
             ProcessorArchitecture = "Amd64"
             ProjectUri = "https://www.github.com/prboyer/psvault"
