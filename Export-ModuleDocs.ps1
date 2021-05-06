@@ -38,9 +38,14 @@ function Export-ModuleDocs {
         # NoClobber switch will prevent existing module files from being overwritten
         if (-not $NoClobber) {
             # Check if there are already existing module files, if so remove them
-            if(Test-Path -Path $($Path+"\"+$(split-path -path $(split-path -path $($Path) -parent) -leaf)+"-"+$(Split-Path -Path $Path -Leaf)+".*")){
-                Remove-Item -Path $($Path+"\"+$(split-path -path $(split-path -path $($Path) -parent) -leaf)+"-"+$(Split-Path -Path $Path -Leaf)+".*")
-            } 
+            try{
+                if(Test-Path -Path $($Path+"\"+$(split-path -path $(split-path -path $($Path) -parent) -leaf)+"-"+$(Split-Path -Path $Path -Leaf)+".*")){
+                    Remove-Item -Path $($Path+"\"+$(split-path -path $(split-path -path $($Path) -parent) -leaf)+"-"+$(Split-Path -Path $Path -Leaf)+".*")
+                } 
+            }catch [System.Management.Automation.ParameterBindingException]{
+                Write-Warning -Message $("Unable to Split-Path. Likely because script was called from within working directory.`n`t{0}" -f $Error[0])
+            }
+            
 
             <# Generate a PSM1 file on the fly for use with PlatyPS #>
                 # Determine the prefix to use when generating module files
