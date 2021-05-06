@@ -2,8 +2,6 @@ function Export-ModuleDocs {
     param (
         [String]
         $Path,
-        [switch]
-        $IncludeIO,
         [string]
         $ModuleDescription,
         [string]
@@ -142,38 +140,6 @@ function Export-ModuleDocs {
                 }
             })
         }
-        
-        <# Remove Inputs/Outputs sections if there is no content #>
-            ## TODO Finish code for removing null inputs
-            <# Remove the Inputs #>
-            # # Get each MD file
-            # Get-ChildItem -Path $MDFilesPath -Filter "*.md" -File | ForEach-Object{
-            
-            #     # Set the variable to the file path of the markdown file
-            #     $File = $(Resolve-Path $_.FullName -Relative)
-
-            #     #Find the line in the file that matches the ##INPUTS header (subtract one from the line number for the array index)
-            #     [Int]$heading = (Get-Content -Path $File | Select-String "## INPUTS").LineNumber-1
-
-            #     # Check if the following line is empty
-            #     if ([String]::IsNullOrWhiteSpace($(Get-Content -Path $File)[$heading+1])){
-            #         # Go through the current file and only return the appropriate lines (exclude ##INPUTS and the null line thereafter)
-            #         Set-Content -Path $File -Value $(
-            #             for ([Int]$i = 0; $i -lt $(Get-Content $File).Count; $i++) {
-            #                 # exclude the heading and the line after
-            #                 if ($i -eq $heading -or $i -eq $heading+1) {
-            #                     ""
-            #                 }else{
-            #                     # return the other acceptable lines
-            #                     $(Get-Content $File)[$i]
-            #                 }
-            #             }
-            #         )
-            #     }
-            # }
-
-        <# Remove the Outputs #>
-            ## TODO Finish code for removing null outputs
 
     <# Generate the module README file. This is a summary page that has a short description and link to each individual MD file #>
         Start-Job -Name "Update-MarkdownHelpModule" -ArgumentList "$Path\README.md",$(Resolve-Path -Path $MDFilesDir -Relative).ToString() -ScriptBlock {
