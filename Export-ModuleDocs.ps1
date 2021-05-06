@@ -24,6 +24,8 @@ function Export-ModuleDocs {
         $files = Get-ChildItem -Path $Path -Filter "*.ps1" -Recurse -Exclude $Exclude
 
         # Dot source all the PS1 files in a PSM1 module file
+
+        ##TODO Change the script so that it doesn't automatically put 'PSVault' in front of modules. Make is use the parent folder name, or specify a param
         $files | ForEach-Object{
             [String]$(". `""+$(Resolve-Path -Path $_.FullName -Relative)+"`"") | Out-File -FilePath "$Path\PSVault-$(Split-Path -Path $Path -Leaf).psm1" -Append -Force
         }
