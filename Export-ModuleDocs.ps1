@@ -21,7 +21,10 @@ function Export-ModuleDocs {
         $Exclude,
         [Parameter()]        
         [switch]
-        $NoClobber
+        $NoClobber,
+        [Parameter()]
+        [switch]
+        $NoModulePrefix
     )
     <# Import Dependencies #>
         # Import platyPS module required for generating the markdown documentation
@@ -44,6 +47,8 @@ function Export-ModuleDocs {
                 [String]$Prefix = $(split-path -path $(split-path -path $($Path) -parent) -leaf)+"-"
                 if ($ModulePrefix -ne "") {
                     $Prefix = $ModulePrefix;
+                }elseif ($NoModulePrefix) {
+                    $Prefix = "";
                 }
 
                 # Dot source all the PS1 files in a PSM1 module file
