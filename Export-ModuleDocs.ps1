@@ -9,7 +9,7 @@ function Export-ModuleDocs {
         [Parameter()]
         [ValidateScript({if(Test-Path -Path $_ -PathType Container -IsValid){return $true}else{$false}})]
         [String]
-        $MDFilesPath,
+        $ScriptFilesPath,
         [String[]]
         $Exclude
     )
@@ -85,13 +85,13 @@ function Export-ModuleDocs {
         # Variable to store the path where individual MD files should be stored
         [String]$MDFilesDir = "";
 
-        # If a specific folder is specified by the $MDFilesPath parameter, make sure the directory exists
-        if ($MDFilesPath -ne "") {
-            if (-not (Test-Path -Path $MDFilesPath)) {
-                New-Item -Path $(Split-Path -Path $MDFilesPath -Parent) -Name $(Split-Path -Path $MDFilesPath -Leaf) -ItemType Directory -Force | Out-Null
-                $MDFilesDir = $MDFilesPath
+        # If a specific folder is specified by the $ScriptFilesPath parameter, make sure the directory exists
+        if ($ScriptFilesPath -ne "") {
+            if (-not (Test-Path -Path $ScriptFilesPath)) {
+                New-Item -Path $(Split-Path -Path $ScriptFilesPath -Parent) -Name $(Split-Path -Path $ScriptFilesPath -Leaf) -ItemType Directory -Force | Out-Null
+                $MDFilesDir = $ScriptFilesPath
             }else{
-                $MDFilesDir = $MDFilesPath
+                $MDFilesDir = $ScriptFilesPath
             }
         }else{
             # Otherwise, if no specific folder is specified, use a "Docs" folder in the $Path directory
@@ -135,7 +135,7 @@ function Export-ModuleDocs {
         }
 
         <# Update the external help version for each file. Sets the value to null #>
-        Get-ChildItem -Path $MDFilesPath -Filter "*.md" -File | ForEach-Object{
+        Get-ChildItem -Path $ScriptFilesPath -Filter "*.md" -File | ForEach-Object{
             Set-Content -Path $_.FullName -Value $(Get-Content $_.FullName | ForEach-Object{
                 if($_ -match "external help file:"){
                     $_.Substring(0,$_.IndexOf(':')+1)
@@ -172,3 +172,5 @@ function Export-ModuleDocs {
             $(Get-Content -Path "$Path\README.md").Replace("00000000-0000-0000-0000-000000000000",$moduleGUID.Guid) | Set-Content -Path "$Path\README.md";
         
 }
+
+Export-ModuleDocs -Path .\Windows10 -ModuleDescription "This is a test of the module description"
