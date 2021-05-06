@@ -10,15 +10,16 @@ function Export-ModuleDocs {
         $ModuleDescriptionFile
     )
 
-    # Import platyPS
+    # Import platyPS module required for generating the markdown documentation
     Import-Module -Name platyPS
 
-    # Get all the PS1 files in the directory
-    $files = Get-ChildItem -Path $Path -Filter "*.ps1"
+    # Get all the PS1 files in the directory and recurse into sub-directories
+    $files = Get-ChildItem -Path $Path -Filter "*.ps1" -Recurse
 
     # Dot source all the PS1 files in a PSM1 module file
     $files | ForEach-Object{
-        [string]$(". `"$Path\"+$_.Name+"`"") | Out-File -FilePath "$Path\PSVault-$(Split-Path -Path $Path -Leaf).psm1" -Append -Force 
+        #[string]$(". `"$Path\"+$_.Name+"`"") | Out-File -FilePath "$Path\PSVault-$(Split-Path -Path $Path -Leaf).psm1" -Append -Force
+        [String]$(". `""+$(Resolve-Path -Path $_.FullName -Relative)+"`"") | Out-File -FilePath "$Path\PSVault-$(Split-Path -Path $Path -Leaf).psm1" -Append -Force
     }
     
     # assign a new guid
