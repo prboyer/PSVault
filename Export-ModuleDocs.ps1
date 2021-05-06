@@ -41,14 +41,14 @@ function Export-ModuleDocs {
 
             <# Generate a PSM1 file on the fly for use with PlatyPS #>
                 # Determine the prefix to use when generating module files
-                [String]$Prefix = $(split-path -path $(split-path -path $($Path) -parent) -leaf)
+                [String]$Prefix = $(split-path -path $(split-path -path $($Path) -parent) -leaf)+"-"
                 if ($ModulePrefix -ne "") {
                     $Prefix = $ModulePrefix;
                 }
 
                 # Dot source all the PS1 files in a PSM1 module file
                 $PSFiles | ForEach-Object {
-                    [String]$(". `""+$(Resolve-Path -Path $_.FullName -Relative)+"`"") | Out-File -FilePath $($Path+"\"+$Prefix+"-"+$(Split-Path -Path $Path -Leaf)+".psm1") -Force -Append
+                    [String]$(". `""+$(Resolve-Path -Path $_.FullName -Relative)+"`"") | Out-File -FilePath $($Path+"\"+$Prefix+$(Split-Path -Path $Path -Leaf)+".psm1") -Force -Append
                 }
         }
             
