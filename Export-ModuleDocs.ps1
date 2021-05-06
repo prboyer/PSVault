@@ -18,7 +18,10 @@ function Export-ModuleDocs {
         $ScriptFilesPath,
         [Parameter()]
         [String[]]
-        $Exclude        
+        $Exclude,
+        [Parameter()]        
+        [switch]
+        $NoClobber
     )
     <# Import Dependencies #>
         # Import platyPS module required for generating the markdown documentation
@@ -28,23 +31,27 @@ function Export-ModuleDocs {
         $PSFiles = Get-ChildItem -Path $Path -Filter "*.ps1" -Recurse -Exclude $Exclude
 
     <# Check for existing PSM1 & PSD1 module files #>
-        # Check if there are already existing module files, if so remove them
-        if(Test-Path -Path $($Path+"\"+$(split-path -path $(split-path -path $($Path) -parent) -leaf)+"-"+$(Split-Path -Path $Path -Leaf)+".*")){
-            Remove-Item -Path $($Path+"\"+$(split-path -path $(split-path -path $($Path) -parent) -leaf)+"-"+$(Split-Path -Path $Path -Leaf)+".*")
-        } 
 
-    <# Generate a PSM1 file on the fly for use with PlatyPS #>
-        # Determine the prefix to use when generating module files
-        [String]$Prefix = $(split-path -path $(split-path -path $($Path) -parent) -leaf)
-        if ($ModulePrefix -ne "") {
-            $Prefix = $ModulePrefix;
+        # NoClobber switch will prevent existing module files from being overwritten
+        if (-not $NoClobber) {
+            # Check if there are already existing module files, if so remove them
+            if(Test-Path -Path $($Path+"\"+$(split-path -path $(split-path -path $($Path) -parent) -leaf)+"-"+$(Split-Path -Path $Path -Leaf)+".*")){
+                Remove-Item -Path $($Path+"\"+$(split-path -path $(split-path -path $($Path) -parent) -leaf)+"-"+$(Split-Path -Path $Path -Leaf)+".*")
+            } 
+
+            <# Generate a PSM1 file on the fly for use with PlatyPS #>
+                # Determine the prefix to use when generating module files
+                [String]$Prefix = $(split-path -path $(split-path -path $($Path) -parent) -leaf)
+                if ($ModulePrefix -ne "") {
+                    $Prefix = $ModulePrefix;
+                }
+
+                # Dot source all the PS1 files in a PSM1 module file
+                $PSFiles | ForEach-Object {
+                    [String]$(". `""+$(Resolve-Path -Path $_.FullName -Relative)+"`"") | Out-File -FilePath $($Path+"\"+$Prefix+"-"+$(Split-Path -Path $Path -Leaf)+".psm1") -Force -Append
+                }
         }
-
-        # Dot source all the PS1 files in a PSM1 module file
-        $PSFiles | ForEach-Object {
-            [String]$(". `""+$(Resolve-Path -Path $_.FullName -Relative)+"`"") | Out-File -FilePath $($Path+"\"+$Prefix+"-"+$(Split-Path -Path $Path -Leaf)+".psm1") -Force -Append
-        }
-
+            
         # Import the module file
         $moduleFile = Get-ChildItem -Path $Path -Filter "*.psm1"
         Import-Module -Name $($Path+"\"+$moduleFile.BaseName) -DisableNameChecking
@@ -185,4 +192,3 @@ function Export-ModuleDocs {
             $(Get-Content -Path "$Path\README.md").Replace("00000000-0000-0000-0000-000000000000",$moduleGUID.Guid) | Set-Content -Path "$Path\README.md";
         
 }
-
