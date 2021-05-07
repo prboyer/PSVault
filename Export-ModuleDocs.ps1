@@ -3,13 +3,17 @@ function Export-ModuleDocs {
         [Parameter(Mandatory=$true)]
         [String]
         $Path,
-        [Parameter()]
+        [Parameter(ParameterSetName="Module_Prefix")]
         [String]
         $ModulePrefix,
         [Parameter(Mandatory=$true,ParameterSetName="Description_String")]
+        [Parameter(ParameterSetName="Module_NoPrefix")]
+        [Parameter(ParameterSetName="Module_Prefix")]
         [string]
         $ModuleDescription,
         [Parameter(Mandatory=$true,ParameterSetName="Description_File")]
+        [Parameter(ParameterSetName="Module_NoPrefix")]
+        [Parameter(ParameterSetName="Module_Prefix")]
         [string]
         $ModuleDescriptionFile,
         [Parameter()]
@@ -19,10 +23,14 @@ function Export-ModuleDocs {
         [Parameter()]
         [String[]]
         $Exclude,
-        [Parameter()]        
+        [Parameter(ParameterSetName="NoClobber")]        
         [switch]
         $NoClobber,
-        [Parameter()]
+        [Parameter(Mandatory=$true,ParameterSetName="NoClobber")]
+        [ValidateNotNullOrEmpty()]        
+        [String]
+        $ModuleFilePath,
+        [Parameter(ParameterSetName="Module_NoPrefix")]
         [switch]
         $NoModulePrefix
     )
@@ -34,6 +42,8 @@ function Export-ModuleDocs {
         $PSFiles = Get-ChildItem -Path $Path -Filter "*.ps1" -Recurse -Exclude $Exclude
 
     <# Check for existing PSM1 & PSD1 module files #>
+        # Declare variable for $ModuleFile
+        $script:ModuleFile="";
 
         # NoClobber switch will prevent existing module files from being overwritten
         if (-not $NoClobber) {
@@ -46,7 +56,6 @@ function Export-ModuleDocs {
                 Write-Warning -Message $("Unable to Split-Path. Likely because script was called from within working directory.`n`t{0}" -f $Error[0])
             }
             
-
             <# Generate a PSM1 file on the fly for use with PlatyPS #>
                 # Determine the prefix to use when generating module files
                 [String]$Prefix = $(split-path -path $(split-path -path $($Path) -parent) -leaf)+"-"
@@ -56,15 +65,27 @@ function Export-ModuleDocs {
                     $Prefix = "";
                 }
 
+                # Assign the value of $ModuleFile
+                $ModuleFile = $Path+"\"+$Prefix+$(Split-Path -Path $Path -Leaf)+".psm1"
+
                 # Dot source all the PS1 files in a PSM1 module file
                 $PSFiles | ForEach-Object {
-                    [String]$(". `""+$(Resolve-Path -Path $_.FullName -Relative)+"`"") | Out-File -FilePath $($Path+"\"+$Prefix+$(Split-Path -Path $Path -Leaf)+".psm1") -Force -Append
+                    [String]$(". `""+$(Resolve-Path -Path $_.FullName -Relative)+"`"") | Out-File -FilePath $ModuleFile -Force -Append
                 }
+        }else{
+            # When -NoClobber and -ModuleFilePath are specified, no additional work needed. Just assigning values
+            $ModuleFile = (Resolve-Path -Path $ModuleFilePath).Path
         }
-            
+
+        # Transition $ModuleFile from being a String to a File Object
+        try{
+            $ModuleFile = Get-Item -Path $($Path+"\"+$Prefix+$(Split-Path -Path $Path -Leaf)+".psm1")
+        }catch{
+            Write-Error -Message $("Module file not found.`n`t{0}" -f $($Path+"\"+$Prefix+$(Split-Path -Path $Path -Leaf)+".psm1"))
+        }
+
         # Import the module file
-        $moduleFile = Get-ChildItem -Path $Path -Filter "*.psm1"
-        Import-Module -Name $($Path+"\"+$moduleFile.BaseName) -DisableNameChecking
+        Import-Module -Name $ModuleFile -DisableNameChecking -Force
     
     <# Generate metadata for the PSM1 file to include in an associated PSD1 manifest file #>
         # Generate a new GUID for the module. This will be included on the README.md as well as each individual file
@@ -73,38 +94,41 @@ function Export-ModuleDocs {
         <# Determine how to set the module description. 
         Either set the description from a pre-determined source (cmdline parameter, or file input), or prompt for interactive input #>
         
-        # Variable that holds the description that will be assigned to the module.
-        [String]$Description = "";
-        
-        # If a module description is passed as a file, try to get the content of the file and assign it to $Description
-        if(($ModuleDescriptionFile -ne "") -and ($ModuleDescription -eq "")){
-            try{
-                $Description = Get-Content $ModuleDescriptionFile
-            }catch{
-                # If the content of the file cannot be read, then prompt the user to enter a description interactively
-                Write-Warning $("Unable to get description text from file {0}" -f $ModuleDescriptionFile) -WarningAction Continue
-                $Description = Read-Host -Prompt "Enter message to user for Module Description"
-            }  
-        # If a module description is not passed in a file, but as a string on the command line, then proceed with assigning that value to $Description
-        }else{
-            if($ModuleDescription -ne ""){
-                $Description = $ModuleDescription
+        # Only process if -NoClobber is not passed
+        if (-not $NoClobber) {
+            
+            # Variable that holds the description that will be assigned to the module.
+            [String]$Description = "";
+            
+            # If a module description is passed as a file, try to get the content of the file and assign it to $Description
+            if(($ModuleDescriptionFile -ne "") -and ($ModuleDescription -eq "")){
+                try{
+                    $Description = Get-Content $ModuleDescriptionFile
+                }catch{
+                    # If the content of the file cannot be read, then prompt the user to enter a description interactively
+                    Write-Warning $("Unable to get description text from file {0}" -f $ModuleDescriptionFile) -WarningAction Continue
+                    $Description = Read-Host -Prompt "Enter message to user for Module Description"
+                }  
+            # If a module description is not passed in a file, but as a string on the command line, then proceed with assigning that value to $Description
             }else{
-                # Otherwise if there is no description passed at function-call, then prompt for it interactively.
-                $Description = Read-Host -Prompt "Enter message to user for Module Description"
+                if($ModuleDescription -ne ""){
+                    $Description = $ModuleDescription
+                }else{
+                    # Otherwise if there is no description passed at function-call, then prompt for it interactively.
+                    $Description = Read-Host -Prompt "Enter message to user for Module Description"
+                }
             }
         }
-
     <# Generate the PSD1 manifest file #>
         # Splat the manifest parameters 
         $Manifest_Parameters= @{
-            Path = $($Path+"\"+$moduleFile.BaseName+".psd1")
+            Path = $($Path+"\"+$ModuleFile.BaseName+".psd1")
             Author = "Paul R Boyer"
             FileList = $PSFiles
             Guid = $moduleGUID.Guid
             ProcessorArchitecture = "Amd64"
             ProjectUri = "https://www.github.com/prboyer/psvault"
-            RootModule = $moduleFile
+            RootModule = $ModuleFile.BaseName
             Description = $Description
         }
         
@@ -139,7 +163,7 @@ function Export-ModuleDocs {
     <# Generate platyPS markdown for each script #>
         # Splatting parameters
         $MarkdownHelp_Parameters= @{
-            Module = $moduleFile.BaseName
+            Module = $ModuleFile.BaseName
             FwLink = "https://github.com/prboyer/PSVault"
             Metadata = @{Author = "Paul Boyer"; 'Module Guid'= $moduleGUID.Guid;}
             Locale = "en-US"
