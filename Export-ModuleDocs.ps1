@@ -1,4 +1,61 @@
 function Export-ModuleDocs {
+    <#
+    .SYNOPSIS
+    Script used for generating Markdown documentation for PowerShell files. 
+    
+    .DESCRIPTION
+    The script leverages the PlatyPS module to generate Markdown files for each PS1 file as well as for the whole module.
+    The script also generates a relatively-pathed PSM1 file, and complimentary PSD1 file. 
+    
+    .PARAMETER Path
+    Path to the directory containing PowerShell (PS1) files to generate documentation for.
+    
+    .PARAMETER ModulePrefix
+    String to be pre-fixed to the beginning of the generated PSM1,PSD1, and used in the ReadMe file. 
+    
+    .PARAMETER ModuleDescription
+    The description that should be used in the PSD1 file and ReadMe file for the Module.
+    
+    .PARAMETER ModuleDescriptionFile
+    Path to a file containing the description that should be used in the PSD1 file and ReadMe file for the Module.
+    
+    .PARAMETER MarkdownFilesPath
+    Path to the directory where Markdown files for each PS1 script should be stored. By default, the script will save the files to $Path\Docs
+    
+    .PARAMETER Exclude
+    String array of paths to exclude when getting PowerShell (PS1) files to document.
+    
+    .PARAMETER NoClobber
+    No not overwrite existing PSM1 and PSD1 files. A value must be supplied for -ModuleFilePath in order to user -NoClobber
+    
+    .PARAMETER ModuleFilePath
+    Path to the existing module file. Script is expecting a PSM1 file. 
+    
+    .PARAMETER NoModulePrefix
+    Switch to exclude application of a module prefix to the beginning of the generated PSM1,PSD1, and used in the ReadMe file.
+    
+    .EXAMPLE
+    Export-ModuleDocs -Path ".\Windows10" -ModuleDescription "Windows 10 PowerShell Scripts"
+
+    .EXAMPLE
+    Export-ModuleDocs -Path ".\Windows10" -ModuleDescriptionFile ".\Windows10\Description.txt"
+
+    .EXAMPLE
+    Export-ModuleDocs -Path ".\Windows10" -ModuleDescription "Windows 10 PowerShell Scripts" -MarkdownFilesPath ".\Windows10\Markdown" -NoModulePrefix
+
+    .EXAMPLE
+    Export-ModuleDocs -Path ".\Windows10" -ModuleDescription "Windows 10 PowerShell Scripts" -NoCobber -ModuleFilePath ".\Windows10\Module.psm1" -NoModulePrefix
+    
+    .LINK
+    https://github.com/PowerShell/platyPS
+
+    .LINK
+    https://docs.microsoft.com/en-us/powershell/scripting/dev-cross-plat/create-help-using-platyps?view=powershell-7.1
+
+    .NOTES
+        Author: Paul Boyer
+        Date: 5-11-2021
+    #>
     param (
         [Parameter(Mandatory=$true)]
         [String]
@@ -12,10 +69,10 @@ function Export-ModuleDocs {
         [Parameter(Mandatory=$true,ParameterSetName="Description_File")]
         [string]
         $ModuleDescriptionFile,
-        [Parameter()]
+        [Parameter(Mandatory=$true,ParameterSetName="MarkdownFiles_Path")]
         [ValidateScript({if(Test-Path -Path $_ -PathType Container -IsValid){return $true}else{$false}})]
         [String]
-        $ScriptFilesPath,
+        $MarkdownFilesPath,
         [Parameter()]
         [String[]]
         $Exclude,
@@ -138,13 +195,13 @@ function Export-ModuleDocs {
         # Variable to store the path where individual MD files should be stored
         [String]$MDFilesDir = "";
 
-        # If a specific folder is specified by the $ScriptFilesPath parameter, make sure the directory exists
-        if ($ScriptFilesPath -ne "") {
-            if (-not (Test-Path -Path $ScriptFilesPath)) {
-                New-Item -Path $(Split-Path -Path $ScriptFilesPath -Parent) -Name $(Split-Path -Path $ScriptFilesPath -Leaf) -ItemType Directory -Force | Out-Null
-                $MDFilesDir = $ScriptFilesPath
+        # If a specific folder is specified by the $MarkdownFilesPath parameter, make sure the directory exists
+        if ($MarkdownFilesPath -ne "") {
+            if (-not (Test-Path -Path $MarkdownFilesPath)) {
+                New-Item -Path $(Split-Path -Path $MarkdownFilesPath -Parent) -Name $(Split-Path -Path $MarkdownFilesPath -Leaf) -ItemType Directory -Force | Out-Null
+                $MDFilesDir = $MarkdownFilesPath
             }else{
-                $MDFilesDir = $ScriptFilesPath
+                $MDFilesDir = $MarkdownFilesPath
             }
         }else{
             # Otherwise, if no specific folder is specified, use a "Docs" folder in the $Path directory
@@ -188,7 +245,7 @@ function Export-ModuleDocs {
         }
 
         <# Update the external help version for each file. Sets the value to null #>
-        Get-ChildItem -Path $ScriptFilesPath -Filter "*.md" -File | ForEach-Object{
+        Get-ChildItem -Path $MarkdownFilesPath -Filter "*.md" -File | ForEach-Object{
             Set-Content -Path $_.FullName -Value $(Get-Content $_.FullName | ForEach-Object{
                 if($_ -match "external help file:"){
                     $_.Substring(0,$_.IndexOf(':')+1)
