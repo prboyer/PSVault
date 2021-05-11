@@ -7,13 +7,9 @@ function Export-ModuleDocs {
         [String]
         $ModulePrefix,
         [Parameter(Mandatory=$true,ParameterSetName="Description_String")]
-        [Parameter(ParameterSetName="Module_NoPrefix")]
-        [Parameter(ParameterSetName="Module_Prefix")]
         [string]
         $ModuleDescription,
         [Parameter(Mandatory=$true,ParameterSetName="Description_File")]
-        [Parameter(ParameterSetName="Module_NoPrefix")]
-        [Parameter(ParameterSetName="Module_Prefix")]
         [string]
         $ModuleDescriptionFile,
         [Parameter()]
