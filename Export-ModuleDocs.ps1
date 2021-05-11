@@ -93,8 +93,12 @@ function Export-ModuleDocs {
         [switch]
         $NoModulePrefix,
         [Parameter()]
+        [ValidateNotNullOrEmpty()]
         [String]
-        $Version
+        $Version,
+        [Parameter()]
+        [Switch]
+        $Prune
     )
     <# Import Dependencies #>
         # Import platyPS module required for generating the markdown documentation
@@ -301,5 +305,39 @@ function Export-ModuleDocs {
 
         <# Manually update the guid on the readme file #>
             $(Get-Content -Path "$Path\README.md").Replace("00000000-0000-0000-0000-000000000000",$moduleGUID.Guid) | Set-Content -Path "$Path\README.md";
-        
+    
+    <# Prune functionality for getting rid of extra information on README.md files when they don't process properly #>
+        if ($Prune) {
+            # Delete the un-necessary individual MD files
+            $WorkingFolderFiles = Get-ChildItem -Path $Path -File -Filter "*.ps1"
+            Get-ChildItem -Path $MDFilesDir | ?{$_.BaseName -notin $WorkingFolderFiles.BaseName} | Remove-Item -Force
+
+            <# Prune the README.MD file #>
+                # Prune out the headers that are unnecessary
+                    $Content = Get-Content -Path "$Path\README.md"
+
+                    $X = $Content | ForEach-Object{
+                        # Grab headers starting with ###
+                        if ($_ -like "###*") {
+                            $Files = (Get-ChildItem -Path $Path -File -Filter "*.ps1")
+                            if($_.TrimStart("# [").Substring(0,$_.TrimStart("# [").IndexOf(']')) -in $Files.BaseName){
+                                    $_
+                            }
+                           
+                        }else{
+                            $_
+                        }
+                    }
+                    
+                    # Get rid of empty lines
+                    $X = $X | Where-Object {$_ -ne ""}
+                    
+                    # Write out filtered content to the README.md file
+                    $X | Set-Content -Path "$Path\Readme.md"
+
+            <# Prune the "{{ Fill in the Synopsis }} lines "#>
+            Set-Content -Path "$Path\Readme.md" -Value $($(Get-Content "$Path\README.md") -replace "{{ Fill in the Synopsis }}","" | Where-Object {$_ -ne "" } )
+
+        }
+
 }
