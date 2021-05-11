@@ -17,7 +17,9 @@ function Export-ModuleDocs {
     The description that should be used in the PSD1 file and ReadMe file for the Module.
     
     .PARAMETER ModuleDescriptionFile
-    Path to a file containing the description that should be used in the PSD1 file and ReadMe file for the Module.
+    Path to a file containing the description that should be used in the PSD1 file and ReadMe file for the Module. Optionally, specify an empty string (""), and 
+    the script will attempt to use the "$Path\Description.txt" to get the Module description. This is helpful for keeping the same description in place when updating
+    documentation through multiple revisions. 
     
     .PARAMETER MarkdownFilesPath
     Path to the directory where Markdown files for each PS1 script should be stored. By default, the script will save the files to $Path\Docs
@@ -33,6 +35,9 @@ function Export-ModuleDocs {
     
     .PARAMETER NoModulePrefix
     Switch to exclude application of a module prefix to the beginning of the generated PSM1,PSD1, and used in the ReadMe file.
+
+    .PARAMETER Version
+    Specify a string to represent the revision of the help documentation. This will also be applied to the PSD1 manifest file. 
     
     .EXAMPLE
     Export-ModuleDocs -Path ".\Windows10" -ModuleDescription "Windows 10 PowerShell Scripts"
@@ -66,7 +71,8 @@ function Export-ModuleDocs {
         [Parameter(Mandatory=$true,ParameterSetName="Description_String")]
         [string]
         $ModuleDescription,
-        [Parameter(Mandatory=$true,ParameterSetName="Description_File")]
+        [Parameter(Mandatory=$false,ParameterSetName="Description_File")]
+        [AllowEmptyString()]
         [string]
         $ModuleDescriptionFile,
         [Parameter(Mandatory=$true,ParameterSetName="MarkdownFiles_Path")]
@@ -85,7 +91,10 @@ function Export-ModuleDocs {
         $ModuleFilePath,
         [Parameter(ParameterSetName="Module_NoPrefix")]
         [switch]
-        $NoModulePrefix
+        $NoModulePrefix,
+        [Parameter()]
+        [String]
+        $Version
     )
     <# Import Dependencies #>
         # Import platyPS module required for generating the markdown documentation
@@ -152,23 +161,35 @@ function Export-ModuleDocs {
             
             # Variable that holds the description that will be assigned to the module.
             [String]$Description = "";
-            
-            # If a module description is passed as a file, try to get the content of the file and assign it to $Description
-            if(($ModuleDescriptionFile -ne "") -and ($ModuleDescription -eq "")){
-                try{
-                    $Description = Get-Content $ModuleDescriptionFile
-                }catch{
-                    # If the content of the file cannot be read, then prompt the user to enter a description interactively
-                    Write-Warning $("Unable to get description text from file {0}" -f $ModuleDescriptionFile) -WarningAction Continue
-                    $Description = Read-Host -Prompt "Enter message to user for Module Description"
-                }  
+                        
             # If a module description is not passed in a file, but as a string on the command line, then proceed with assigning that value to $Description
-            }else{
+            if ($ModuleDescription -ne "") {
                 if($ModuleDescription -ne ""){
                     $Description = $ModuleDescription
                 }else{
                     # Otherwise if there is no description passed at function-call, then prompt for it interactively.
                     $Description = Read-Host -Prompt "Enter message to user for Module Description"
+                } 
+            }else{
+                # If the -ModuleDescriptionFile parameter is passed, but with no Path, try to get the content of the default 'Description.txt' file and assign it to $Description
+                if ($ModuleDescriptionFile -eq "" -and (Test-Path -Path "$Path\Description.txt")) {
+                    try{
+                        $ModuleDescriptionFile = "$Path\Description.txt"
+                        $Description = Get-Content $ModuleDescriptionFile
+                    }catch{
+                        # If the content of the file cannot be read, then prompt the user to enter a description interactively
+                        Write-Warning $("Unable to get description text from file {0}" -f $ModuleDescriptionFile) -WarningAction Continue
+                        $Description = Read-Host -Prompt "Enter message to user for Module Description"
+                    }
+                }else{
+                    # If a module description is passed as a file, try to get the content of the file and assign it to $Description
+                    try{
+                        $Description = Get-Content $ModuleDescriptionFile
+                    }catch{
+                        # If the content of the file cannot be read, then prompt the user to enter a description interactively
+                        Write-Warning $("Unable to get description text from file {0}" -f $ModuleDescriptionFile) -WarningAction Continue
+                        $Description = Read-Host -Prompt "Enter message to user for Module Description"
+                    } 
                 }
             }
         }
@@ -221,7 +242,7 @@ function Export-ModuleDocs {
             Metadata = @{Author = "Paul Boyer"; 'Module Guid'= $moduleGUID.Guid;}
             Locale = "en-US"
             ExcludeDontShow = $true
-            HelpVersion = "1.1"
+            HelpVersion = $Version
             OutputFolder = $MDFilesDir
             Force = $true
             WithModulePage = $true
