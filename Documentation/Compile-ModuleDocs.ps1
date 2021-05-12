@@ -63,28 +63,46 @@ function Compile-ModuleDocs {
         foreach ($D in $Directories) {
            # Find the Readme file from listing all files in the current directory ($D)
            $ReadMe = Get-ChildItem -Path $D.FullName -Recurse -File | Where-Object{$_.Name -eq "README.md"}
-            
+
            # Get the content of the Readme file. Perform validation first before trying to get the content
            try{
                 if (Test-Path -Path $ReadMe.FullName) {
                     $Content = Get-Content -Path $ReadMe.FullName | Select-Object -Skip 7
-            }
+                }
+
+                 # Change the path of the link in the readme file to be resolvable from the front page
+                $ModifiedContent = $Content | ForEach-Object{
+                    if ($_ -like "### *") {
+                        $_.Insert($_.IndexOf('(')+1,"$D/")
+                    }else{
+                        $_
+                    }
+                }
+
+                # Change the H1 Headings to be links
+                $ModCont = $ModifiedContent | ForEach-Object{
+                    if ($_ -like "### *") {
+                        # Use a lot of string manipulation to get the parent path of the folder
+                    $ParentPath = (Split-Path ($_.Substring( $_.IndexOf('(')+1)).TrimEnd(')') -Parent).Replace("\","/")
+                    }
+
+                    if ($_ -match "^\#.\w") {
+                        $Header = $_.Insert(2,"[")
+                        $Header = $Header.Insert($Header.Length,"]($ParentPath/README.md)")
+                        # $Header = $Header.Insert($Header.Length,$($_.TrimStart('# ')))
+                        $Header
+                    }else{
+                        $_
+                    }
+                }
+
+                # Add the content to the holding variable
+                $CompiledData += $ModCont
+
            }catch{
                # Throw a non-terminating warning if a Readme file cannot be located
                Write-Warning -Message $("Unable to resolve path to README file in {0}" -f $D)
            }
-           
-            # Change the path of the link in the readme file to be resolvable from the front page
-            $ModifiedContent = $Content | %{
-                if ($_ -like "### *") {
-                    $_.Insert($_.IndexOf('(')+1,"$D/")
-                }else{
-                    $_
-                }
-            }
-
-            # Add the content to the holding variable
-            $CompiledData += $ModifiedContent
         }
 
     <# Write out the new README file for the frontpage #>
