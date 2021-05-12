@@ -94,6 +94,9 @@ function Compile-ModuleDocs {
 
                     # Add the content to the holding variable
                     $CompiledData += $ModCont
+
+                    # Add a <hr> between modules
+                    $CompiledData += "`n<hr>`n"
                 }    
            }catch{
                # Throw a non-terminating warning if a Readme file cannot be located
