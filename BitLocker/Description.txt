@@ -1,0 +1,1 @@
+Scripts for managing built-in Windows Disk Encryption (BitLocker)
