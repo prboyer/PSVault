@@ -61,6 +61,8 @@ function Compile-ModuleDocs {
         
         # For each directory, get the readme file and do some string manipulation
         foreach ($D in $Directories) {
+            $D
+
            # Find the Readme file from listing all files in the current directory ($D)
            $ReadMe = Get-ChildItem -Path $D.FullName -Recurse -File | Where-Object{$_.Name -eq "README.md"}
 
@@ -68,37 +70,31 @@ function Compile-ModuleDocs {
            try{
                 if (Test-Path -Path $ReadMe.FullName) {
                     $Content = Get-Content -Path $ReadMe.FullName | Select-Object -Skip 7
-                }
 
-                 # Change the path of the link in the readme file to be resolvable from the front page
-                $ModifiedContent = $Content | ForEach-Object{
-                    if ($_ -like "### *") {
-                        $_.Insert($_.IndexOf('(')+1,"$D/")
-                    }else{
-                        $_
-                    }
-                }
-
-                # Change the H1 Headings to be links
-                $ModCont = $ModifiedContent | ForEach-Object{
-                    if ($_ -like "### *") {
-                        # Use a lot of string manipulation to get the parent path of the folder
-                    $ParentPath = (Split-Path ($_.Substring( $_.IndexOf('(')+1)).TrimEnd(')') -Parent).Replace("\","/")
+                    # Change the path of the link in the readme file to be resolvable from the front page
+                    $ModifiedContent = $Content | ForEach-Object{
+                        if ($_ -like "### *") {
+                            $_.Insert($_.IndexOf('(')+1,"$D/")
+                        }else{
+                            $_
+                        }
                     }
 
-                    if ($_ -match "^\#.\w") {
-                        $Header = $_.Insert(2,"[")
-                        $Header = $Header.Insert($Header.Length,"]($ParentPath/README.md)")
-                        # $Header = $Header.Insert($Header.Length,$($_.TrimStart('# ')))
-                        $Header
-                    }else{
-                        $_
+                    # Change the H1 Headings to be links
+                    $ModCont = $ModifiedContent | ForEach-Object{
+                        if (($_ -match "^\#.\w")) {
+                            $Header = $_.Insert(2,"[")
+                            $Header = $Header.Insert($Header.Length,"]($D/README.md)")
+                            # $Header = $Header.Insert($Header.Length,$($_.TrimStart('# ')))
+                            $Header
+                        }else{
+                            $_
+                        }
                     }
-                }
-
-                # Add the content to the holding variable
-                $CompiledData += $ModCont
-
+                    
+                    # Add the content to the holding variable
+                    $CompiledData += $ModCont
+                }    
            }catch{
                # Throw a non-terminating warning if a Readme file cannot be located
                Write-Warning -Message $("Unable to resolve path to README file in {0}" -f $D)
@@ -106,9 +102,10 @@ function Compile-ModuleDocs {
         }
 
     <# Write out the new README file for the frontpage #>
-        $Title | Out-String| Out-File -FilePath $OutFile
-        $Description | Out-String | Out-File -FilePath $OutFile -Append
-        $ImageCode | Out-String | Out-File -FilePath $OutFile -Append
-        $CompiledData | Out-String | Out-File -FilePath $OutFile -Append
+        # $Title | Out-String| Out-File -FilePath $OutFile
+        # $Description | Out-String | Out-File -FilePath $OutFile -Append
+        # $ImageCode | Out-String | Out-File -FilePath $OutFile -Append
+        # $CompiledData | Out-String | Out-File -FilePath $OutFile -Append
 
 }
+Compile-ModuleDocs -Path "C:\Users\pboyer2\OneDrive - UW-Madison\Documents\Scripts\PSVault" -OutFile "$PSSCriptRoot\test.md"
