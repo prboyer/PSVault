@@ -1,8 +1,8 @@
 ---
 Author: Paul Boyer
-external help file: PSVault-Bitlocker-help.xml
-Module Guid: 096fdbd4-6b80-4ec9-9a6f-0cabd9c44496
-Module Name: PSVault-Bitlocker
+external help file: PSVault-BitLocker-help.xml
+Module Guid: a4cc3f60-0be8-4abd-90f6-78845d0c3e76
+Module Name: PSVault-BitLocker
 online version:
 schema: 2.0.0
 ---

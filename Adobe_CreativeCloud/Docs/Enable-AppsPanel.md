@@ -1,7 +1,7 @@
 ---
 Author: Paul Boyer
 external help file: PSVault-Adobe_CreativeCloud-help.xml
-Module Guid: c7c81f7b-6052-41da-a6ca-72ea645e4d46
+Module Guid: 4308007e-471a-43bb-a4a2-95c3ec3bf358
 Module Name: PSVault-Adobe_CreativeCloud
 online version:
 schema: 2.0.0

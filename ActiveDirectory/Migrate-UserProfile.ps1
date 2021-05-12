@@ -1,8 +1,7 @@
 ﻿function Migrate-UserProfile {
   <#
     .SYNOPSIS
-    Script used in preparing to migrate from a Windows 7 to Windows 10 environment. This copies the contents of a user's 
-    Windows 7 roaming profile to a new Windows 10 (V6) roaming profile on a specified profile server. 
+    Script used in preparing to migrate from a Windows 7 to Windows 10 environment. This copies the contents of a user's Windows 7 roaming profile to a new Windows 10 (V6) roaming profile on a specified profile server. 
     
     .DESCRIPTION
     For each username, check that the Windows 7 profile (V2) exists on the profile server. 

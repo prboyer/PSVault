@@ -1,4 +1,3 @@
-# Paul Boyer 7-7-2020
 <#
 .SYNOPSIS
 Script that runs a report against your AD instance to query for escrowed Bitlocker recovery keys.
@@ -26,6 +25,9 @@ The filepath where the CSV file should be saved. Validation in script confirms t
 Get-BitlockerKey -SearchBase "DC=corp,DC=contoso,DC=com" -FilePath "C:\BitlockerReport.csv"
 
 .NOTES
+	Author: Paul Boyer
+	Date: 7-7-2020
+
 Script adopted from https://social.technet.microsoft.com/Forums/en-US/fbb2135e-e3ce-4eb0-8ddc-ff9f3d0b0158/ad-objects-without-bitlocker-keys-stored-in-ad?forum=winserverDS
 
 #>

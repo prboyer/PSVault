@@ -1,7 +1,7 @@
 ---
 Author: Paul Boyer
 external help file: PSVault-Office365-help.xml
-Module Guid: b60d93fc-49d1-436e-a86d-0584f4f93802
+Module Guid: f6f83d86-3ee4-4f1c-b9e9-8dca9c20819b
 Module Name: PSVault-Office365
 online version:
 schema: 2.0.0
