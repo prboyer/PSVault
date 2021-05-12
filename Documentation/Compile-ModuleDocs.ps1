@@ -91,7 +91,7 @@ function Compile-ModuleDocs {
                             $_
                         }
                     }
-                    
+
                     # Add the content to the holding variable
                     $CompiledData += $ModCont
                 }    
@@ -102,10 +102,9 @@ function Compile-ModuleDocs {
         }
 
     <# Write out the new README file for the frontpage #>
-        # $Title | Out-String| Out-File -FilePath $OutFile
-        # $Description | Out-String | Out-File -FilePath $OutFile -Append
-        # $ImageCode | Out-String | Out-File -FilePath $OutFile -Append
-        # $CompiledData | Out-String | Out-File -FilePath $OutFile -Append
+        $Title | Out-String| Out-File -FilePath $OutFile
+        $Description | Out-String | Out-File -FilePath $OutFile -Append
+        $ImageCode | Out-String | Out-File -FilePath $OutFile -Append
+        $CompiledData | Out-String | Out-File -FilePath $OutFile -Append
 
 }
-Compile-ModuleDocs -Path "C:\Users\pboyer2\OneDrive - UW-Madison\Documents\Scripts\PSVault" -OutFile "$PSSCriptRoot\test.md"
