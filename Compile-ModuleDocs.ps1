@@ -1,9 +1,39 @@
 function Compile-ModuleDocs {
+    <#
+    .SYNOPSIS
+    Script that updates the README file on the front page.
+    
+    .DESCRIPTION
+    Script pulls data from the individual README files in each folder and consolidates them into one README for the front page. Script
+    also changes the paths in the consolidated file so that they can be resolved from the front page.
+    
+    .PARAMETER Path
+    Path to working directory containing sub-folders with scripts and README files. 
+
+    .PARAMETER OutFile
+    Path to where the consolidated file should be saved.
+    
+    .EXAMPLE
+   Compile-ModuleDocs -Path C:\Scripts -OutFile C:\Scripts\Readme.md
+    
+    .NOTES
+        Author: Paul Boyer
+        Date: 5-12-21
+    #>
     param (
-        [Parameter()]
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
         [String]
         $Path,
-        [Parameter()]
+        [Parameter(Mandatory=$true)]
+        [ValidateScript({
+            # Validation script requires that a file path be passed and it must be a MD file. 
+            if(($_ -ne "") -and ([System.Path.IO]::GetExtension($_) -eq "md")){
+                return $true;
+            }else{
+                return $false;
+            }
+        })]
         [String]
         $OutFile
     )
