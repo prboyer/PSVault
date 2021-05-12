@@ -1,0 +1,1 @@
+PowerShell files created to assist with automating the generation of documentation for other modules.
