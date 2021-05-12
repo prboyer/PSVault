@@ -28,7 +28,7 @@ function Compile-ModuleDocs {
         [Parameter(Mandatory=$true)]
         [ValidateScript({
             # Validation script requires that a file path be passed and it must be a MD file. 
-            if(($_ -ne "") -and ([System.Path.IO]::GetExtension($_) -eq "md")){
+            if(($_ -ne "") -and ([System.IO.Path]::GetExtension($_) -eq ".md")){
                 return $true;
             }else{
                 return $false;
