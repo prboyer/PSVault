@@ -1,0 +1,1 @@
+PowerShell scripts designed to be used with MECM/SSCM for administration tasks.
