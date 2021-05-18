@@ -1,16 +1,16 @@
 ---
-Module Name: group-policy-backup
+Module Name: PSVault-GroupPolicy
 Module Guid: d179234e-20d7-417a-b855-679e9f74a6fe
 Download Help Link: https://github.com/prboyer/PSVault
 Help Version: 1.1
 Locale: en-US
 ---
 
-# group-policy-backup Module
+# PSVault-GroupPolicy Module
 ## Description
-Collection of Group Policy Backup Scripts
+A collection of PowerShell scripts needed to fully backup and document a enterprise Group Policy environment.
 
-## group-policy-backup Cmdlets
+## PSVault-GroupPolicy Cmdlets
 ### [Check-GPPermissions](Docs/Check-GPPermissions.md)
 Script to report GPOs in a domain that do not have accessible ACLs applied.
 
