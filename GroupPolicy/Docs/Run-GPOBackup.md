@@ -1,8 +1,8 @@
 ---
 Author: Paul Boyer
-external help file: group-policy-backup-help.xml
-Module Guid: d179234e-20d7-417a-b855-679e9f74a6fe
-Module Name: group-policy-backup
+external help file: psvault-GroupPolicy-help.xml
+Module Guid: 4ce32930-8476-4748-9011-fa152e80fdf6
+Module Name: psvault-GroupPolicy
 online version:
 schema: 2.0.0
 ---
@@ -16,7 +16,8 @@ It leverages external modules/functions to create a robust backup of Group Polic
 ## SYNTAX
 
 ```
-Run-GPOBackup [-BackupFolder] <String> [[-Domain] <String>] [-BackupsToKeep] <Int32> [<CommonParameters>]
+Run-GPOBackup [-BackupFolder] <String> [[-Domain] <String>] [-BackupsToKeep] <Int32> [-SkipSysvol]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -24,9 +25,9 @@ The script runs BackUp_GPOs.ps1 and Get-GPLinks.ps1 externally to generate addit
 The script will backup all GPOs in the domain, as well as HTML
 reports for each GPO indicating what they do.
 Further, a CSV report is included.
-The GPO linkage to OUs is also included in both CSV and TXT reports.
-The idea is that this backup is
-all-encompassing and would constitue a disaster recovery restore.
+The GPO linkage to OUs is also included in both CSV and TXT reports. 
+The script also grabs a copy of the domain SYSVOL unless the -SkipSysvol parameter is supplied.
+The idea is that this backup is all-encompassing and would constitue a disaster recovery restore.
 
 ## EXAMPLES
 
@@ -81,6 +82,21 @@ Aliases:
 Required: True
 Position: 3
 Default value: 0
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -SkipSysvol
+Parameter that tells the script to forego backing up the domain SYSVOL elements (PolicyDefiniitions, StarterGPOs, and scripts)
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

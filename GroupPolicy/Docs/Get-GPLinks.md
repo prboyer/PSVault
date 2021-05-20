@@ -1,8 +1,8 @@
 ---
 Author: Paul Boyer
-external help file: group-policy-backup-help.xml
-Module Guid: d179234e-20d7-417a-b855-679e9f74a6fe
-Module Name: group-policy-backup
+external help file: psvault-GroupPolicy-help.xml
+Module Guid: 4ce32930-8476-4748-9011-fa152e80fdf6
+Module Name: psvault-GroupPolicy
 online version:
 schema: 2.0.0
 ---
