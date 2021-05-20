@@ -6,7 +6,7 @@ function Run-GPOBackup {
     .DESCRIPTION
     The script runs BackUp_GPOs.ps1 and Get-GPLinks.ps1 externally to generate additional backup content. The script will backup all GPOs in the domain, as well as HTML
     reports for each GPO indicating what they do. Further, a CSV report is included. The GPO linkage to OUs is also included in both CSV and TXT reports. The idea is that this backup is
-    all-encompassing and would constitue a disaster recovery restore.
+    all-encompassing and would constitue a disaster recovery restore. The script also grabs a copy of the domain SYSVOL unless the -SkipSysvol parameter is supplied.
     
     .PARAMETER BackupFolder
     Path to where the backups should bs saved
@@ -17,6 +17,9 @@ function Run-GPOBackup {
     .PARAMETER BackupsToKeep
     Parameter that indicates how many previous backups to keep. Once the backup directory contains X backups, the oldest backups are then removed. By default, 10 backups are kept.
     
+    .PARAMETER SkipSysvol
+    Parameter that tells the script to forego backing up the domain SYSVOL elements (PolicyDefiniitions, StarterGPOs, and scripts)
+
     .EXAMPLE
     Run-GPOBackup -BackupFolder C:\Backups -BackupsToKeep 10
 
@@ -44,7 +47,10 @@ function Run-GPOBackup {
         [Parameter(Mandatory=$true)]
         [ValidateNotNullOrEmpty()]
         [Int]
-        $BackupsToKeep
+        $BackupsToKeep,
+        [Parameter()]
+        [switch]
+        $SkipSysvol
     )
     #Requires -Module ActiveDirectory
     
@@ -65,7 +71,7 @@ function Run-GPOBackup {
         [String]$LOGDATE = Get-Date -Format "G"
 
         # Information variable
-        [String]$INFO
+        [String]$global:INFO
 
         # Number of backups to keep
         [Int]$KEEP = 10
@@ -89,22 +95,58 @@ function Run-GPOBackup {
     New-Item -Path $BackupFolder -Name "Temp" -ItemType Directory | Out-Null
     $Temp = Get-Item -Path "$BackupFolder\Temp"
 
+    # Make the temp folder hidden
+    $Temp.Attributes = "Hidden"
+
     # Start GPO Backup Job (takes parameters in positional order only)
-    Write-Information ("{0}`tBegin local background job: BackupJob - Executes BackUp_GPOS.ps1 `n`t`tBacking up GPOs to {1}" -f $LOGDATE,$Temp) -InformationVariable +INFO
+    Write-Information ("{0}`tBegin local background job: BackupJob - Executes BackUp_GPOS.ps1 `n`t`tBacking up GPOs to {1}" -f $LOGDATE,$Temp) -InformationVariable +INFO -InformationAction Continue
     $BackupJob = Start-Job -Name "BackupJob" -FilePath $global:BACKUP_GPOS -ArgumentList $BackupDomain,$Temp 
   
     # Start GPO Links Job
-    Write-Information ("{0}`tBegin local background job: LinksJob - Executes Get-GPLinks.ps1 `n`t`tBacking up Links to {1}" -f $LOGDATE,$Temp) -InformationVariable +INFO   
+    Write-Information ("{0}`tBegin local background job: LinksJob - Executes Get-GPLinks.ps1 `n`t`tBacking up Links to {1}" -f $LOGDATE,$Temp) -InformationVariable +INFO -InformationAction Continue
     $LinksJob = Start-Job -Name "LinksJob" -ArgumentList $Temp -ScriptBlock {
-        # Import requried module
+        # Import required module
         . $using:GET_GPLINKS
 
         # Run the script
         Get-GPLinks -BothReport -Path "$args"
-    } 
+    }
+    
+    <# SysVol Backup #>
+        # Only perform the Sysvol backup if the -SkipSysvol parameter is not supplied
+        if(-not $SkipSysvol){
+            # Begin the Sysvol backup
+            Write-Information ("{0}`tBegin local background job: SysvolJob - Backs up a copy of important files in Sysvol `n`t`tBacking up Sysvol to {1}" -f $LOGDATE,$Temp) -InformationVariable +INFO -InformationAction Continue
+            [String]$DomainController = $(Get-AdDomainController).hostname
+            [String]$Sysvol = "\\$DomainController\Sysvol\$((Get-ADDomain | Select-Object Forest).Forest)"
+
+                # Write out counts of objects in Sysvol dirs
+                Write-Information ("{0}`tRecord counts of objects found in Sysvol:`n`t`tPolicyDefinitions = {1} items `n`t`tScripts = {2} items `n`t`tStarterGPOs = {3} items" -f $LOGDATE,(Get-ChildItem -Path "$Sysvol\Policies\PolicyDefinitions" -Recurse | Measure-Object).Count,(Get-ChildItem -Path "$Sysvol\scripts" -Recurse | Measure-Object).Count,(Get-ChildItem -Path "$Sysvol\StarterGPOs" -Recurse | Measure-Object).Count) -InformationAction Continue -InformationVariable +INFO
+
+                # Start running the backup job
+                $SysvolJob = Start-Job -Name "SysvolJob" -ArgumentList $Sysvol,$Temp -ScriptBlock {
+                    try{
+                        # Copy the contents from Sysvol (keeping the directory structure the same) to the backup folder
+                        Copy-Item -Path "$($args[0])\Policies\PolicyDefinitions" -Recurse -Destination "$($args[1])\Sysvol\$((Get-ADDomain | Select-Object Forest).Forest)\Policies"
+                        Copy-Item -Path "$($args[0])\scripts" -Recurse -Destination "$($args[1])\Sysvol\$((Get-ADDomain | Select-Object Forest).Forest)\scripts\"
+                        Copy-Item -Path "$($args[0])\StarterGPOs" -Recurse -Destination "$($args[1])\Sysvol\$((Get-ADDomain | Select-Object Forest).Forest)\StarterGPOs\"
+                    }
+                    catch{
+                        Write-Error $Error[0] -ErrorVariable +INFO
+                    }
+                }
+        }  else {
+            # Write to the log file that Sysvol backup was not performed
+            Write-Information ("{0}`tSkipping the Sysvol backup as the '-SkipSysvol' parameter was supplied at runtime." -f $DATE) -InformationVariable +INFO
+        }
 
     # Wait for the backup jobs to finish, then zip up the files
-    Wait-Job -Job $BackupJob,$LinksJob | Out-Null
+    if($SkipSysvol){
+        # If the -SkipSysvol parameter is supplied, don't wait for the SysvolJob before zipping (it won't be run)
+        Wait-Job -Job $BackupJob,$LinksJob | Out-Null
+    }else{
+        Wait-Job -Job $SysvolJob,$LinksJob,$BackupJob | Out-Null
+    }
     Write-Information ("{0}`tBegin zipping files in {1} to archive at {2}" -f $LOGDATE,$Temp,"$BackupFolder\$DATE.zip") -InformationVariable +INFO
     Compress-Archive -Path "$Temp\*" -DestinationPath "$BackupFolder\$DATE.zip"
 
