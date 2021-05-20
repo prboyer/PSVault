@@ -5,8 +5,9 @@ function Run-GPOBackup {
     
     .DESCRIPTION
     The script runs BackUp_GPOs.ps1 and Get-GPLinks.ps1 externally to generate additional backup content. The script will backup all GPOs in the domain, as well as HTML
-    reports for each GPO indicating what they do. Further, a CSV report is included. The GPO linkage to OUs is also included in both CSV and TXT reports. The idea is that this backup is
-    all-encompassing and would constitue a disaster recovery restore. The script also grabs a copy of the domain SYSVOL unless the -SkipSysvol parameter is supplied.
+    reports for each GPO indicating what they do. Further, a CSV report is included. The GPO linkage to OUs is also included in both CSV and TXT reports. 
+    The script also grabs a copy of the domain SYSVOL unless the -SkipSysvol parameter is supplied.
+    The idea is that this backup is all-encompassing and would constitue a disaster recovery restore.
     
     .PARAMETER BackupFolder
     Path to where the backups should bs saved
@@ -121,7 +122,7 @@ function Run-GPOBackup {
             [String]$Sysvol = "\\$DomainController\Sysvol\$((Get-ADDomain | Select-Object Forest).Forest)"
 
                 # Write out counts of objects in Sysvol dirs
-                Write-Information ("{0}`tRecord counts of objects found in Sysvol:`n`t`tPolicyDefinitions = {1} items `n`t`tScripts = {2} items `n`t`tStarterGPOs = {3} items" -f $LOGDATE,(Get-ChildItem -Path "$Sysvol\Policies\PolicyDefinitions" -Recurse | Measure-Object).Count,(Get-ChildItem -Path "$Sysvol\scripts" -Recurse | Measure-Object).Count,(Get-ChildItem -Path "$Sysvol\StarterGPOs" -Recurse | Measure-Object).Count) -InformationAction Continue -InformationVariable +INFO
+                Write-Information ("{0}`tCount objects found in Sysvol:`n`t`tPolicyDefinitions = {1} items `n`t`tScripts = {2} items `n`t`tStarterGPOs = {3} items" -f $LOGDATE,(Get-ChildItem -Path "$Sysvol\Policies\PolicyDefinitions" -Recurse | Measure-Object).Count,(Get-ChildItem -Path "$Sysvol\scripts" -Recurse | Measure-Object).Count,(Get-ChildItem -Path "$Sysvol\StarterGPOs" -Recurse | Measure-Object).Count) -InformationAction Continue -InformationVariable +INFO
 
                 # Start running the backup job
                 $SysvolJob = Start-Job -Name "SysvolJob" -ArgumentList $Sysvol,$Temp -ScriptBlock {
