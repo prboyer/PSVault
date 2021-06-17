@@ -1,8 +1,8 @@
 ---
 Author: Paul Boyer
-external help file: PSVault-SCCM_MECM-help.xml
-Module Guid: 61cf29f1-66a0-40cc-a981-57ff88db58b6
-Module Name: PSVault-SCCM_MECM
+external help file: psvault-SCCM_MECM-help.xml
+Module Guid: bed21bd1-6f2c-4c2d-b1b8-4cd7271806ad
+Module Name: psvault-SCCM_MECM
 online version:
 schema: 2.0.0
 ---

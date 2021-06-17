@@ -1,8 +1,8 @@
 ---
 Author: Paul Boyer
-external help file: PSVault-SCCM_MECM-help.xml
-Module Guid: 61cf29f1-66a0-40cc-a981-57ff88db58b6
-Module Name: PSVault-SCCM_MECM
+external help file: psvault-SCCM_MECM-help.xml
+Module Guid: bed21bd1-6f2c-4c2d-b1b8-4cd7271806ad
+Module Name: psvault-SCCM_MECM
 online version:
 schema: 2.0.0
 ---
@@ -14,9 +14,16 @@ Script that extracts computer information and user information from all assets i
 
 ## SYNTAX
 
+### Collection
 ```
-Build-MECMComputerReport [-Path] <String> [-CollectionName] <String> [-SiteCode] <String>
- [-ProviderMachineName] <String> [<CommonParameters>]
+Build-MECMComputerReport -Path <String> [-CollectionName <String>] -SiteCode <String>
+ -ProviderMachineName <String> [<CommonParameters>]
+```
+
+### Array
+```
+Build-MECMComputerReport -Path <String> [-ComputerNames <String[]>] -SiteCode <String>
+ -ProviderMachineName <String> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -40,7 +47,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: 1
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -52,11 +59,26 @@ Accepts wildcards.
 
 ```yaml
 Type: String
-Parameter Sets: (All)
+Parameter Sets: Collection
 Aliases:
 
-Required: True
-Position: 2
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ComputerNames
+A list of computer names to run the report against
+
+```yaml
+Type: String[]
+Parameter Sets: Array
+Aliases:
+
+Required: False
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -71,7 +93,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: 3
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -86,7 +108,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: 4
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -97,6 +119,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
+### Either the name of an existing MECM device collection or a list of computer names.
 ## OUTPUTS
 
 ### A CSV report with the date run appended. "MECM_Report-$(Get-Date -Format FileDate).csv"
