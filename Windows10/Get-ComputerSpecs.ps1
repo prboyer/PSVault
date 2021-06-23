@@ -1,4 +1,24 @@
 function Get-ComputerSpecs{
+    <#
+    .SYNOPSIS
+        Script to create a report of a machine's hardware.
+    .DESCRIPTION
+        The script uses mainly WMI to query the hardware (and OS) of a machine and generate a text report. The report can then be saved to a location specified by -Path. The script can be run
+        against remote machines by supplying a value for -ComputerName.
+    .EXAMPLE
+        PS C:\> Get-ComputerSpecs -Path C:\temp\report.txt
+        Run the report and save the results to a TXT file at C:\temp\report.txt
+
+    .EXAMPLE
+        PS C:\> Get-ComputerSpecs -Path C:\temp\report.txt -ComputerName Server01.contoso.com
+        Run the report against Server01.contoso.com and save the results to a TXT file at C:\temp\report.txt
+
+    .OUTPUTS
+        .TXT file containing the hardware report for the computer.
+    .NOTES
+        Author: Paul Boyer
+        Date: 06-23-2021
+    #>
     [CmdletBinding()]
     param (
         [Parameter(Mandatory=$True)]
@@ -78,9 +98,9 @@ function Get-ComputerSpecs{
 
     <# Operating System and other Info #>
         # Perform queries to WMI to gather information about the system and operating system
-        [Object[]]$OperatingSystemTable = Get-WmiObject -Query "select * from win32_operatingsystem" -ComputerName $ComputerName | Select-Object CSName,Caption,BuildNumber,OSArchitecture,Manufacturer,SystemDrive,SystemDirectory
-        [Object[]]$ComputerSystemTable = Get-WmiObject -Query "select * from win32_computersystem" -ComputerName $ComputerName | Select-Object Name,BootupState,Caption,Domain,Manufacturer,Model,SystemSKUNumber,SystemType
-        [Object[]]$SystemEnclosureTable = Get-WmiObject -Query "select * from win32_systemenclosure" -ComputerName $ComputerName | Select-Object SerialNumber
+        [Object[]]$OperatingSystemTable = Get-WmiObject -Query "SELECT * FROM win32_operatingsystem" -ComputerName $ComputerName | Select-Object CSName,Caption,BuildNumber,OSArchitecture,Manufacturer,SystemDrive,SystemDirectory
+        [Object[]]$ComputerSystemTable = Get-WmiObject -Query "SELECT * FROM win32_computersystem" -ComputerName $ComputerName | Select-Object Name,BootupState,Caption,Domain,Manufacturer,Model,SystemSKUNumber,SystemType
+        [Object[]]$SystemEnclosureTable = Get-WmiObject -Query "SELECT * FROM win32_systemenclosure" -ComputerName $ComputerName | Select-Object SerialNumber
 
         [String]$OperatingSystem = "`nOperating System`n****************"
         
