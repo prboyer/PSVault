@@ -1,20 +1,20 @@
 function Get-ComputerSpecs{
     <#
     .SYNOPSIS
-        Script to create a report of a machine's hardware.
+        A PowerShell script to create a report of a machine's hardware.
     .DESCRIPTION
         The script uses mainly WMI to query the hardware (and OS) of a machine and generate a text report. The report can then be saved to a location specified by -Path. The script can be run
         against remote machines by supplying a value for -ComputerName.
     .EXAMPLE
-        PS C:\> Get-ComputerSpecs -Path C:\temp\report.txt
+        Get-ComputerSpecs -Path C:\temp\report.txt
         Run the report and save the results to a TXT file at C:\temp\report.txt
 
     .EXAMPLE
-        PS C:\> Get-ComputerSpecs -Path C:\temp\report.txt -ComputerName Server01.contoso.com
+        Get-ComputerSpecs -Path C:\temp\report.txt -ComputerName Server01.contoso.com
         Run the report against Server01.contoso.com and save the results to a TXT file at C:\temp\report.txt
 
     .OUTPUTS
-        .TXT file containing the hardware report for the computer.
+        A .TXT file containing the hardware report for the computer.
     .NOTES
         Author: Paul Boyer
         Date: 06-23-2021
