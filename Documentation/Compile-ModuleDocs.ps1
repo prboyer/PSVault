@@ -48,9 +48,15 @@ function Compile-ModuleDocs {
             
             # HTML code for adding in the image. 
             [String]$ImageCode = @'
-<p align="center">
-    <img src="ps_vault.svg" alt="Logo for PSVault. Attribution to SVG Repo https://www.svgrepo.com/svg/217127/vault" width="400" height="400">
-</p>
+            # PowerShell Vault
+
+            A Refined Collection of PowerShell Scripts
+            
+            <p align="center">
+                <img src="ps_vault.svg" alt="Logo for PSVault. Attribution to SVG Repo https://www.svgrepo.com/svg/217127/vault" width="400" height="400">
+            </p>
+            
+            [![PSScriptAnalyzer](https://github.com/prboyer/PSVault/actions/workflows/powershell-analysis.yml/badge.svg?branch=prboyer-patch-1)](https://github.com/prboyer/PSVault/actions/workflows/powershell-analysis.yml)
 '@
         <# Variable that holds the contents of each individual README file #>
             [String]$CompiledData
