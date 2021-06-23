@@ -1,8 +1,8 @@
 ---
 Author: Paul Boyer
-external help file: psvault-Windows10-help.xml
-Module Guid: a06d4247-9227-431e-9d72-33382f9f7c38
-Module Name: psvault-Windows10
+external help file: PSVault-Windows10-help.xml
+Module Guid: ffa4f42e-7097-4055-ae7d-e2e8974c6758
+Module Name: PSVault-Windows10
 online version:
 schema: 2.0.0
 ---
