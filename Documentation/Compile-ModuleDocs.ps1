@@ -46,11 +46,8 @@ function Compile-ModuleDocs {
             # The description immediately following the title
             [String]$Description = "A Refined Collection of PowerShell Scripts"
             
-            # HTML code for adding in the image. 
-            [String]$ImageCode = @'
-# PowerShell Vault
-
-A Refined Collection of PowerShell Scripts
+            # HTML code for adding in the image and PS Script Analyzer status 
+            [String]$HTMLCode = @'
 
 <p align="center">
     <img src="ps_vault.svg" alt="Logo for PSVault. Attribution to SVG Repo https://www.svgrepo.com/svg/217127/vault" width="400" height="400">
@@ -113,7 +110,7 @@ A Refined Collection of PowerShell Scripts
     <# Write out the new README file for the frontpage #>
         $Title | Out-String| Out-File -FilePath $OutFile
         $Description | Out-String | Out-File -FilePath $OutFile -Append
-        $ImageCode | Out-String | Out-File -FilePath $OutFile -Append
+        $HTMLCode | Out-String | Out-File -FilePath $OutFile -Append
         $CompiledData | Out-String | Out-File -FilePath $OutFile -Append
 
 }
