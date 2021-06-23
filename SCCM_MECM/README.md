@@ -1,14 +1,13 @@
 ---
-Module Name: psvault-SCCM_MECM
-Module Guid: {{ Update Module Guid }}
-Download Help Link: {{ Update Download Link }}
-Help Version: {{ Update Help Version }}
-Locale: {{ Update Locale }}
+Module Name: PSVault-SCCM_MECM
+Module Guid: d740efaf-e144-4a0a-a789-33ed8f7a29e6
+Download Help Link: https://github.com/prboyer/PSVault
+Help Version: 1.2
+Locale: en-US
 ---
-# psvault-SCCM_MECM Module
+# PSVault-SCCM_MECM Module
 ## Description
-PowerShell scripts designed to be used with MECM/SSCM for administration tasks.
-## psvault-SCCM_MECM Cmdlets
+## PSVault-SCCM_MECM Cmdlets
 ### [Build-MECMComputerReport](Docs/Build-MECMComputerReport.md)
 Script that extracts computer information and user information from all assets in a given MECM collection
 ### [Remove-CMPrimaryUser](Docs/Remove-CMPrimaryUser.md)
