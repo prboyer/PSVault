@@ -32,7 +32,7 @@ jobs:
           path: .\
           recurse: true 
           # Include your own basic security rules. Removing this option will run all the rules 
-          includeRule: '"PSAvoidGlobalAliases","PSAvoidUsingCmdletAliases","PSAvoidUsingConvertToSecureStringWithPlainText","PSAvoidUsingEmptyCatchBlock","PSAvoidLongLines","PSAvoidNullOrEmptyHelpMessageAttribute","PSAvoidTrailingWhitespace","PSAvoidUsingComputerNameHardcoded","PSAvoidUsingPlainTextForPassword","PSMisleadingBacktick","PSPlaceCloseBrace","PSPlaceOpenBrace","PSPossibleIncorrectComparisonWithNull","PSProvideCommentHelp","PSUseConsistentIndentation","PSUseConsistentWhitespace","PSUseCorrectCasing"'
+          includeRule: '"PSAvoidGlobalAliases","PSAvoidUsingCmdletAliases","PSAvoidUsingConvertToSecureStringWithPlainText","PSAvoidUsingEmptyCatchBlock","PSAvoidLongLines","PSAvoidNullOrEmptyHelpMessageAttribute","PSAvoidUsingComputerNameHardcoded","PSAvoidUsingPlainTextForPassword","PSMisleadingBacktick","PSPlaceCloseBrace","PSPlaceOpenBrace","PSPossibleIncorrectComparisonWithNull","PSProvideCommentHelp","PSUseConsistentIndentation","PSUseConsistentWhitespace","PSUseCorrectCasing"'
           output: results.sarif
       
       # Upload the SARIF file generated in the previous step
