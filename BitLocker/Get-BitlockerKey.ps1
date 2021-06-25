@@ -1,10 +1,10 @@
-<#
+﻿<#
 .SYNOPSIS
 Script that runs a report against your AD instance to query for escrowed Bitlocker recovery keys.
 
 .DESCRIPTION
 The script can be used to generate a report of computers in your AD domain that have had their
-Bitlocker recovery keys escrowed to AD. The report can be modified (with parameters) to show data for only machines with 
+Bitlocker recovery keys escrowed to AD. The report can be modified (with parameters) to show data for only machines with
 missing keys and can also write out the results to a CSV.
 
 .PARAMETER SearchBase
@@ -45,7 +45,7 @@ function Get-BitlockerKey{
 		[ValidateScript({[System.IO.Path]::GetExtension($_) -eq ".csv"})]
 		$FilePath
 	)
-	
+
 	# ArrayList declaration to hold the list of custom objects
 	[System.Collections.ArrayList]$ObjectArray = @();
 
@@ -67,12 +67,12 @@ function Get-BitlockerKey{
 		# Print out all results for computers in the arraylist
 		# Print out list of computers without key
 		if($NoKey){
-			$ObjectArray.ToArray() | Where-Object {$_.BitlockerPassword -eq $null} | Sort-Object -Property ComputerName | Select-Object ComputerName, BitlockerPassword | Export-CSV -Path $FilePath -NoClobber -Force
+			$ObjectArray.ToArray() | Where-Object {$null -eq $_.BitlockerPassword} | Sort-Object -Property ComputerName | Select-Object ComputerName, BitlockerPassword | Export-CSV -Path $FilePath -NoClobber -Force
 		}
 
 		# Print out list of computers with key
 		else{
-			$ObjectArray.ToArray() | Where-Object {$_.BitlockerPassword -ne $null} | Sort-Object -Property ComputerName | Select-Object ComputerName, BitlockerPassword | Export-CSV -Path $FilePath -NoClobber -Force
+			$ObjectArray.ToArray() | Where-Object {$null -ne $_.BitlockerPassword} | Sort-Object -Property ComputerName | Select-Object ComputerName, BitlockerPassword | Export-CSV -Path $FilePath -NoClobber -Force
 		}
 	}
 	else{
@@ -83,12 +83,12 @@ function Get-BitlockerKey{
 
 		# Print out list of computers without key
 		elseif($NoKey){
-			$ObjectArray.ToArray() | Where-Object {$_.BitlockerPassword -eq $null} | Sort-Object -Property ComputerName | Select-Object ComputerName, BitlockerPassword
+			$ObjectArray.ToArray() | Where-Object {$null -eq $_.BitlockerPassword} | Sort-Object -Property ComputerName | Select-Object ComputerName, BitlockerPassword
 		}
 
 		# Print out list of computers with key
 		else{
-			$ObjectArray.ToArray() | Where-Object {$_.BitlockerPassword -ne $null} | Sort-Object -Property ComputerName | Select-Object ComputerName, BitlockerPassword
+			$ObjectArray.ToArray() | Where-Object {$null -ne $_.BitlockerPassword} | Sort-Object -Property ComputerName | Select-Object ComputerName, BitlockerPassword
 		}
 	}
 }

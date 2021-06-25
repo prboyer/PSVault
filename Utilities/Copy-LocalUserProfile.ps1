@@ -1,11 +1,11 @@
 ﻿function Copy-LocalUserProfile {
 <#
 .SYNOPSIS
-A custom cmdlet for quickly copying the contents of a user's profile to another location using ROBOCOPY. 
+A custom cmdlet for quickly copying the contents of a user's profile to another location using ROBOCOPY.
 
 .DESCRIPTION
 PowerShell implementation of Robocopy with standardized parameters. Additional Robocopy arguments can be passed in the
--RobocopyArguments parameter. 
+-RobocopyArguments parameter.
 
 .PARAMETER SourcePath
 Path to the source user profile with files to copy
@@ -32,7 +32,7 @@ Additional directory names to exclude
 Additional file names to exclude
 
 .EXAMPLE
-Copy-LocalUserProfile -SourcePath C:\Users\Paul -TargetPath C:\Users\NewPaul 
+Copy-LocalUserProfile -SourcePath C:\Users\Paul -TargetPath C:\Users\NewPaul
 
 .NOTES
     Author: Paul Boyer
@@ -70,19 +70,19 @@ Copy-LocalUserProfile -SourcePath C:\Users\Paul -TargetPath C:\Users\NewPaul
 
     # hard-coded extraneous file types that will never be included
     [String[]]$EXTRANEOUS_FILES = ('.dat')
-    
+
     ###################
-    # Build some ArrayLists 
+    # Build some ArrayLists
     [System.Collections.ArrayList]$extraDirs = [System.Collections.ArrayList]::new();
     [System.Collections.ArrayList]$extraFiles = [System.Collections.ArrayList]::new();
 
     # Convert the primitive Arrays into ArrayLists & add in extra elements from function call
-    $EXTRANEOUS_DIRS | %{$extraDirs.Add($_) | Out-Null}
-    $EXTRANEOUS_FILES | %{$extraFiles.Add($_) | Out-Null}
+    $EXTRANEOUS_DIRS | ForEach-Object{$extraDirs.Add($_) | Out-Null}
+    $EXTRANEOUS_FILES | ForEach-Object{$extraFiles.Add($_) | Out-Null}
 
     # Add in extra elements from runtime
-    $ExcludeDirs | %{$extraDirs.Add($_) | Out-Null}
-    $ExcludeFiles | %{$extraFiles.Add($_) | Out-Null}
+    $ExcludeDirs | ForEach-Object{$extraDirs.Add($_) | Out-Null}
+    $ExcludeFiles | ForEach-Object{$extraFiles.Add($_) | Out-Null}
 
     # Format for ROBOCOPY
     $X_DIRS = $extraDirs -join " "
@@ -96,7 +96,7 @@ Copy-LocalUserProfile -SourcePath C:\Users\Paul -TargetPath C:\Users\NewPaul
         # If specified not to retry, set variable to 0
         if ($NoRetry) {
             $ROBO_Retry = 0;
-        }    
+        }
 
     # Default number of seconds to wait
     [Int]$ROBO_Wait = 3;
@@ -105,7 +105,7 @@ Copy-LocalUserProfile -SourcePath C:\Users\Paul -TargetPath C:\Users\NewPaul
         if($WaitDelay -ne $null){
             $ROBO_Wait = $WaitDelay
         }
-    
+
     # Standard argument list for Robocopy
     [String]$ROBO_ArgumentList = "$SourcePath $TargetPath /S /ETA /R:$ROBO_Retry /W:$ROBO_Wait /XX /XD $X_DIRS /XF $X_FILES /XJD"
 

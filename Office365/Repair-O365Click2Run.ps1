@@ -1,23 +1,23 @@
-function Repair-O365Click2Run {
+﻿function Repair-O365Click2Run {
     <#
     .SYNOPSIS
     Script that calls the O365 ClickToRun executable with the appropriate parameters for a repair.
-    
+
     .DESCRIPTION
     Long description
-    
+
     .PARAMETER Path
     String path to the Click2Run executable if not stored in the default location
-    
+
     .PARAMETER Force
     Switch parameter to force all O365 apps to close before running the repair process
-    
+
     .PARAMETER Quiet
     Switch parameter to suppress the ClickToRun executable UI
-    
+
     .PARAMETER OnlineRepair
     Switch parameter indicating that a more exhaustive Online Repair should be performed
-    
+
     .LINK
     https://forums.ivanti.com/servlet/fileField?entityId=ka14O000000Xhh0&field=File_attachment__Body__s
 
@@ -26,7 +26,7 @@ function Repair-O365Click2Run {
 
     .EXAMPLE
     Repair-O365Click2Run -Force -OnlineRepair
-    
+
     .NOTES
 
     #>
@@ -45,7 +45,7 @@ function Repair-O365Click2Run {
         $OnlineRepair
     )
     # Processor architecture check
-    [String]$ARCHITECTURE 
+    [String]$ARCHITECTURE
     if ([System.Environment]::Is64BitOperatingSystem) {
         $ARCHITECTURE = "x64";
     }else{
@@ -65,7 +65,7 @@ function Repair-O365Click2Run {
     if ($Path -ne "") {
         $C2R_EXE = $Path;
     }
-    
+
     # Determine Repair type. Default is a quick repair
     [String]$RepairType = "QuickRepair"
 
@@ -92,9 +92,9 @@ function Repair-O365Click2Run {
 
     # Debug: Application call
     Write-Debug "$C2R_EXE `"$ARGUMENT_LIST`""
-    
+
     # Start the repair process
-    Start-Process -FilePath $C2R_EXE -Wait -Verb RunAs -ArgumentList $ARGUMENT_LIST 
+    Start-Process -FilePath $C2R_EXE -Wait -Verb RunAs -ArgumentList $ARGUMENT_LIST
 
     Write-Host "O365 Repair Complete" -ForegroundColor Green
 }

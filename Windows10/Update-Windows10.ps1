@@ -1,14 +1,14 @@
-function Update-Windows10 {
+﻿function Update-Windows10 {
 <#
 .SYNOPSIS
 Script that facilitates an online (running OS) upgrade of Windows 10 given a setup file from an expanded ISO
 
 .DESCRIPTION
 After extracting the contents of an ISO of a new version of Windows 10, this script can utilize the setup.exe file to perform
-and upgrade to an online (running) system. 
+and upgrade to an online (running) system.
 
 .PARAMETER SetupFile
-Path to the "Setup.exe" file extracted from the ISO. 
+Path to the "Setup.exe" file extracted from the ISO.
 
 .PARAMETER LogDir
 Path to a directory where logs from the upgrade process should be copied.
@@ -38,7 +38,7 @@ Update-Windows10 -SetupFile "D:\Setup.exe" -ScanCompat
 Update-Windows10 -SetupFile "D:\Setup.exe"
 
 .EXAMPLE
-Update-Windows10 -SetupFile "D:\Setup.exe" -Quiet -LogDir "\\fs1\share\Logs\Update" 
+Update-Windows10 -SetupFile "D:\Setup.exe" -Quiet -LogDir "\\fs1\share\Logs\Update"
 
 .EXAMPLE
 Update-Windows10 -SetupFile "D:\Setup.exe" -NoDynamicUpdate -ConfigFile "\\fs1\share\UpdateConfig.ini" -BitLocker "ForceKeepActive" -Quiet
@@ -48,7 +48,7 @@ https://docs.microsoft.com/en-us/windows-hardware/manufacture/desktop/windows-se
 
 .NOTES
 Paul Boyer - 2-11-2021
-#>    
+#>
     [CmdletBinding()]
     param (
         [Parameter (ParameterSetName='ConfigFile',Mandatory=$true)]
@@ -85,7 +85,7 @@ Paul Boyer - 2-11-2021
         [Parameter (ParameterSetName='Update')]
         [String]
         $ConfigFile,
-        
+
         [Parameter (ParameterSetName='AnswerFile')]
         [Parameter (ParameterSetName='ConfigFile')]
         [Parameter (ParameterSetName='Update')]
@@ -117,9 +117,9 @@ Paul Boyer - 2-11-2021
         Get-ExecutionPolicy -List
     }
 
-    ## Handle scanning for compatibility 
+    ## Handle scanning for compatibility
         if($ScanCompat -and $Quiet -and ($LogDir -ne "")){
-            # If scan for compatibility, quiet and logging are specified 
+            # If scan for compatibility, quiet and logging are specified
             Start-Process -FilePath $SetupFile -ArgumentList "/auto upgrade /Compat ScanOnly /Quiet /CopyLogs $LogDir" -Wait
         }elseif($ScanCompat -and $Quiet){
             # If scan for compatibility, and quiet are specified
@@ -133,10 +133,10 @@ Paul Boyer - 2-11-2021
         }
 
     ##
-    
+
     # The standard (default) list of arguments that will always be called with the update
     [String]$STANDARD_ARGS = "/auto upgrade /MigrateDrivers all /ShowOOBE none /Telemetry disable /Compat IgnoreWarning ";
-    
+
     # Working list of additional arguments to be concatenated with the standard arguments
     [String]$arguments += $STANDARD_ARGS;
 
@@ -163,17 +163,17 @@ Paul Boyer - 2-11-2021
     ## Check that the answer file param isn't empty, the file path exists, and that it is an XML file
     if($AnswerFile -ne ""){
         if((Test-Path -Path $AnswerFile) -and ([IO.Path]::GetExtension($AnswerFile) -eq ".xml")){
-            $arguments += "/Unattend:$AnswerFile "    
+            $arguments += "/Unattend:$AnswerFile "
         }else{
             Write-Error $("Cannot apply /Unattend switch. `n`tAnswer File exists: {0} `n`tAnswer File correct format: {1}" -f ($(Test-Path -Path $AnswerFile),$([IO.Path]::GetExtension($AnswerFile) -eq ".xml")))
         }
     }
-    
+
     # ConfigFile Control
     ## Check that the config file param isn't empty, the file path exists, and that it is an ini file
     if($ConfigFile -ne ""){
         if((Test-Path -Path $ConfigFile) -and ([IO.Path]::GetExtension($ConfigFile) -eq ".ini")){
-            $arguments += "/ConfigFile:$ConfigFile "    
+            $arguments += "/ConfigFile:$ConfigFile "
         }else{
             Write-Error $("Cannot apply /ConfigFile switch. `n`tConfig File exists: {0} `n`tConfig File correct format: {1}" -f ($(Test-Path -Path $ConfigFile),$([IO.Path]::GetExtension($ConfigFile) -eq ".ini")))
         }

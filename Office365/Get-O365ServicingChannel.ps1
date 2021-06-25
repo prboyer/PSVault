@@ -1,17 +1,17 @@
-function Get-O365ServicingChannel {
+﻿function Get-O365ServicingChannel {
     <#
     .SYNOPSIS
     Script to quickly determine what Office 365 servicing channel a PC is subscribed to
-    
+
     .DESCRIPTION
     Script checks the local machine's registry key for Office 365 CDNUrl against the strings for either the Annual or Monthly channels and returns feedback
-    
+
     .PARAMETER Quiet
     Parameter suppresses the GUI message box and limits output to just the console
-    
+
     .EXAMPLE
-    Get-O365ServicingChannel 
-    
+    Get-O365ServicingChannel
+
     .NOTES
         Author: Paul Boyer
         Date: 3-22-21
@@ -35,7 +35,7 @@ function Get-O365ServicingChannel {
     # Flag to either return information or an error
     [bool]$ReturnError = $true;
 
-    # Evaluate if the registry key matches the CDNUrl for either the Monthly or Annual channel. 
+    # Evaluate if the registry key matches the CDNUrl for either the Monthly or Annual channel.
     if ($(Get-ItemPropertyValue -Path Registry::$REGISTRY -Name CDNBaseURL) -eq $ANNUAL) {
         $servicing_channel = "Annual"
         $ReturnError = $false;
@@ -47,7 +47,7 @@ function Get-O365ServicingChannel {
     }
 
     # Display a message box reporting the servicing channel, unless the -Quiet flag is supplied
-    if (-not $Quiet) {    
+    if (-not $Quiet) {
         if(-not $ReturnError){
             [System.Windows.Forms.MessageBox]::Show($("This PC ({0}) is on the {1} Office 365 Servicing Channel" -f $env:COMPUTERNAME,$servicing_channel),$MyInvocation.ScriptName.Substring($MyInvocation.ScriptName.LastIndexOf('\')+1),0,64) | Out-Null
         }else{

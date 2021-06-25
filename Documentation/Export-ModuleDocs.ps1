@@ -1,44 +1,44 @@
-function Export-ModuleDocs {
+﻿function Export-ModuleDocs {
     <#
     .SYNOPSIS
-    Script used for generating Markdown documentation for PowerShell files. 
-    
+    Script used for generating Markdown documentation for PowerShell files.
+
     .DESCRIPTION
     The script leverages the PlatyPS module to generate Markdown files for each PS1 file as well as for the whole module.
-    The script also generates a relatively-pathed PSM1 file, and complimentary PSD1 file. 
-    
+    The script also generates a relatively-pathed PSM1 file, and complimentary PSD1 file.
+
     .PARAMETER Path
     Path to the directory containing PowerShell (PS1) files to generate documentation for.
-    
+
     .PARAMETER ModulePrefix
-    String to be pre-fixed to the beginning of the generated PSM1,PSD1, and used in the ReadMe file. 
-    
+    String to be pre-fixed to the beginning of the generated PSM1,PSD1, and used in the ReadMe file.
+
     .PARAMETER ModuleDescription
     The description that should be used in the PSD1 file and ReadMe file for the Module.
-    
+
     .PARAMETER ModuleDescriptionFile
-    Path to a file containing the description that should be used in the PSD1 file and ReadMe file for the Module. Optionally, specify an empty string (""), and 
+    Path to a file containing the description that should be used in the PSD1 file and ReadMe file for the Module. Optionally, specify an empty string (""), and
     the script will attempt to use the "$Path\Description.txt" to get the Module description. This is helpful for keeping the same description in place when updating
-    documentation through multiple revisions. 
-    
+    documentation through multiple revisions.
+
     .PARAMETER MarkdownFilesPath
     Path to the directory where Markdown files for each PS1 script should be stored. By default, the script will save the files to $Path\Docs
-    
+
     .PARAMETER Exclude
     String array of paths to exclude when getting PowerShell (PS1) files to document.
-    
+
     .PARAMETER NoClobber
     No not overwrite existing PSM1 and PSD1 files. A value must be supplied for -ModuleFilePath in order to user -NoClobber
-    
+
     .PARAMETER ModuleFilePath
-    Path to the existing module file. Script is expecting a PSM1 file. 
-    
+    Path to the existing module file. Script is expecting a PSM1 file.
+
     .PARAMETER NoModulePrefix
     Switch to exclude application of a module prefix to the beginning of the generated PSM1,PSD1, and used in the ReadMe file.
 
     .PARAMETER Version
-    Specify a string to represent the revision of the help documentation. This will also be applied to the PSD1 manifest file. 
-    
+    Specify a string to represent the revision of the help documentation. This will also be applied to the PSD1 manifest file.
+
     .EXAMPLE
     Export-ModuleDocs -Path ".\Windows10" -ModuleDescription "Windows 10 PowerShell Scripts"
 
@@ -50,7 +50,7 @@ function Export-ModuleDocs {
 
     .EXAMPLE
     Export-ModuleDocs -Path ".\Windows10" -ModuleDescription "Windows 10 PowerShell Scripts" -NoCobber -ModuleFilePath ".\Windows10\Module.psm1" -NoModulePrefix
-    
+
     .LINK
     https://github.com/PowerShell/platyPS
 
@@ -82,11 +82,11 @@ function Export-ModuleDocs {
         [Parameter()]
         [String[]]
         $Exclude,
-        [Parameter(ParameterSetName="NoClobber")]        
+        [Parameter(ParameterSetName="NoClobber")]
         [switch]
         $NoClobber,
         [Parameter(Mandatory=$true,ParameterSetName="NoClobber")]
-        [ValidateNotNullOrEmpty()]        
+        [ValidateNotNullOrEmpty()]
         [String]
         $ModuleFilePath,
         [Parameter(ParameterSetName="Module_NoPrefix")]
@@ -117,11 +117,11 @@ function Export-ModuleDocs {
             try{
                 if(Test-Path -Path $($Path+"\"+$(split-path -path $(split-path -path $($Path) -parent) -leaf)+"-"+$(Split-Path -Path $Path -Leaf)+".*")){
                     Remove-Item -Path $($Path+"\"+$(split-path -path $(split-path -path $($Path) -parent) -leaf)+"-"+$(Split-Path -Path $Path -Leaf)+".*")
-                } 
+                }
             }catch [System.Management.Automation.ParameterBindingException]{
                 Write-Warning -Message $("Unable to Split-Path. Likely because script was called from within working directory.`n`t{0}" -f $Error[0])
             }
-            
+
             <# Generate a PSM1 file on the fly for use with PlatyPS #>
                 # Determine the prefix to use when generating module files
                 [String]$Prefix = $(split-path -path $(split-path -path $($Path) -parent) -leaf)+"-"
@@ -152,20 +152,20 @@ function Export-ModuleDocs {
 
         # Import the module file
         Import-Module -Name $ModuleFile -DisableNameChecking -Force
-    
+
     <# Generate metadata for the PSM1 file to include in an associated PSD1 manifest file #>
         # Generate a new GUID for the module. This will be included on the README.md as well as each individual file
-        $moduleGUID = New-Guid   
+        $moduleGUID = New-Guid
 
-        <# Determine how to set the module description. 
+        <# Determine how to set the module description.
         Either set the description from a pre-determined source (cmdline parameter, or file input), or prompt for interactive input #>
-        
+
         # Only process if -NoClobber is not passed
         if (-not $NoClobber) {
-            
+
             # Variable that holds the description that will be assigned to the module.
             [String]$Description = "";
-                        
+
             # If a module description is not passed in a file, but as a string on the command line, then proceed with assigning that value to $Description
             if ($ModuleDescription -ne "") {
                 if($ModuleDescription -ne ""){
@@ -173,7 +173,7 @@ function Export-ModuleDocs {
                 }else{
                     # Otherwise if there is no description passed at function-call, then prompt for it interactively.
                     $Description = Read-Host -Prompt "Enter message to user for Module Description"
-                } 
+                }
             }else{
                 # If the -ModuleDescriptionFile parameter is passed, but with no Path, try to get the content of the default 'Description.txt' file and assign it to $Description
                 if ($ModuleDescriptionFile -eq "" -and (Test-Path -Path "$Path\Description.txt")) {
@@ -193,12 +193,12 @@ function Export-ModuleDocs {
                         # If the content of the file cannot be read, then prompt the user to enter a description interactively
                         Write-Warning $("Unable to get description text from file {0}" -f $ModuleDescriptionFile) -WarningAction Continue
                         $Description = Read-Host -Prompt "Enter message to user for Module Description"
-                    } 
+                    }
                 }
             }
         }
     <# Generate the PSD1 manifest file #>
-        # Splat the manifest parameters 
+        # Splat the manifest parameters
         $Manifest_Parameters= @{
             Path = $($Path+"\"+$ModuleFile.BaseName+".psd1")
             Author = "Paul R Boyer"
@@ -209,13 +209,13 @@ function Export-ModuleDocs {
             RootModule = $ModuleFile.BaseName
             Description = $Description
         }
-        
+
         # Skip generating a new manifest if -NoClobber is passed
         if(-not $NoClobber){
             # Generate the manifest file itself
             New-ModuleManifest @Manifest_Parameters
         }
-        
+
     <# Create folder for individual MD files #>
         # Variable to store the path where individual MD files should be stored
         [String]$MDFilesDir = "";
@@ -257,7 +257,7 @@ function Export-ModuleDocs {
         New-MarkdownHelp @MarkdownHelp_Parameters | Out-Null
 
     <# Customize each individual MD file with edits/information not generated by PlatyPS #>
-        
+
         <# Update the online version for each file. Sets the value to null #>
         Get-ChildItem -Path $MDFilesDir -Filter "*.md" -File | ForEach-Object{
             Set-Content -Path $_.FullName -Value $(Get-Content $_.FullName | ForEach-Object{
@@ -282,7 +282,7 @@ function Export-ModuleDocs {
 
     <# Generate the module README file. This is a summary page that has a short description and link to each individual MD file #>
         Update-MarkdownHelpModule -ModulePagePath "$Path\README.md" -Path $(Resolve-Path -Path $MDFilesDir -Relative) -RefreshModulePage -Force| Out-Null
-    
+
     <# Customize the README.md file with edits/information not generated by PlatyPS #>
 
         <# Change the pathing of the README.md file to support putting individual script documentation in another directory #>
@@ -301,16 +301,16 @@ function Export-ModuleDocs {
                 }else{
                     $_
                 }
-            }) 
+            })
 
         <# Manually update the guid on the readme file #>
             $(Get-Content -Path "$Path\README.md").Replace("00000000-0000-0000-0000-000000000000",$moduleGUID.Guid) | Set-Content -Path "$Path\README.md";
-    
+
     <# Prune functionality for getting rid of extra information on README.md files when they don't process properly #>
         if ($Prune) {
             # Delete the un-necessary individual MD files
             $WorkingFolderFiles = Get-ChildItem -Path $Path -File -Filter "*.ps1"
-            Get-ChildItem -Path $MDFilesDir | ?{$_.BaseName -notin $WorkingFolderFiles.BaseName} | Remove-Item -Force
+            Get-ChildItem -Path $MDFilesDir | Where-Object{$_.BaseName -notin $WorkingFolderFiles.BaseName} | Remove-Item -Force
 
             <# Prune the README.MD file #>
                 # Prune out the headers that are unnecessary
@@ -323,15 +323,15 @@ function Export-ModuleDocs {
                             if($_.TrimStart("# [").Substring(0,$_.TrimStart("# [").IndexOf(']')) -in $Files.BaseName){
                                     $_
                             }
-                           
+
                         }else{
                             $_
                         }
                     }
-                    
+
                     # Get rid of empty lines
                     $X = $X | Where-Object {$_ -ne ""}
-                    
+
                     # Write out filtered content to the README.md file
                     $X | Set-Content -Path "$Path\Readme.md"
 

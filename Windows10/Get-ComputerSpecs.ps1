@@ -1,4 +1,4 @@
-function Get-ComputerSpecs{
+﻿function Get-ComputerSpecs{
     <#
     .SYNOPSIS
         A PowerShell script to create a report of a machine's hardware.
@@ -31,7 +31,7 @@ function Get-ComputerSpecs{
         [String]
         $ComputerName
     )
-    <# Process input for ComputerName #>       
+    <# Process input for ComputerName #>
         if($ComputerName -eq ""){
             $ComputerName = $env:COMPUTERNAME
         }
@@ -41,9 +41,9 @@ function Get-ComputerSpecs{
 
     <# Get Storage Information #>
         [String]$Storage = "Storage`n*******"
-        
+
         Write-Host  $Storage -ForegroundColor Magenta
-        
+
         Write-Information $Storage -InformationVariable +INFO
 
         # Create a table with attributes of physical disks on the system, using the Get-PhysicalDisk cmdlet
@@ -56,7 +56,7 @@ function Get-ComputerSpecs{
         }else{
             $StorageTable = Get-PhysicalDisk | Select-Object Number,FriendlyName,MediaType,Size,HealthStatus
         }
-        
+
         Write-Information -MessageData $($StorageTable | Format-Table -AutoSize | Out-String) -InformationVariable +INFO -InformationAction Continue
 
     <# Get Memory Information #>
@@ -83,7 +83,7 @@ function Get-ComputerSpecs{
 
         Write-Host $Processor -ForegroundColor Yellow
 
-        Write-Information $Processor -InformationVariable +INFO 
+        Write-Information $Processor -InformationVariable +INFO
 
         # Get information about the system's CPUs from the Win32_Processor WMU class
         [Object[]]$ProcessorTable = Get-WmiObject -Class Win32_Processor -ComputerName $ComputerName | Select-Object DeviceID,Name,Caption,NumberOfCores,NumberOfLogicalProcessors
@@ -103,18 +103,18 @@ function Get-ComputerSpecs{
         [Object[]]$SystemEnclosureTable = Get-WmiObject -Query "SELECT * FROM win32_systemenclosure" -ComputerName $ComputerName | Select-Object SerialNumber
 
         [String]$OperatingSystem = "`nOperating System`n****************"
-        
+
         Write-Host $OperatingSystem -ForegroundColor Blue
 
         Write-Information -MessageData $OperatingSystem -InformationVariable +INFO
-        
+
         # Use calculated properties to manipulate the table and the write it out
         Write-Information ($OperatingSystemTable | Select-Object @{Name="ComputerName";expression={$_.CSName}},Caption,OSArchitecture,BuildNumber,SystemDrive,SystemDirectory | Format-Table -AutoSize | Out-String) -InformationAction Continue -InformationVariable +INFO
 
         [String]$ComputerSystem = "Computer System`n***************"
-        
+
         Write-Host $ComputerSystem -ForegroundColor Green
-        
+
         Write-Information -MessageData $ComputerSystem -InformationVariable +INFO
 
         # Use calculated property to merge in data from another WMI query. Then write out the table.

@@ -1,14 +1,14 @@
-function Query-Users {
+﻿function Query-Users {
     <#
     .SYNOPSIS
     PowerShell implementation of quser.exe
-    
+
     .DESCRIPTION
     Returns a table of logged on users, and the logon time as a a workable PowerShell Custom Object [System.Management.Automation.PSCustomObject]
-    
+
     .PARAMETER ShowIndicator
     Switch parameter to print the logged on user indicator in the table
-    
+
     .EXAMPLE
     Query-Users
 
@@ -19,8 +19,8 @@ function Query-Users {
     https://stackoverflow.com/questions/39212183/easier-way-to-parse-query-user-in-powershell
 
     .LINK
-    https://ss64.com/nt/query-user.html 
-    
+    https://ss64.com/nt/query-user.html
+
     .NOTES
     Paul Boyer 2-23-21
     #>
@@ -40,7 +40,7 @@ function Query-Users {
     # only perfrom the -ShowIndicator parameter is NOT passed
     if(-not $ShowIndicator){
         # trim the ">" character from logged on user
-        $quserTable = $quser | %{
+        $quserTable = $quser | ForEach-Object{
             # if the username has the ">", set the username to itself with the ">" trimmed
             if($_.username -like ">*"){
                 $_.username = $_.username.trim(">");
@@ -55,5 +55,5 @@ function Query-Users {
         $quserTable = $quser
     }
 
-    return $quserTable; 
+    return $quserTable;
 }

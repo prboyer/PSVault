@@ -1,4 +1,4 @@
-function Enable-Win10Feature {
+﻿function Enable-Win10Feature {
     <#
     .SYNOPSIS
     Script to re-enable Windows 10 features that were removed due to / resulting from image capture issues.
@@ -13,13 +13,13 @@ function Enable-Win10Feature {
     Switch parameter indicating that the script should try to re-register sticky notes
 
     .EXAMPLE
-    Enable-Win10Feature -Calculator 
+    Enable-Win10Feature -Calculator
 
     .NOTES
     Paul Boyer 1-26-18
 
     #>
-    
+
     [CmdletBinding()]
     param (
         [Parameter()]
@@ -31,7 +31,7 @@ function Enable-Win10Feature {
 
     # if -Calculator was passed
     if ($Calculator){
-        Get-ChildItem -Path "$env:ProgramFiles\WindowsApps\Microsoft.WindowsCalculator*" | %{
+        Get-ChildItem -Path "$env:ProgramFiles\WindowsApps\Microsoft.WindowsCalculator*" | ForEach-Object{
             if(Test-Path -Path "$_\AppxManifest.xml"){
                 try {
                     Add-AppxPackage -Register "$_\AppxManifest.xml" -DisableDevelopmentMode -ErrorAction Continue
@@ -42,10 +42,10 @@ function Enable-Win10Feature {
             }
         }
     }
-    
+
     # if -StickyNotes was passed
     if ($StickyNotes) {
-        Get-ChildItem -Path "$env:ProgramFiles\WindowsApps\Microsoft.MicrosoftStickyNotes*" | %{
+        Get-ChildItem -Path "$env:ProgramFiles\WindowsApps\Microsoft.MicrosoftStickyNotes*" | ForEach-Object{
             if(Test-Path -Path "$_\AppxManifest.xml"){
                 try {
                     Add-AppxPackage -Register "$_\AppxManifest.xml" -DisableDevelopmentMode -ErrorAction Continue

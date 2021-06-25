@@ -1,30 +1,30 @@
-function Import-FromFile {
+﻿function Import-FromFile {
     <#
     .SYNOPSIS
     Script to standardize importing lists from files.
-    
+
     .DESCRIPTION
-    The script will take in either at TXT, CSV, or Excel list and process it for use in Powershell. Using 
+    The script will take in either at TXT, CSV, or Excel list and process it for use in Powershell. Using
     parameters, headers can be stripped from the files as necessary.
-    
+
     .PARAMETER TXT
     Path to a *.txt file to process
-    
+
     .PARAMETER HeaderRows
     Int representing the number of rows to remove from the top of the file
-    
+
     .PARAMETER Header
     Int representing the row number of the header
-    
+
     .PARAMETER Column
     If the file is multidimenstional, the Column integer tells the script what range to process
-    
+
     .PARAMETER CSV
     Path to .csv file
-    
+
     .PARAMETER XLS
     Path to .xls or .xlsx file
-    
+
     .PARAMETER WorkbookName
     The name of the Workbook in the Excel file. Only necessary if different than the default "Sheet1".
 
@@ -32,11 +32,11 @@ function Import-FromFile {
     A .txt, .csv, or .xls(x) file.
 
     .OUTPUTS
-    A string array 
-    
+    A string array
+
     .EXAMPLE
     Import-FromFile -TXT C:\Temp\list.txt
-    
+
     .NOTES
     Paul Boyer 2-25-21
     #>
@@ -85,25 +85,25 @@ function Import-FromFile {
         if (Test-Path $TXT) {
             # Import content from the text file
             $ProcessedArray = [System.IO.File]::ReadAllLines($TXT);
-            
+
             # remove headings
             if ($HeaderRows -gt 0) {
                 for ($t = 0; $t -le $HeaderRows; $t++) {
                     $ProcessedArray[$t] = "";
                 }
             }
-           
+
         }else{
             Write-Error "Unable to resolve path for text file input."
         }
     }
-    
+
     # Begin processing CSV file
     if($CSV -ne ""){
         # Test path
         if (Test-Path $CSV) {
             # Import content from the CSV file
-            
+
             # parse the header row as a header, not part of the csv file
             ## get the first 5 lines of the csv file, then read the header names from row specified in parameter
             if($Header -gt 0){
@@ -135,12 +135,12 @@ function Import-FromFile {
 
             # Import the data using Import-Excel module
             $ProcessedArray = @(Import-Excel -Path $XLS -WorksheetName $worksheet -StartRow $HeaderRows -NoHeader -StartColumn $Column -EndColumn $Column -DataOnly)
-            
+
             # Get the data out of an object and into a string array
-            $ProcessedArray = $ProcessedArray.P1            
+            $ProcessedArray = $ProcessedArray.P1
         }else{
             Write-Error "Unable to resolve path for XLS file input."
         }
     }
-    return $ProcessedArray   
+    return $ProcessedArray
 }

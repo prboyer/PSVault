@@ -1,23 +1,23 @@
-function Activate-BitLocker {
+﻿function Activate-BitLocker {
     <#
     .SYNOPSIS
     Script for manually activating BitLocker on Windows 10 machines
-    
+
     .DESCRIPTION
-    Runs the BitLocker PowerShell cmdlet on each machine in the -ComptuerNames string array as a remote job. 
-    
+    Runs the BitLocker PowerShell cmdlet on each machine in the -ComptuerNames string array as a remote job.
+
     .PARAMETER ComputerNames
     String array of computer names for which BitLocker needs to be enabled
-    
+
     .PARAMETER Credential
     A PSCredential object for authenticating remote sessions
-    
+
     .PARAMETER LogFile
     Path to write out the log file.
-    
+
     .EXAMPLE
     Activate-BitLocker -ComputerNames "desktop01","desktop02" -LogFile "\\winfs1\share1\log.txt"
-    
+
     .LINK
     https://docs.microsoft.com/en-us/powershell/module/bitlocker/enable-bitlocker?view=win10-ps
 
@@ -46,27 +46,27 @@ function Activate-BitLocker {
         if($Credential -ne $null){
             $session = New-PSSession -ComputerName $computer -Credential $Credential
         }else{
-            $session = New-PSSession -ComputerName $computer 
+            $session = New-PSSession -ComputerName $computer
         }
-        
+
 
         # invoke commands against the computer in the remote session
         $command = Invoke-Command -Session $session -AsJob -JobName "Activate BitLocker" -ScriptBlock {
             Write-Host $env:COMPUTERNAME -ForegroundColor Yellow -BackgroundColor Black
-        
+
             # get disk information
             $OS_Disk = Get-Volume -DriveLetter $env:SystemDrive.Trim(":");
             $OS_Disk | Format-Table;
-            
+
             # get the current BitLocker state
             $status = Get-BitLockerVolume -MountPoint $OS_Disk.DriveLetter
             $status | Select-Object ComputerName,MountPoint,VolumeType,EncryptionMethod,VolumeStatus,ProetctionStatus,LockStatus,KeyProtector | Format-Table
-            
+
             # if the current BitLocker state if off, then turn it on and start the encryption
             if($status.ProtectionStatus -eq "Off"){
                 Get-BitLockerVolume -MountPoint $OS_Disk.DriveLetter | Enable-BitLocker -RecoveryPasswordProtector -EncryptionMethod XtsAes128 -UsedSpaceOnly
                 Get-BitLockerVolume -MountPoint $OS_Disk.DriveLetter | Enable-BitLocker -TpmProtector
-                
+
                 # not implementing as it is un-necessary for OS drives
                 # Get-BitLockerVolume -MountPoint $OS_Disk.DriveLetter | Enable-BitLockerAutoUnlock
             }
@@ -89,6 +89,6 @@ function Activate-BitLocker {
         $_.Location | Out-File -FilePath $LogFile -Append;
         "Enable BitLocker on "+$_.Location | Out-File $LogFile -Append
         Receive-Job -Job $_ | Tee-Object -FilePath $LogFile -Append
-    } 
-  
+    }
+
 }

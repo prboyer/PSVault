@@ -7,7 +7,7 @@
    later debugging.
 .NOTES
    Created by: Jason Wasser @wasserja
-   Modified: 11/24/2015 09:30:19 AM  
+   Modified: 11/24/2015 09:30:19 AM
 
    Changelog:
     * Code simplification and clarification - thanks to @juneb_get_help
@@ -20,20 +20,20 @@
     * Add ability to write $Message to $Verbose or $Error pipelines to eliminate
       duplicates.
 .PARAMETER Message
-   Message is the content that you wish to add to the log file. 
+   Message is the content that you wish to add to the log file.
 .PARAMETER Path
-   The path to the log file to which you would like to write. By default the function will 
-   create the path and file if it does not exist. 
+   The path to the log file to which you would like to write. By default the function will
+   create the path and file if it does not exist.
 .PARAMETER Level
    Specify the criticality of the log information being written to the log (i.e. Error, Warning, Informational)
 .PARAMETER NoClobber
    Use NoClobber if you do not wish to overwrite an existing file.
 .EXAMPLE
-   Write-Log -Message 'Log message' 
+   Write-Log -Message 'Log message'
    Writes the message to c:\Logs\PowerShellLog.log.
 .EXAMPLE
    Write-Log -Message 'Restarting Server.' -Path c:\Logs\Scriptoutput.log
-   Writes the content to the specified log file and creates the path and file specified. 
+   Writes the content to the specified log file and creates the path and file specified.
 .EXAMPLE
    Write-Log -Message 'Folder does not exist.' -Path c:\Logs\Script.log -Level Error
    Writes the message to the specified log file as an error message, and writes the message to the error pipeline.
@@ -54,11 +54,11 @@ function Write-Log
         [Parameter(Mandatory=$false)]
         [Alias('LogPath')]
         [string]$Path='C:\Logs\PowerShellLog.log',
-        
+
         [Parameter(Mandatory=$false)]
         [ValidateSet("Error","Warn","Info")]
         [string]$Level="Info",
-        
+
         [Parameter(Mandatory=$false)]
         [switch]$NoClobber
     )
@@ -70,7 +70,7 @@ function Write-Log
     }
     Process
     {
-        
+
         # If the file already exists and NoClobber was specified, do not write to the log.
         if ((Test-Path $Path) -AND $NoClobber) {
             Write-Error "Log file $Path already exists, and you specified NoClobber. Either delete the file or specify a different name."
@@ -105,7 +105,7 @@ function Write-Log
                 $LevelText = 'INFO:'
                 }
             }
-        
+
         # Write log entry to $Path
         "$FormattedDate $LevelText $Message" | Out-File -FilePath $Path -Append
     }

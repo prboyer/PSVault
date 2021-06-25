@@ -1,4 +1,4 @@
-<##############################################################################
+﻿<##############################################################################
 Ashley McGlone
 Microsoft Premier Field Engineer
 http://aka.ms/GoateePFE
@@ -39,7 +39,7 @@ copyright notice on Your software product in which the Sample Code is embedded;
 and (iii) to indemnify, hold harmless, and defend Us and Our suppliers from and
 against any claims or lawsuits, including attorneys’ fees, that arise or result
 from the use or distribution of the Sample Code.
- 
+
 This posting is provided "AS IS" with no warranties, and confers no rights. Use
 of included script samples are subject to the terms specified
 at http://www.microsoft.com/info/cpyright.htm.
@@ -89,17 +89,17 @@ Function Get-GPLink {
         [string]
         $Path
     )
-    
+
         # Requires RSAT installed and features enabled
         Import-Module GroupPolicy
         Import-Module ActiveDirectory
-    
+
         # Pick a DC to target
         $Server = Get-ADDomainController -Discover | Select-Object -ExpandProperty HostName
-    
+
         # Grab a list of all GPOs
         $GPOs = Get-GPO -All -Server $Server | Select-Object ID, Path, DisplayName, GPOStatus, WMIFilter, CreationTime, ModificationTime, User, Computer
-    
+
         # Create a hash table for fast GPO lookups later in the report.
         # Hash table key is the policy path which will match the gPLink attribute later.
         # Hash table value is the GPO object with properties for reporting.
@@ -107,44 +107,44 @@ Function Get-GPLink {
         ForEach ($GPO in $GPOs) {
             $GPOsHash.Add($GPO.Path,$GPO)
         }
-    
+
         # Empty array to hold all possible GPO link SOMs
         $gPLinks = @()
-    
+
         If ($PSBoundParameters.ContainsKey('Path')) {
-    
+
             $gPLinks += `
              Get-ADObject -Server $Server -Identity $Path -Properties name, distinguishedName, gPLink, gPOptions |
              Select-Object name, distinguishedName, gPLink, gPOptions
-    
+
         } Else {
-    
+
             # GPOs linked to the root of the domain
             #  !!! Get-ADDomain does not return the gPLink attribute
             $gPLinks += `
              Get-ADObject -Server $Server -Identity (Get-ADDomain).distinguishedName -Properties name, distinguishedName, gPLink, gPOptions |
              Select-Object name, distinguishedName, gPLink, gPOptions
-    
+
             # GPOs linked to OUs
             #  !!! Get-GPO does not return the gPLink attribute
             $gPLinks += `
              Get-ADOrganizationalUnit -Server $Server -Filter * -Properties name, distinguishedName, gPLink, gPOptions |
              Select-Object name, distinguishedName, gPLink, gPOptions
-    
+
             # GPOs linked to sites
             $gPLinks += `
              Get-ADObject -Server $Server -LDAPFilter '(objectClass=site)' -SearchBase "CN=Sites,$((Get-ADRootDSE).configurationNamingContext)" -SearchScope OneLevel -Properties name, distinguishedName, gPLink, gPOptions |
              Select-Object name, distinguishedName, gPLink, gPOptions
         }
-    
+
         # Empty report array
         $report = @()
-    
+
         # Loop through all possible GPO link SOMs collected
         ForEach ($SOM in $gPLinks) {
             # Filter out policy SOMs that have a policy linked
             If ($SOM.gPLink) {
-    
+
                 # If an OU has 'Block Inheritance' set (gPOptions=1) and no GPOs linked,
                 # then the gPLink attribute is no longer null but a single space.
                 # There will be no gPLinks to parse, but we need to list it with BlockInheritance.
@@ -190,16 +190,16 @@ Function Get-GPLink {
                 }
             }
         } # End ForEach
-    
+
         # Output the results to CSV file for viewing in Excel
         $report |
          Select-Object OUDN, BlockInheritance, LinkEnabled, Enforced, Precedence, `
           DisplayName, GPOStatus, WMIFilter, GUID, GPOCreated, GPOModified, `
           UserVersionDS, UserVersionSysvol, ComputerVersionDS, ComputerVersionSysvol, PolicyDN
     }
-    
+
     <#########################################################################sdg#>
-    
+
     <#
     .SYNOPSIS
     Used to discover GPOs that are not linked anywhere in the domain.
@@ -214,35 +214,35 @@ Function Get-GPLink {
     Use the Get-GPLink function to view those.
     #>
     Function Get-GPUnlinked {
-    
+
         Import-Module GroupPolicy
         Import-Module ActiveDirectory
-    
+
         # BUILD LIST OF ALL POLICIES IN A HASH TABLE FOR QUICK LOOKUP
         $AllPolicies = Get-ADObject -Filter * -SearchBase "CN=Policies,CN=System,$((Get-ADDomain).Distinguishedname)" -SearchScope OneLevel -Property DisplayName, whenCreated, whenChanged
         $GPHash = @{}
         ForEach ($Policy in $AllPolicies) {
             $GPHash.Add($Policy.DistinguishedName,$Policy)
         }
-    
+
         # BUILD LIST OF ALL LINKED POLICIES
         $AllLinkedPolicies = Get-ADOrganizationalUnit -Filter * | Select-Object -ExpandProperty LinkedGroupPolicyObjects -Unique
         $AllLinkedPolicies += Get-ADDomain | Select-Object -ExpandProperty LinkedGroupPolicyObjects -Unique
-    
+
         # FLAG EACH ONE WITH A LINKED PROPERTY
         ForEach ($Policy in $AllLinkedPolicies) {
             $GPHash[$Policy].Linked = $true
         }
-    
+
         # POLICY LINKED STATUS
         $GPHash.Values | Select-Object whenCreated, whenChanged, Linked, DisplayName, Name, DistinguishedName
-    
+
         ### NOTE THAT whenChanged IS NOT A REPLICATED VALUE
     }
-    
+
     <#########################################################################sdg#>
-    
-    
+
+
     # HELPER FUNCTION FOR Copy-GPRegistryValue
     Function DownTheRabbitHole {
     [CmdletBinding()]
@@ -257,11 +257,11 @@ Function Get-GPLink {
         [String]
         $DestinationGPO
     )
-    
+
         $ErrorActionPreference = 'Continue'
-    
+
         ForEach ($rootPath in $rootPaths) {
-    
+
             Write-Verbose "SEARCHING PATH [$SourceGPO] [$rootPath]"
             Try {
                 $children = Get-GPRegistryValue -Name $SourceGPO -Key $rootPath -Verbose -ErrorAction Stop
@@ -270,7 +270,7 @@ Function Get-GPLink {
                 Write-Warning "REGISTRY PATH NOT FOUND [$SourceGPO] [$rootPath]"
                 $children = $null
             }
-    
+
             $Values = $children | Where-Object {-not [string]::IsNullOrEmpty($_.PolicyState)}
             If ($Values) {
                 ForEach ($Value in $Values) {
@@ -280,7 +280,7 @@ Function Get-GPLink {
                             Write-Warning "EMPTY VALUENAME, POTENTIAL SETTING FAILURE, CHECK MANUALLY [$SourceGPO] [$($Value.FullKeyPath):$($Value.Valuename)]"
                             Set-GPRegistryValue -Disable -Name $DestinationGPO -Key $Value.FullKeyPath -Verbose | Out-Null
                         } Else {
-    
+
                             # Warn if overwriting an existing value in the DestinationGPO.
                             # This usually does not get triggered for DELETE settings.
                             Try {
@@ -295,13 +295,13 @@ Function Get-GPLink {
                                     Write-Warning "OVERWRITING PREVIOUS VALUE [$SourceGPO] [$($Value.FullKeyPath):$($Value.Valuename)] [$($AlreadyThere.Value -join ';')]"
                                 }
                             }
-    
+
                             Set-GPRegistryValue -Disable -Name $DestinationGPO -Key $Value.FullKeyPath -ValueName $Value.Valuename -Verbose | Out-Null
                         }
                     } Else {
                         # PolicyState = "Set"
                         Write-Verbose "SETTING SET [$SourceGPO] [$($Value.FullKeyPath):$($Value.Valuename)]"
-    
+
                         # Warn if overwriting an existing value in the DestinationGPO.
                         # This can occur when consolidating multiple GPOs that may define the same setting, or when re-running a copy.
                         # We do not check to see if the values match.
@@ -317,20 +317,20 @@ Function Get-GPLink {
                                 Write-Warning "OVERWRITING PREVIOUS VALUE [$SourceGPO] [$($Value.FullKeyPath):$($Value.Valuename)] [$($AlreadyThere.Value -join ';')]"
                             }
                         }
-    
+
                         $Value | Set-GPRegistryValue -Name $DestinationGPO -Verbose | Out-Null
                     }
                 }
             }
-                    
+
             $subKeys = $children | Where-Object {[string]::IsNullOrEmpty($_.PolicyState)} | Select-Object -ExpandProperty FullKeyPath
             if ($subKeys) {
                 DownTheRabbitHole -rootPaths $subKeys -SourceGPO $SourceGPOSingle -DestinationGPO $DestinationGPO -Verbose
             }
         }
     }
-    
-    
+
+
     <#
     .SYNOPSIS
     Copies GPO registry settings from one or more policies to another.
@@ -372,52 +372,52 @@ Function Get-GPLink {
         $DestinationGPO
     )
         Import-Module GroupPolicy -Verbose:$false
-    
+
         $ErrorActionPreference = 'Continue'
-    
+
         Switch ($Mode) {
             'All'      {$rootPaths = "HKCU\Software","HKLM\System","HKLM\Software"; break}
             'User'     {$rootPaths = "HKCU\Software"                              ; break}
             'Computer' {$rootPaths = "HKLM\System","HKLM\Software"                ; break}
         }
-        
+
         If (Get-GPO -Name $DestinationGPO -ErrorAction SilentlyContinue) {
             Write-Verbose "DESTINATION GPO EXISTS [$DestinationGPO]"
         } Else {
             Write-Verbose "CREATING DESTINATION GPO [$DestinationGPO]"
             New-GPO -Name $DestinationGPO -Verbose | Out-Null
         }
-    
+
         $ProgressCounter = 0
         $ProgressTotal   = @($SourceGPO).Count   # Syntax for PSv2 compatibility
         ForEach ($SourceGPOSingle in $SourceGPO) {
-    
+
             Write-Progress -PercentComplete ($ProgressCounter / $ProgressTotal * 100) -Activity "Copying GPO settings to: $DestinationGPO" -Status "From: $SourceGPOSingle"
-    
+
             If (Get-GPO -Name $SourceGPOSingle -ErrorAction SilentlyContinue) {
-    
+
                 Write-Verbose "SOURCE GPO EXISTS [$SourceGPOSingle]"
-    
+
                 DownTheRabbitHole -rootPaths $rootPaths -SourceGPO $SourceGPOSingle -DestinationGPO $DestinationGPO -Verbose
-    
+
                 Get-GPOReport -Name $SourceGPOSingle -ReportType Xml -Path "$pwd\report_$($SourceGPOSingle).xml"
                 $nonRegistry = Select-String -Path "$pwd\report_$($SourceGPOSingle).xml" -Pattern "<Extension " -SimpleMatch | Where-Object {$_ -notlike "*RegistrySettings*"}
                 If (($nonRegistry | Measure-Object).Count -gt 0) {
                     Write-Warning "SOURCE GPO CONTAINS NON-REGISTRY SETTINGS FOR MANUAL COPY [$SourceGPOSingle]"
                     Write-Warning ($nonRegistry -join "`r`n")
                 }
-    
+
             } Else {
                 Write-Warning "SOURCE GPO DOES NOT EXIST [$SourceGPOSingle]"
             }
-    
+
             $ProgressCounter++
         }
-    
+
         Write-Progress -Activity "Copying GPO settings to: $DestinationGPO" -Completed -Status "Complete"
-    
+
     }
-    
+
     <#########################################################################sdg#>
 
     Export-ModuleMember -Function Get-GPLink
