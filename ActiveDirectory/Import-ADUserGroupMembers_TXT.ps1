@@ -56,7 +56,9 @@
         #try removing mi if provided
         try{
             $fn = $fn.Split(' ')[0];
-        }catch{}
+        }catch{
+            Write-Error "Unable to strip out middle initial" -ErrorAction Continue
+        }
 
         #concat the names back together to be fn _ ln
         $User = "$fn $ln";
