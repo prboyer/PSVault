@@ -1,18 +1,18 @@
-function New-PPTFromFiles {
+﻿function New-PPTFromFiles {
     <#
     .SYNOPSIS
     Quickly create a PowerPoint presentation from a folder full of files (like screenshots)
-    
+
     .DESCRIPTION
     After validating that folder path exists, and that the extension has been passed in the appropriate format, get the contents
-    of the directory and copy/paste each file into a new PowerPoint presentation. 
-    
+    of the directory and copy/paste each file into a new PowerPoint presentation.
+
     .PARAMETER Folder
     Path to folder containing files to import into the PowerPoint presentation
-    
+
     .PARAMETER FileType
     String to specify the extension of files in the folder to import with or without the leading '.'
-    
+
     .EXAMPLE
     New-PPTFromFiles -Folder "C:\Temp\Pictures" -FileType ".png"
 
@@ -21,7 +21,7 @@ function New-PPTFromFiles {
 
     .LINK
     https://stackoverflow.com/questions/33847434/how-can-i-create-a-new-powerpoint-presentation-with-powershell/33850587
-    
+
     .NOTES
     Paul Boyer 2-17-21
     #>
@@ -36,7 +36,7 @@ function New-PPTFromFiles {
         [String]
         $FileType
     )
-    # Add required types and assemblies 
+    # Add required types and assemblies
     Add-type -AssemblyName office
     Add-type -AssemblyName microsoft.office.interop.powerpoint
     [Reflection.Assembly]::LoadWithPartialName('System.Drawing') | Out-Null;
@@ -68,17 +68,17 @@ function New-PPTFromFiles {
     Get-ChildItem -Path $Folder -File -Filter $Filter | Sort-Object -Property LastWriteTime | ForEach-Object{
         # add slide
         $slide = $presentation.slides.add(1,$layout)
-        
+
         # get the file, and copy to the clipboard
         $file = get-item -Path $_.FullName
         $img = [System.Drawing.Image]::Fromfile($file);
         [System.Windows.Forms.Clipboard]::SetImage($img);
-        
+
         Start-Sleep -Seconds 1
-        
+
         # paste the file into the powerpoint presentation
         $shape = $Slide.Shapes.PasteSpecial($ppPasteShape,$false,$null,$null,$null,$null)
-    
+
         Start-Sleep -Seconds 1
     }
 

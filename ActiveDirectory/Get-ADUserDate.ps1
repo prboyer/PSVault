@@ -1,10 +1,10 @@
-<#
+﻿<#
 .SYNOPSIS
 Script for determining when AD user accounts were created.
 
 .DESCRIPTION
 The script will either return a simple query for when a single user account was created, or a report
-of what user accounts were created in the last X days. 
+of what user accounts were created in the last X days.
 
 .PARAMETER Username
 String representing the username of the user account to query. The script will return the date created.
@@ -19,7 +19,7 @@ Int number of days prior to today that the script should evaluate
 Path to where the resulting file should be saved
 
 .EXAMPLE
-Get-ADUserDate -Days 30 
+Get-ADUserDate -Days 30
 
 .EXAMPLE
 Get-ADUserDate -Days 30 -FilePath C:\Results.txt
@@ -55,17 +55,17 @@ function Get-ADUserDate {
     # process a report of all users created since $Date
     if($Date -ne $null -or $Days -ne 0){
         if ($Days -ne 0) {
-           [DateTime]$CreateDate = $(Get-Date).AddDays([int]$Days*-1) 
+           [DateTime]$CreateDate = $(Get-Date).AddDays([int]$Days*-1)
         }else{
             [DateTime]$CreateDate = $Date
         }
 
 
-        # Get all AD users created within the last X days (specified by -Date). Select whencreated, name, samaccountname 
-        $A = Get-ADUser -Filter {whenCreated -ge $CreateDate} -Properties whenCreated | Select-Object Name, SamAccountName, whenCreated 
-        
-        # Generate a custom PSObject so that the formatting of the date can be shortened 
-        $B = $A | %{
+        # Get all AD users created within the last X days (specified by -Date). Select whencreated, name, samaccountname
+        $A = Get-ADUser -Filter {whenCreated -ge $CreateDate} -Properties whenCreated | Select-Object Name, SamAccountName, whenCreated
+
+        # Generate a custom PSObject so that the formatting of the date can be shortened
+        $B = $A | ForEach-Object{
             [PSCustomObject]@{
                 Name = $_.Name
                 SamAccountName = $_.SamAccountName

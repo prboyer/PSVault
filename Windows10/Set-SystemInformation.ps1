@@ -2,34 +2,34 @@
     <#
     .SYNOPSIS
     Script to update the manufacturer information from the System Control Panel page
-    
+
     .DESCRIPTION
     The OEM (Original Equipment Manufacturer) support information in Windows includes the logo, manufacturer, model, support hours, support phone, and support URL for your PC
-    
+
     .PARAMETER LogoFile
     String filepath to *.bmp logo file
-    
+
     .PARAMETER Manufacturer
-    String name of the manufacturer to override the value from WMI     
+    String name of the manufacturer to override the value from WMI
 
     .PARAMETER Model
-    String name of the model to override the value from WMI     
-    
+    String name of the model to override the value from WMI
+
     .PARAMETER SupportHours
     String indicating the help desk's support hours
 
     .PARAMETER SupportPhone
     String indicating the help desk's phone number
-    
+
     .PARAMETER SupportURL
     String indicating the help desk's website or web portal
-    
+
     .EXAMPLE
     Set-SystemInformation -LogoFile "C:\ProgramData\Contoso\Assets\logo.bmp" -Model "Surface Pro 7" -Manufacturer "Microsoft"
 
     .LINK
     https://www.tenforums.com/tutorials/76570-customize-oem-support-information-windows-10-a.html
-    
+
     .NOTES
     General notes
     #>
@@ -53,7 +53,7 @@
         [String]
         $SupportURL
     )
-    
+
     # Set the logo on the support page
     if(($LogoFile -ne "") -and (Test-Path $LogoFile) -and ([IO.Path]::GetExtension($LogoFile) -eq ".bmp")){
         New-ItemProperty -Force -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "Logo" -Value $LogoFile
@@ -70,7 +70,7 @@
     }
 
     # Actually set the values in the registry
-    New-ItemProperty -Force -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "Model" -Value $_model 
+    New-ItemProperty -Force -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "Model" -Value $_model
     New-ItemProperty -Force -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" -Name "Manufacturer" -Value $_manufacturer
 
     #Verify that support information has been provided, then set the information

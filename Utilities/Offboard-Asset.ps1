@@ -2,25 +2,25 @@
     <#
     .SYNOPSIS
     Script to automate the removal of assets from Active Directory and SCCM
-    
+
     .DESCRIPTION
     Script takes in a list of computer names and removes them from both Active Directory and SCCM. The default behavior is to confirm execution of the removal action, but this can be overridden with the -NoConfirm parameter
-    
+
     .PARAMETER ComputerName
     String array of computer names
-    
+
     .PARAMETER NoConfirm
     Switch parameter that tells the script to proceed with removing devices from AD and SCCM without user confirmation
-    
+
     .PARAMETER SiteCode
     SCCM Site Code
-    
+
     .PARAMETER SiteServer
     SCCM Site Server
-    
+
     .EXAMPLE
     Offboard-Asset -ComputerName computer01.contoso.com
-    
+
     .NOTES
         Author: Paul Boyer
         Date:   4-21-21
@@ -56,12 +56,12 @@
         }
 
     ## CONNECT TO SCCM ##
-        # Uncomment the line below if running in an environment where script signing is 
+        # Uncomment the line below if running in an environment where script signing is
         # required.
         #Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process
 
         # Site configuration
-        $SiteCode = $SCCM_SITECODE # Site code 
+        $SiteCode = $SCCM_SITECODE # Site code
         $ProviderMachineName = $SCCM_SERVER # SMS Provider machine name
 
         # Customizations
@@ -69,13 +69,13 @@
         #$initParams.Add("Verbose", $true) # Uncomment this line to enable verbose logging
         #$initParams.Add("ErrorAction", "Stop") # Uncomment this line to stop the script on any errors
 
-        # Import the ConfigurationManager.psd1 module 
-        if((Get-Module ConfigurationManager) -eq $null) {
-            Import-Module "$($ENV:SMS_ADMIN_UI_PATH)\..\ConfigurationManager.psd1" @initParams 
+        # Import the ConfigurationManager.psd1 module
+        if($null -eq (Get-Module ConfigurationManager)) {
+            Import-Module "$($ENV:SMS_ADMIN_UI_PATH)\..\ConfigurationManager.psd1" @initParams
         }
 
         # Connect to the site's drive if it is not already present
-        if((Get-PSDrive -Name $SiteCode -PSProvider CMSite -ErrorAction SilentlyContinue) -eq $null) {
+        if($null -eq (Get-PSDrive -Name $SiteCode -PSProvider CMSite -ErrorAction SilentlyContinue)) {
             New-PSDrive -Name $SiteCode -PSProvider CMSite -Root $ProviderMachineName @initParams
         }
 
@@ -84,10 +84,10 @@
 
         # Set the current location to be the site code.
         Set-Location "$($SiteCode):\" @initParams
-    
+
     foreach($Computer in $ComputerName){
         # Remove Device from Active Directory
-        Write-Host "`nRemove Computer from Active Directory`n"        
+        Write-Host "`nRemove Computer from Active Directory`n"
         try {
             if ($NoConfirm) {
                 # Removed the computer after finding in AD, and don't ask user to confirm action
@@ -108,7 +108,7 @@
 
         try {
             [Object]$device = Get-CMDevice -Name $Computer
-            
+
             # Try to get the device from SCCM. If null, then throw an exception
             if ($null -eq $device) {
                 throw [System.ArgumentNullException]::new($("Unable to find computer {0} in SCCM Database" -f $Computer.ToUpper()))
@@ -119,7 +119,7 @@
                 }else{
                     Remove-CMDevice $Computer -Confirm
                 }
-                
+
                 Write-Host ("{0} removed from SCCM" -f $Computer.ToUpper()) -ForegroundColor Green
             }
         }

@@ -1,19 +1,19 @@
-function Enable-InternetExplorer {
+﻿function Enable-InternetExplorer {
     <#
     .SYNOPSIS
     Short script to add back Internet Explorer after it is not longer functioning.
-    
+
     .DESCRIPTION
     Script runs DISM with a path to Windows setup files and repairs the package for Internet Explorer.
-    
+
     .PARAMETER SetupFiles
     Path to either a Windows 10 ISO, or an extracted directory of setup files. This should be a path to the root.
-    
+
     .EXAMPLE
     Enable-InternetExplorer -SetupFiles C:\Win10Setup.iso
-    
+
     .NOTES
-   
+
     #>
     param (
         [Parameter(Mandatory=$true)]
@@ -30,7 +30,7 @@ function Enable-InternetExplorer {
 
     # flag to indicate if disk image needs to be dismounted at end of script
     [bool]$Flag = $false;
-    
+
     # check if the provided path to the setup files is to an image file
     if([IO.Path]::GetExtension($SetupFile) -eq ".iso"){
         try{
@@ -53,5 +53,5 @@ function Enable-InternetExplorer {
     if($Flag){
         Dismount-DiskImage -ImagePath $SetupFiles
     }
-    
+
 }

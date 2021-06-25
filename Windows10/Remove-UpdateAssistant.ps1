@@ -1,4 +1,4 @@
-function Remove-UpdateAssistant {
+﻿function Remove-UpdateAssistant {
 <#
 .SYNOPSIS
 Script to remove the Windows 10 Upgrade Assistant
@@ -25,7 +25,7 @@ Paul Boyer 2-11-2021
         $Reboot
     )
 
-    # Check to see if the Windows 10 upgrade folder exists on the system drive 
+    # Check to see if the Windows 10 upgrade folder exists on the system drive
     if(Test-Path -Path "$env:SystemDrive\Windows10Upgrade"){
         try{
             # Try to remove the upgrade assistant application
@@ -42,12 +42,12 @@ Paul Boyer 2-11-2021
     }else {
         Write-Error "Upgrade app not installed, already removed, or not found."
     }
-    
-    # If the Reboot parameter is specified, then reboot the machine. 
+
+    # If the Reboot parameter is specified, then reboot the machine.
     if($Reboot){
         & shutdown.exe /r /t 30 /C "Windows 10 Update Assistant Cleanup"
     }
-    
+
 }
 
 

@@ -1,28 +1,28 @@
-function Disable-Users {
+﻿function Disable-Users {
   <#
   .SYNOPSIS
   Script to disable AD users without deleting their accounts
-  
+
   .DESCRIPTION
-  Script takes in a String[] of usernames and disables each user. Optionally, the script can move users to an new OU 
-  
+  Script takes in a String[] of usernames and disables each user. Optionally, the script can move users to an new OU
+
   .PARAMETER TargetOU
   An [Microsoft.ActiveDirectory.Management.ADOrganizationalUnit] object representing the new OU that disabled users should be moved to
-  
+
   .PARAMETER Usernames
   String array of usernames that will be disabled by the script
 
   .PARAMETER LogFile
   String path to the log file that results should be saved to.
-  
+
   .EXAMPLE
   Disable-Users -Usernames "bgates" -LogFile "C:\Log.txt"
-  
+
   .NOTES
- 
+
   #>
-  #requires -Modules ActiveDirectory 
-  
+  #requires -Modules ActiveDirectory
+
     [CmdletBinding()]
   param (
       [Parameter()]
@@ -51,7 +51,7 @@ function Disable-Users {
             # T the processs to both console and log
             $User | Disable-ADAccount -PassThru | Select-Object Name, SamAccountName, Enabled, SID | Format-Table -AutoSize | Tee-Object -FilePath $LogFile -Append
         }else{
-            # othewise, disable the users and just write to the console 
+            # othewise, disable the users and just write to the console
             $User | Disable-ADAccount -PassThru | Select-Object Name, SamAccountName, Enabled, SID | Format-Table -AutoSize
         }
 

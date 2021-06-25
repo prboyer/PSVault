@@ -1,23 +1,23 @@
-function Enable-WindowsPhotoViewer {
+﻿function Enable-WindowsPhotoViewer {
     <#
     .SYNOPSIS
     A simple script to re-enable the legacy Windows Photo Viewer
-    
+
     .DESCRIPTION
     The script exports pre-formatted text to a registry key that is then merged with the system registry by the script (unless parameter is passed to prevent merging)
-    
+
     .PARAMETER Path
     Alternate location that the registry key will be exported to. Otherwise $env:TEMP is used
-    
+
     .PARAMETER NoAdd
     Switch parameter that prevents the key from being merged into the registry
-    
+
     .EXAMPLE
     Enable-WindowsPhotoViewer -NoAdd
-    
+
     .LINK
     http://www.tenforums.com/tutorials/14312-windows-photo-viewer-restore-windows-10-a.html
-    
+
     .NOTES
     Paul Boyer 2-22-21
     #>
@@ -255,7 +255,7 @@ Windows Registry Editor Version 5.00
     # path where the registry key will be exported. If -Path is passed, it overrides the default location
     [String]$exportDir = $env:TEMP
     if ($Path -ne "") {
-        [String]$exportDir = $Path; 
+        [String]$exportDir = $Path;
     }
 
     # export the registry key

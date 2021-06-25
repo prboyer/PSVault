@@ -1,23 +1,23 @@
-function Build-MECMComputerReport{
+﻿function Build-MECMComputerReport{
     <#
     .SYNOPSIS
     Script that extracts computer information and user information from all assets in a given MECM collection
 
     .DESCRIPTION
     Using both MECM and ActiveDirectory data mining, generate a report of computers in a given collection and correlate corresponding user information.
-    
+
     .PARAMETER Path
     The path where a csv report should be saved
 
     .PARAMETER ComputerNames
     A list of computer names to run the report against
-    
+
     .PARAMETER CollectionName
-    The name of the device collection in MECM to report on. Accepts wildcards. 
-    
+    The name of the device collection in MECM to report on. Accepts wildcards.
+
     .PARAMETER SiteCode
     The MECM site code which the script should be run against.
-    
+
     .PARAMETER ProviderMachineName
     The MECM endpoint that the script should be run against, typically a DP or another MECM server.
 
@@ -26,10 +26,10 @@ function Build-MECMComputerReport{
 
     .OUTPUTS
     A CSV report with the date run appended. "MECM_Report-$(Get-Date -Format FileDate).csv"
-    
+
     .EXAMPLE
     Build-MECMComputerReport -CollectionName "Windows 10" -Path "C:\Temp" -SiteCode "ABC" -ProviderMachineName "mecm-server.abc.com"
-    
+
     .NOTES
 
     #>
@@ -56,9 +56,9 @@ function Build-MECMComputerReport{
         $ProviderMachineName
     )
     #Requires -Module ActiveDirectory
-    
+
     # Site configuration
-    # $SiteCode = "SSC" # Site code 
+    # $SiteCode = "SSC" # Site code
     # $ProviderMachineName = "mendez.ads.ssc.wisc.edu" # SMS Provider machine name
 
     # Customizations
@@ -68,13 +68,13 @@ function Build-MECMComputerReport{
 
     # Do not change anything below this line
 
-    # Import the ConfigurationManager.psd1 module 
-    if((Get-Module ConfigurationManager) -eq $null) {
-        Import-Module "$($ENV:SMS_ADMIN_UI_PATH)\..\ConfigurationManager.psd1" @initParams 
+    # Import the ConfigurationManager.psd1 module
+    if($null -eq (Get-Module ConfigurationManager)) {
+        Import-Module "$($ENV:SMS_ADMIN_UI_PATH)\..\ConfigurationManager.psd1" @initParams
     }
 
     # Connect to the site's drive if it is not already present
-    if((Get-PSDrive -Name $SiteCode -PSProvider CMSite -ErrorAction SilentlyContinue) -eq $null) {
+    if($null -eq (Get-PSDrive -Name $SiteCode -PSProvider CMSite -ErrorAction SilentlyContinue)) {
         New-PSDrive -Name $SiteCode -PSProvider CMSite -Root $ProviderMachineName @initParams
     }
 
@@ -83,7 +83,7 @@ function Build-MECMComputerReport{
 
     # Set the current location to be the site code.
     Set-Location "$($SiteCode):\" @initParams
-    
+
     ########## End Site Configuration ###########
     Import-Module ActiveDirectory
 
@@ -91,7 +91,7 @@ function Build-MECMComputerReport{
     [Object[]]$script:ObjectArray = @();
 
     <# ComputerNames List #>
-    # generate a report from a list of computer names rather than an existing colleciton in MECM. 
+    # generate a report from a list of computer names rather than an existing colleciton in MECM.
     if ($null -ne $ComputerNames) {
         $ComputerNames | ForEach-Object{
             Get-CMDevice -Name $_ | ForEach-Object{
@@ -103,14 +103,14 @@ function Build-MECMComputerReport{
                     PrimaryUser = $_.PrimaryUser
                     CurrentUser = $_.currentlogonuser
                     LastUser = $_.lastlogonuser
-                    FirstName = $(Get-ADUser $_.lastlogonuser -ErrorAction SilentlyContinue).givenname 
+                    FirstName = $(Get-ADUser $_.lastlogonuser -ErrorAction SilentlyContinue).givenname
                     LastName = $(Get-ADUSer $_.lastlogonuser -ErrorAction SilentlyContinue).surname
                     Email = $(Get-ADUser $_.lastlogonuser -Properties emailaddress -ErrorAction SilentlyContinue).emailaddress
                 }
                 $ObjectArray += $Object;
             }
         }
-        
+
     }else{
         <# MECM Collection #>
             # Try to get the CMCollection by name, error handle if not found
@@ -133,7 +133,7 @@ function Build-MECMComputerReport{
                     PrimaryUser = $_.PrimaryUser
                     CurrentUser = $_.currentlogonuser
                     LastUser = $_.lastlogonuser
-                    FirstName = $(Get-ADUser $_.lastlogonuser -ErrorAction SilentlyContinue).givenname 
+                    FirstName = $(Get-ADUser $_.lastlogonuser -ErrorAction SilentlyContinue).givenname
                     LastName = $(Get-ADUSer $_.lastlogonuser -ErrorAction SilentlyContinue).surname
                     Email = $(Get-ADUser $_.lastlogonuser -Properties emailaddress -ErrorAction SilentlyContinue).emailaddress
                 }
@@ -143,7 +143,7 @@ function Build-MECMComputerReport{
             Write-Error -Message "Unable to proceed. Null value passed to -Collection parameter." -Category InvalidArgument -ErrorAction Stop
         }
     }
-    
+
     # Export the results of the report to a CSV file and also display to the console
     $ObjectArray | Export-Csv -NoTypeInformation -Path "$Path\MECM_Report-$(Get-Date -Format FileDate).csv"
     $ObjectArray | Format-Table -AutoSize

@@ -1,11 +1,11 @@
-function Remove-QuickAssist{
+﻿function Remove-QuickAssist{
     <#
     .SYNOPSIS
     Simple function wrapper for removing Windows QuickAssist
-    
+
     .DESCRIPTION
     Removes the Windows Quick Assist app using the Remove-WindowsCapability cmdlet
-    
+
     .EXAMPLE
     Remove-QuickAssist
 
@@ -15,5 +15,5 @@ function Remove-QuickAssist{
     #>
 
     Remove-WindowsCapability -Online -Name "App.Support.QuickAssist*" -Verbose
-    
+
 }

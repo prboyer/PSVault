@@ -1,21 +1,21 @@
-function Compile-ModuleDocs {
+﻿function Compile-ModuleDocs {
     <#
     .SYNOPSIS
     Script that updates the README file on the front page.
-    
+
     .DESCRIPTION
     Script pulls data from the individual README files in each folder and consolidates them into one README for the front page. Script
     also changes the paths in the consolidated file so that they can be resolved from the front page.
-    
+
     .PARAMETER Path
-    Path to working directory containing sub-folders with scripts and README files. 
+    Path to working directory containing sub-folders with scripts and README files.
 
     .PARAMETER OutFile
     Path to where the consolidated file should be saved.
-    
+
     .EXAMPLE
    Compile-ModuleDocs -Path C:\Scripts -OutFile C:\Scripts\Readme.md
-    
+
     .NOTES
         Author: Paul Boyer
         Date: 5-12-21
@@ -27,7 +27,7 @@ function Compile-ModuleDocs {
         $Path,
         [Parameter(Mandatory=$true)]
         [ValidateScript({
-            # Validation script requires that a file path be passed and it must be a MD file. 
+            # Validation script requires that a file path be passed and it must be a MD file.
             if(($_ -ne "") -and ([System.IO.Path]::GetExtension($_) -eq ".md")){
                 return $true;
             }else{
@@ -45,8 +45,8 @@ function Compile-ModuleDocs {
 
             # The description immediately following the title
             [String]$Description = "A Refined Collection of PowerShell Scripts"
-            
-            # HTML code for adding in the image and PS Script Analyzer status 
+
+            # HTML code for adding in the image and PS Script Analyzer status
             [String]$HTMLCode = @'
 
 <p align="center">
@@ -57,11 +57,11 @@ function Compile-ModuleDocs {
 '@
         <# Variable that holds the contents of each individual README file #>
             [String]$CompiledData
-    
+
     <# Traverse through each folder in -Path and find the README file. Then copy its contents to the consolidated file#>
         # Get a directory listing of all folders in $Path
         [Object[]]$Directories = Get-ChildItem -Path $Path -Directory
-        
+
         # For each directory, get the readme file and do some string manipulation
         foreach ($D in $Directories) {
             $D
@@ -100,7 +100,7 @@ function Compile-ModuleDocs {
 
                     # Add a <hr> between modules
                     $CompiledData += "`n<hr>`n"
-                }    
+                }
            }catch{
                # Throw a non-terminating warning if a Readme file cannot be located
                Write-Warning -Message $("Unable to resolve path to README file in {0}" -f $D)

@@ -1,4 +1,4 @@
-function Enable-AppsPanel {
+﻿function Enable-AppsPanel {
 <#
 .SYNOPSIS
 Quickly resolve the Adobe Creative Cloud Desktop app displaying a "You don't have access to manage apps" message
@@ -18,10 +18,10 @@ Changes the behavior of the DB file manipulation. Rather than appending a ".old"
 Enable-AppsPanel -Disable
 
 .EXAMPLE
-Enable-AppsPanel -NoRevert 
+Enable-AppsPanel -NoRevert
 
 .LINK
-https://helpx.adobe.com/uk/creative-cloud/kb/apps-panel-reflect-creative-cloud.html 
+https://helpx.adobe.com/uk/creative-cloud/kb/apps-panel-reflect-creative-cloud.html
 
 .LINK
 https://kb.wisc.edu/page.php?id=99743
@@ -41,17 +41,17 @@ Script written by Paul B 10-16-2020
 
     # Check the version of CC installed.
     [double]$AdobeVersion = $((Get-Package -IncludeWindowsInstaller -Name "Adobe Creative Cloud").Version[0,1,2]) -join ""
-    
+
     # If the version installed is <= 4.9 then proceed with modifying the XML config file.
     if ($AdobeVersion -le 4.9) {
-    
+
         # Path to the Adobe CC launch pad / apps panel config file
         [String]$ADOBECC_CONFIG = "${env:CommonProgramFiles(x86)}\Adobe\OOBE\Configs\ServiceConfig.xml"
-        
+
         #Test the path to confirm the XML file exists in the path provided
         if(Test-Path -Path $ADOBECC_CONFIG){
 
-            # String constants for either enabling or disabling access to the apps panel.        
+            # String constants for either enabling or disabling access to the apps panel.
             [String]$DISABLE = "<visible>false</visible>"
             [String]$ENABLE = "<visible>true</visible>"
 
@@ -72,8 +72,8 @@ Script written by Paul B 10-16-2020
             $content = Get-Content $ADOBECC_CONFIG -ErrorAction SilentlyContinue
             $content = $content -replace $target, $source
             Set-Content -Value $content -Path $ADOBECC_CONFIG
-        
-            # Error handling for if the path to the config file is not viable. 
+
+            # Error handling for if the path to the config file is not viable.
         }else{
                 Write-Error -Message "Unable to locate the AdobeCC config file at the path provided." -ErrorAction Stop
                 break;
@@ -81,13 +81,13 @@ Script written by Paul B 10-16-2020
     }
     # If the version installed is newer than 4.9, the reset the apps panel by forcing generation of a new DB file.
     else{
-        # Path to Adobe CC DB file on newer installations. 
+        # Path to Adobe CC DB file on newer installations.
         [String]$ADOBECC_DB = "$env:LOCALAPPDATA\Adobe\OOBE\opm.db"
 
         # Close any running instances of Creative Cloud
-        Get-Process -Name "*creative cloud*" -ErrorAction SilentlyContinue | %{Stop-Process -Id $_.ID -Force -ErrorAction SilentlyContinue}
+        Get-Process -Name "*creative cloud*" -ErrorAction SilentlyContinue | ForEach-Object{Stop-Process -Id $_.ID -Force -ErrorAction SilentlyContinue}
 
-        # Test path to DB file. If present, then rename (or delete) it. 
+        # Test path to DB file. If present, then rename (or delete) it.
         if (Test-Path -Path $ADOBECC_DB ) {
             if ($NoRevert) {
                 Remove-Item -Path $ADOBECC_DB -Force
@@ -96,7 +96,7 @@ Script written by Paul B 10-16-2020
                 Rename-Item -Path $ADOBECC_DB -NewName $(Get-Item -Path $ADOBECC_DB).Name.Insert($(Get-Item -Path $ADOBECC_DB).Name.Length,".old")
             }
         }
-        # Error handling for if the path to the database file is not viable. 
+        # Error handling for if the path to the database file is not viable.
         else{
             Write-Error -Message "Unable to locate the AdobeCC database file at the path provided." -ErrorAction Stop
             break;

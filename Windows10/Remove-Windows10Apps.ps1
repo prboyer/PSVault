@@ -1,17 +1,17 @@
-function Remove-Windows10Apps {
+﻿function Remove-Windows10Apps {
     <#
     .SYNOPSIS
     Script for removing Windows 10 metro apps.
-    
+
     .DESCRIPTION
     Provided an update version or a specific AppList name, the script will remove applications that prevent the system from being syspreped for imaging.
-    
+
     .PARAMETER Version
     Integer parameter representing the feature version of the OS. Check "winver" for the version number.
-    
+
     .PARAMETER AppListName
-    String parameter representing the name of a specific AppList to remove from the system    
-    
+    String parameter representing the name of a specific AppList to remove from the system
+
     .EXAMPLE
     Remove-Windows10Apps -Version 1909
 
@@ -28,11 +28,11 @@ function Remove-Windows10Apps {
         [string]
         $AppListName
     )
-    
+
     ## DEFINE APP LISTS ##
     # Define an app list for a specific version of Windows 10 to be processed
 
-        # AllApps list is a compilation list of apps that have been removed from Windows 10 at some point 
+        # AllApps list is a compilation list of apps that have been removed from Windows 10 at some point
         [String[]]$AllApps = @("3dviewer","alarms","bingfinance","bingnews","bingsports","bingweather","camera",
         "candycrushsodasaga","codewriter","commsphone","communications","desktopappinstaller","duolingo",
         "eclipse","farmville2countryescape","feedback","gethelp","getstarted","maps","messaging",
@@ -48,7 +48,7 @@ function Remove-Windows10Apps {
         "feedback","gethelp","getstarted","maps","messaging","microsoft.webmediaextensions","officehub",
         "oneconnect","onenote","paint","paint","people","photos","photoshop","print3d","skype","solitaire",
         "soundrecorder","speedtest","sway","wallet","weather","xbox","xbox.tcui","zune");
-    
+
         # App list for packages that need to be removed to sysprep Windows 10 version 1809
         [String[]]$1809 = @("bingweather","bing","solitaire","oneconnect","people","skype","print3d","wallet","gethelp",
         "maps","getstarted","alarms","soundrecorder","camera","communications","feedback","photos","paint",
@@ -84,19 +84,19 @@ function Remove-Windows10Apps {
             [String[]]
             $AppList
         )
-        
+
         # Generate a random number to assign to the ID of Write-Process
         [int]$processID = Get-Random
 
         for ([int]$i = 0; $i -lt $AppList.Count; $i++) {
             # Write out the progress of the removal operations
-            Write-Progress -Activity "Remove Windows 10 Apps (Remove-Windows10Apps.ps1)" -Status $("Processing List: {0}" -f $(Get-Variable -Name AppList).Name) -CurrentOperation $("Removing {0}" -f $AppList[$i]) -PercentComplete $(($i / $AppList.Count)*100) -Id $processID 
-            
+            Write-Progress -Activity "Remove Windows 10 Apps (Remove-Windows10Apps.ps1)" -Status $("Processing List: {0}" -f $(Get-Variable -Name AppList).Name) -CurrentOperation $("Removing {0}" -f $AppList[$i]) -PercentComplete $(($i / $AppList.Count)*100) -Id $processID
+
             # Remove the app package from the system for all users
             try{
                 Get-AppxPackage -AllUsers -Name "*$AppList[$i]*" | Remove-AppxPackage -AllUsers -Verbose -ErrorAction Continue
             }catch{
-                Write-Error $("Unable to remove AppxPackage: {0} ; {1}" -f ($AppList[$i],$(Get-AppxPackage -Name "*$AppList[$i]*" -AllUsers))) 
+                Write-Error $("Unable to remove AppxPackage: {0} ; {1}" -f ($AppList[$i],$(Get-AppxPackage -Name "*$AppList[$i]*" -AllUsers)))
             }
         }
     }
