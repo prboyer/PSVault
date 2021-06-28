@@ -59,7 +59,7 @@ function Get-BitlockerKey{
 		$psObject | Add-Member -MemberType NoteProperty -Name ComputerName -Value $x.Name;
 		$psObject | Add-Member -MemberType NoteProperty -Name DistinguishedName -Value $x.DistinguishedName;
 		$psObject | Add-Member -MemberType NoteProperty -Name BitlockerPassword -Value (Get-ADObject -Filter {objectclass -eq 'msFVE-RecoveryInformation'} -SearchBase $x.DistinguishedName -Properties 'msFVE-RecoveryPassword' | Select-Object -Last 1).'msFVE-RecoveryPassword'
-		$o = $ObjectArray.Add($psObject)
+		$ObjectArray.Add($psObject) | Out-Null
 	}
 
 	# enter if block when there is a path specified for the results to be written to a CSV
