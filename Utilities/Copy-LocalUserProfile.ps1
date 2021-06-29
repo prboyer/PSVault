@@ -66,7 +66,7 @@ Copy-LocalUserProfile -SourcePath C:\Users\Paul -TargetPath C:\Users\NewPaul
     #[String[]]$DIRECTORIES = ('Contacts','Desktop','Documents','Downloads','Favorites','Music','Pictures','Videos') # This is currently not implemented
 
     # hard-coded extraneous directories that will never be included
-    [String[]]$EXTRANEOUS_DIRS = ("`"App Data`"",'AppData','.oracle_jre_usage','Links','Saved Games','Searches',"`"Local Settings`"","`"Application Data`"",'OneDrive','Box',"`"Box Sync`"",'Dropbox',"`"iCloud Drive`"")
+    [String[]]$EXTRANEOUS_DIRS = ("`"App Data`"",'AppData','.oracle_jre_usage','Links','Saved Games','Searches',"`"Local Settings`"","`"Application Data`"",'OneDrive','Box',"`"Box Sync`"",'Dropbox',"`"iCloud Drive`"","Windows","`"Program Files*`"","ProgramData","Intel","MSOCache","Recycle*")
 
     # hard-coded extraneous file types that will never be included
     [String[]]$EXTRANEOUS_FILES = ('.dat')
