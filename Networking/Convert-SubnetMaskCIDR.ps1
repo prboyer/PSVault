@@ -17,6 +17,8 @@ function Convert-SubnetMaskCIDR{
     .NOTES
         Author: Paul Boyer
         Date: 07-07-2021
+
+        https://docs.netgate.com/pfsense/en/latest/network/cidr.html
     #>
     [CmdletBinding()]
     param (
