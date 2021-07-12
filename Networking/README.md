@@ -6,11 +6,11 @@ Help Version: 1.0
 Locale: en-US
 ---
 
-# PSVaultNetworking Module
+# PSVault-Networking Module
 ## Description
 PowerShell scripts designed to help with Networking and Network related activities. 
 
-## PSVaultNetworking Cmdlets
+## PSVault-Networking Cmdlets
 ### [Convert-SubnetMaskCIDR](Docs/Convert-SubnetMaskCIDR.md)
 Converts a subnet mask to a CIDR notation
 
