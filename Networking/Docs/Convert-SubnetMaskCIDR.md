@@ -2,7 +2,7 @@
 Author: Paul Boyer
 external help file: PSVaultNetworking-help.xml
 Module Guid: 3bbe10b9-2f91-4569-9736-19d802abb414
-Module Name: PSVaultNetworking
+Module Name: PSVault-Networking
 online version:
 schema: 2.0.0
 ---
