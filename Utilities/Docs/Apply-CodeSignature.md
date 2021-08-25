@@ -1,8 +1,8 @@
 ---
 Author: Paul Boyer
-external help file: PSVault-Utilities-help.xml
-Module Guid: 8ce86084-d7bb-482e-9729-9d3048ff0c61
-Module Name: PSVault-Utilities
+external help file: psvault-Utilities-help.xml
+Module Guid: b2069617-078d-4bc3-bea3-3a5a2b8c694b
+Module Name: psvault-Utilities
 online version:
 schema: 2.0.0
 ---
@@ -19,7 +19,7 @@ Apply-CodeSignature [-FilePath] <String> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Automatically grab a code signing certificate from the current user certificate store (after checking that a code signing certificate exists). 
+Automatically grab a code signing certificate from the current user certificate store (after checking that a code signing certificate exists).
 Then append that certificate to the end of the code file.
 
 ## EXAMPLES

@@ -7,36 +7,41 @@ online version:
 schema: 2.0.0
 ---
 
-# Query-Users
+# Disable-VPN
 
 ## SYNOPSIS
-PowerShell implementation of quser.exe
+Disables a VPN connection given the appropriate environmental criteria is met.
 
 ## SYNTAX
 
 ```
-Query-Users [-ShowIndicator] [<CommonParameters>]
+Disable-VPN [-WiFi] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Returns a table of logged on users, and the logon time as a a workable PowerShell Custom Object \[System.Management.Automation.PSCustomObject\]
+Checks if the PC is connected to Ethernet, and if the IP address is on the right LAN.
+If both conditions are met, the VPN is disabled (optionally Wi-Fi turned off too).
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```
-Query-Users
+Disable-VPN
 ```
+
+Disables the VPN connection.
 
 ### EXAMPLE 2
 ```
-Query-Users -ShowIndicator
+Disable-VPN -WiFi
 ```
+
+Disables the VPN connection and turns off Wi-Fi.
 
 ## PARAMETERS
 
-### -ShowIndicator
-Switch parameter to print the logged on user indicator in the table
+### -WiFi
+Switch to disable Wi-Fi.
 
 ```yaml
 Type: SwitchParameter
@@ -58,11 +63,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 ## NOTES
-Paul Boyer 2-23-21
+Author: Paul Boyer
+Date: 07-07-2021
 
 ## RELATED LINKS
-
-[https://stackoverflow.com/questions/39212183/easier-way-to-parse-query-user-in-powershell](https://stackoverflow.com/questions/39212183/easier-way-to-parse-query-user-in-powershell)
-
-[https://ss64.com/nt/query-user.html](https://ss64.com/nt/query-user.html)
-

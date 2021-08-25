@@ -1,8 +1,8 @@
 ---
 Author: Paul Boyer
-external help file: PSVault-Utilities-help.xml
-Module Guid: 8ce86084-d7bb-482e-9729-9d3048ff0c61
-Module Name: PSVault-Utilities
+external help file: psvault-Utilities-help.xml
+Module Guid: b2069617-078d-4bc3-bea3-3a5a2b8c694b
+Module Name: psvault-Utilities
 online version:
 schema: 2.0.0
 ---
@@ -32,7 +32,7 @@ Import-FromFile [-Header <Int32>] [-Column <Int32>] -CSV <String> [<CommonParame
 
 ## DESCRIPTION
 The script will take in either at TXT, CSV, or Excel list and process it for use in Powershell.
-Using 
+Using
 parameters, headers can be stripped from the files as necessary.
 
 ## EXAMPLES

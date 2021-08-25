@@ -1,21 +1,20 @@
 ---
-Module Name: PSVault-Windows10
-Module Guid: ffa4f42e-7097-4055-ae7d-e2e8974c6758
+Module Name: psvault-Windows10
+Module Guid: 365380a9-8cef-470f-9396-9f684904d499
 Download Help Link: https://github.com/prboyer/PSVault
 Help Version: 1.4
 Locale: en-US
 ---
-# PSVault-Windows10 Module
+# psvault-Windows10 Module
 ## Description
 A Collection of Windows 10 related PowerShell scripts for automation and simplification of administrative tasks.
-## PSVault-Windows10 Cmdlets
+## psvault-Windows10 Cmdlets
 ### [Enable-InternetExplorer](Docs/Enable-InternetExplorer.md)
 Short script to add back Internet Explorer after it is not longer functioning.
 ### [Enable-Win10Feature](Docs/Enable-Win10Feature.md)
 Script to re-enable Windows 10 features that were removed due to / resulting from image capture issues.
 ### [Enable-WindowsPhotoViewer](Docs/Enable-WindowsPhotoViewer.md)
 A simple script to re-enable the legacy Windows Photo Viewer
-### [Get-ComputerSpecs](Docs/Get-ComputerSpecs.md)
 A PowerShell script to create a report of a machine's hardware.
 ### [Get-TLSVersion](Docs/Get-TLSVersion.md)
 Short script that returns the current TLS version settings
