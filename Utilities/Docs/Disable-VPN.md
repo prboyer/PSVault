@@ -1,7 +1,7 @@
 ---
 Author: Paul Boyer
 external help file: psvault-Utilities-help.xml
-Module Guid: b2069617-078d-4bc3-bea3-3a5a2b8c694b
+Module Guid: 0ba23f80-06be-4ccc-a218-05969d5e5b5e
 Module Name: psvault-Utilities
 online version:
 schema: 2.0.0

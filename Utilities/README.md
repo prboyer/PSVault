@@ -1,8 +1,8 @@
 ---
 Module Name: psvault-Utilities
-Module Guid: b2069617-078d-4bc3-bea3-3a5a2b8c694b
+Module Guid: 0ba23f80-06be-4ccc-a218-05969d5e5b5e
 Download Help Link: https://github.com/prboyer/PSVault
-Help Version: 1.2
+Help Version: 1.4
 Locale: en-US
 ---
 # psvault-Utilities Module
@@ -17,8 +17,6 @@ Quick script to compare file hashes of contents between two directories
 A custom cmdlet for quickly copying the contents of a user's profile to another location using ROBOCOPY.
 ### [Disable-VPN](Docs/Disable-VPN.md)
 Disables a VPN connection given the appropriate environmental criteria is met.
-### [Get-ComputerSpecs](Docs/Get-ComputerSpecs.md)
-A PowerShell script to create a report of a machine's hardware.
 ### [Import-FromFile](Docs/Import-FromFile.md)
 Script to standardize importing lists from files.
 ### [Query-Users](Docs/Query-Users.md)
