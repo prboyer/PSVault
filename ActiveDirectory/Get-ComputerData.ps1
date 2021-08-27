@@ -49,7 +49,14 @@
 
     # Gather information from ActiveDirectory based on the supplied computer name
     $output = Get-ADComputer -Filter 'Name -like $COMPUTER' -Properties sSCCHardwareModel, sSCCHardwareVendor, serialNumber, sSCCLastLoggedOnUser, sSCCLastLoggedOnUserDate, operatingSystem, operatingSystemVersion |
-        Select-Object Name, operatingSystemVersion, sSCCHardwareVendor, sSCCHardwareModel, serialnumber, sSCCLastLoggedOnUser, sSCCLastLoggedOnUserDate | Sort-Object -Property Name
+        Select-Object Name, 
+            @{n="OperatingSystem";e={$_.operatingSystem}},
+            @{n="Manufacturer"; e={$_.sSCCHardwareVendor}},
+            @{n="Model"; e={$_.sSCCHardwareModel}},
+            @{name='SerialNumber'; expression={$_.serialNumber.Trim('{}')}},
+            @{n="LastLoggedOnUser"; e={$_.sSCCLastLoggedOnUser}},
+            @{n="LastLoggedOnUserDate"; e={$_.sSCCLastLoggedOnUserDate}} `
+        | Sort-Object -Property Name
 
     $output | Format-Table
 
