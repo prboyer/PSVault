@@ -31,9 +31,8 @@
     #>
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory=$True)]
         [ValidateNotNullOrEmpty()]
-        [ValidateScript({if((Test-Path -Path $_ -IsValid -PathType Leaf) -and ([System.IO.File]::GetExtension($_.Path) -eq '.txt'))})]
+        [ValidateScript({if((Test-Path -Path $_ -IsValid -PathType Leaf) -and ([System.IO.File]::GetExtension($_.Path) -eq '.txt')){return $true}})]
         [String]
         $Path,
         [Parameter()]
@@ -44,7 +43,7 @@
         [String]$INFO;
 
     <# Process input for ComputerName. If no value is passed, then query the local machine by default.  #>
-        if($ComputerName -eq "" -or $ComputerName -eq $null){
+        if($ComputerName -eq "" -or $null -eq $ComputerName){
             $ComputerName = $env:COMPUTERNAME
         }
     
@@ -137,6 +136,8 @@
             Write-Information ($ComputerSystemTable | Select-Object Name,Domain,Manufacturer,Model,@{Name="SerialNumber";Expression={$SystemEnclosureTable.SerialNumber}},SystemSKUNumber,SystemType | Format-Table -AutoSize | Out-String) -InformationAction Continue -InformationVariable +INFO
 
         <# Write out the file to $Path #>
+        if ($Path -ne "") {
             Out-File -FilePath $Path -Force -InputObject $INFO -Append
+        }
     }
 }
