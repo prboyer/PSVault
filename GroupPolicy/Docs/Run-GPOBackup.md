@@ -1,8 +1,8 @@
 ---
 Author: Paul Boyer
-external help file: PSVault-GroupPolicy-help.xml
-Module Guid: a76e9225-49c7-4f1b-8a70-4cf1d86ef29b
-Module Name: PSVault-GroupPolicy
+external help file: psvault-GroupPolicy-help.xml
+Module Guid: 5dd6cc45-eba3-42c7-b88a-75181c5faa55
+Module Name: psvault-GroupPolicy
 online version:
 schema: 2.0.0
 ---
@@ -16,7 +16,7 @@ It leverages external modules/functions to create a robust backup of Group Polic
 ## SYNTAX
 
 ```
-Run-GPOBackup [-BackupFolder] <String> [[-Domain] <String>] [-BackupsToKeep] <Int32> [-SkipSysvol]
+Run-GPOBackup [-BackupFolder] <String> [[-Domain] <String>] [-BackupsToKeep] <Int32> [-SkipSysvol] [-NoZip]
  [<CommonParameters>]
 ```
 
@@ -88,6 +88,21 @@ Accept wildcard characters: False
 
 ### -SkipSysvol
 Parameter that tells the script to forego backing up the domain SYSVOL elements (PolicyDefiniitions, StarterGPOs, and scripts)
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -NoZip
+Parameter that tells the script to forego zipping the results into an archive
 
 ```yaml
 Type: SwitchParameter
