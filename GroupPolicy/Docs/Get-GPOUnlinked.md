@@ -1,7 +1,7 @@
 ---
 Author: Paul Boyer
 external help file: psvault-GroupPolicy-help.xml
-Module Guid: 5dd6cc45-eba3-42c7-b88a-75181c5faa55
+Module Guid: 4891e4cf-7930-44f4-b133-4a167147f456
 Module Name: psvault-GroupPolicy
 online version:
 schema: 2.0.0
