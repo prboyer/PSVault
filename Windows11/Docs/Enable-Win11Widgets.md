@@ -1,8 +1,8 @@
 ---
 Author: Paul Boyer
-external help file: PSVault-Windows11-help.xml
-Module Guid: af74b2ec-963d-4219-a6e6-1e561723f92f
-Module Name: PSVault-Windows11
+external help file: psvault-Windows11-help.xml
+Module Guid: 4b53e073-5b6c-4244-b7f7-0c33a961e74c
+Module Name: psvault-Windows11
 online version:
 schema: 2.0.0
 ---
