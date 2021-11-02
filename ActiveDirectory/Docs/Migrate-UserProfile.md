@@ -1,8 +1,8 @@
 ---
 Author: Paul Boyer
-external help file: PSVault-ActiveDirectory-help.xml
-Module Guid: e2c161b8-4a26-4110-8a3d-4546ef655d80
-Module Name: PSVault-ActiveDirectory
+external help file: psvault-ActiveDirectory-help.xml
+Module Guid: 66f0b290-a051-4b8e-be84-b0a280c74a50
+Module Name: psvault-ActiveDirectory
 online version:
 schema: 2.0.0
 ---
@@ -20,7 +20,7 @@ Migrate-UserProfile [-Usernames] <String[]> [-ProfileServer] <String> [<CommonPa
 ```
 
 ## DESCRIPTION
-For each username, check that the Windows 7 profile (V2) exists on the profile server. 
+For each username, check that the Windows 7 profile (V2) exists on the profile server.
 If it does, then copy the contents of the V2 profile to a new Windows 10 (V6) profile.
 
 ## EXAMPLES

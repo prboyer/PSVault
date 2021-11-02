@@ -1,14 +1,16 @@
 ---
-Module Name: PSVault-ActiveDirectory
-Module Guid: e2c161b8-4a26-4110-8a3d-4546ef655d80
+Module Name: psvault-ActiveDirectory
+Module Guid: 66f0b290-a051-4b8e-be84-b0a280c74a50
 Download Help Link: https://github.com/prboyer/PSVault
-Help Version: 1.2
+Help Version: 1.4
 Locale: en-US
 ---
-# PSVault-ActiveDirectory Module
+# psvault-ActiveDirectory Module
 ## Description
 A collection of Active Directory related PowerShell scripts.
-## PSVault-ActiveDirectory Cmdlets
+## psvault-ActiveDirectory Cmdlets
+### [Compare-ADGroupMembership](Docs/Compare-ADGroupMembership.md)
+A script for comparing two Active Directory users' group membership.
 ### [Copy-UserGroupMembership](Docs/Copy-UserGroupMembership.md)
 Copies security group memberships from one user to one or more users
 ### [Disable-Users](Docs/Disable-Users.md)
