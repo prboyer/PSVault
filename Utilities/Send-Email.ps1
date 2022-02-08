@@ -75,64 +75,81 @@ function Send-Email {
     https://docs.microsoft.com/en-us/dotnet/api/system.net.mail?view=net-5.0
 
     #>
+    [CmdletBinding(DefaultParameterSetName = "Default")]
     param (
-        [Parameter(Mandatory=$true)]
+        [Parameter(ParameterSetName="Default",Mandatory=$true)]
+        [Parameter(ParameterSetName="Authenticated", Mandatory=$true)]
         [ValidateNotNullOrEmpty()]
         [String[]]
         $To,
-        [Parameter(Mandatory=$false)]
+        [Parameter(ParameterSetName="Default",Mandatory=$false)]
+        [Parameter(ParameterSetName="Authenticated", Mandatory=$false)]
         [ValidateNotNullOrEmpty()]
         [String[]]
         $CC,
-        [Parameter(Mandatory=$false)]
+        [Parameter(ParameterSetName="Default",Mandatory=$false)]
+        [Parameter(ParameterSetName="Authenticated", Mandatory=$false)]
         [ValidateNotNullOrEmpty()]
         [String[]]
         $BCC,
-        [Parameter(Mandatory=$true)]
+        [Parameter(ParameterSetName="Default",Mandatory=$true)]
+        [Parameter(ParameterSetName="Authenticated", Mandatory=$true)]
         [ValidateNotNullOrEmpty()]
         [String]
         $Subject,
-        [Parameter(Mandatory=$false)]
+        [Parameter(ParameterSetName="Default",Mandatory=$false)]
+        [Parameter(ParameterSetName="Authenticated", Mandatory=$false)]
         [ValidateNotNullOrEmpty()]
         [String[]]
         $Attachments,
-        [Parameter(Mandatory=$true)]
+        [Parameter(ParameterSetName="Default",Mandatory=$true)]
+        [Parameter(ParameterSetName="Authenticated", Mandatory=$true)]
         [ValidateNotNullOrEmpty()]
         [String]
         $Body,
-        [Parameter(ParameterSetName="Authenticated", Mandatory=$false)]
+        [Parameter(ParameterSetName="Default",Mandatory=$false)]
+        [Parameter(ParameterSetName="Authenticated", Mandatory=$true)]
         [switch]
         $Authenticated,
+        [Parameter(ParameterSetName="Default",Mandatory=$false)]
         [Parameter(ParameterSetName="Authenticated", Mandatory=$true)]
         [ValidateNotNullOrEmpty()]
         [String]
         $Username,
+        [Parameter(ParameterSetName="Default",Mandatory=$false)]
         [Parameter(ParameterSetName="Authenticated", Mandatory=$true)]
         [SecureString]
         [ValidateNotNullOrEmpty()]
         $Password,
-        [Parameter()]
+        [Parameter(ParameterSetName="Default",Mandatory=$false)]
+        [Parameter(ParameterSetName="Authenticated", Mandatory=$false)]
         [switch]
         $HTML,
-        [Parameter(Mandatory=$true)]
+        [Parameter(ParameterSetName="Default",Mandatory=$true)]
+        [Parameter(ParameterSetName="Authenticated", Mandatory=$true)]
         [ValidateNotNullOrEmpty()]
         [String]
         $SMTPServer,
-        [Parameter()]
+        [Parameter(ParameterSetName="Default",Mandatory=$false)]
+        [Parameter(ParameterSetName="Authenticated", Mandatory=$false)]
         [int]
         $SMTPPort,
-        [Parameter()]
+        [Parameter(ParameterSetName="Default",Mandatory=$false)]
+        [Parameter(ParameterSetName="Authenticated", Mandatory=$false)]
         [switch]
         $EnableSSL,
-        [Parameter(Mandatory=$true)]
+        [Parameter(ParameterSetName="Default",Mandatory=$true)]
+        [Parameter(ParameterSetName="Authenticated", Mandatory=$true)]
         [ValidateNotNullOrEmpty()]
         [string]
         $FromAddress,
-        [Parameter(Mandatory=$true)]
+        [Parameter(ParameterSetName="Default",Mandatory=$true)]
+        [Parameter(ParameterSetName="Authenticated", Mandatory=$true)]
         [ValidateNotNullOrEmpty()]
         [string]
         $FromName,
-        [Parameter(Mandatory=$true)]
+        [Parameter(ParameterSetName="Default",Mandatory=$true)]
+        [Parameter(ParameterSetName="Authenticated", Mandatory=$true)]
         [ValidateNotNullOrEmpty()]
         [string]
         $ReplyToAddress
@@ -142,12 +159,13 @@ function Send-Email {
         # SMTP Server Configuration
         [String]$SMTP_SERVER = $SMTPServer
 
-        if ($SMTPPort -eq $null) {
-            [int]$SMTP_PORT = 25
-        } else {
-            [int]$SMTP_PORT = $SMTPPort
+        # SMTP Port Configuration. By default use port 25.
+        [int]$script:SMTP_PORT = 25;
+        if ($SMTPPort -ne 0) {
+             $SMTP_PORT= $SMTPPort
         }
 
+        # Determine if the email is authenticated
         if ($Authenticated) {
             [String]$USERNAME = $Username
             [String]$PASSWORD = $Password
